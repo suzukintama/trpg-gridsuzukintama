@@ -39,6 +39,11 @@ def finish(x, target_lufs=-16.0, ceiling=-1.0, loop=False, fin=0.0005, fout=0.03
     else:
         x = hp(x - np.mean(x, axis=0), 22, 2)
     if not loop:
+        # drop leading silence so the sound starts the moment it is triggered
+        env = np.max(np.abs(x), axis=1)
+        above = np.nonzero(env > np.max(env) * 10 ** (-50 / 20))[0]
+        if len(above):
+            x = x[max(0, above[0] - ns(0.004)):]
         x = fade(x, fin, fout)
     # trim trailing near-silence (keeps natural tails, drops digital zeros)
     if not loop:
