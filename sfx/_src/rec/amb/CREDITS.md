@@ -99,3 +99,19 @@
 ## License note
 
 CC0 dedications waive copyright to the extent allowed by law. No attribution is legally required for CC0, but we retain full provenance for transparency and community courtesy.
+
+### Campfire (`fire_camp`)
+
+- **Original:** Crackling Flames (loop)
+- **Author:** [NickTayloe](https://freesound.org/people/NickTayloe/)
+- **Freesound:** [#813328](https://freesound.org/people/NickTayloe/sounds/813328/)
+- **License:** [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Attribution text:** "Crackling Flames (loop)" by NickTayloe (https://freesound.org/people/NickTayloe/sounds/813328/) — CC0-1.0
+
+### Jet airliner (`jet_airliner`)
+
+- **Original:** Boeing 737 Lot ambiance .wav
+- **Author:** [fassaria](https://freesound.org/people/fassaria/)
+- **Freesound:** [#433005](https://freesound.org/people/fassaria/sounds/433005/)
+- **License:** [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/)
+- **Attribution text:** "Boeing 737 Lot ambiance .wav" by fassaria (https://freesound.org/people/fassaria/sounds/433005/) — CC0-1.0
