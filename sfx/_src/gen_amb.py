@@ -35,12 +35,12 @@ def slow_lfo(g, n, rate=0.1, depth=0.3):
     return 1 + depth * y / (np.std(y) + 1e-9)
 
 
-def to_loop(y):
+def to_loop(y, coherent=False):
     if y.ndim == 1:
         y = stereo(y)
     if len(y) < ns(T):
         y = np.pad(y, ((0, ns(T) - len(y)), (0, 0)))
-    return seamless(y[:ns(T)], L, X)
+    return seamless(y[:ns(T)], L, X, coherent)
 
 
 # ------------------------------------------------------------ beds & layers
@@ -330,7 +330,7 @@ def club_through_wall():
     out += stereo(hvac, 0)
     out = space(out, indoor_ir(g, 0.6), wet=0.5, width=0)
     # music is periodic in 60 s, so the crossfade is phase-coherent
-    export(D7 + 'クラブ_壁越し', to_loop(out), -19, loop=True, ogg=True)
+    export(D7 + 'クラブ_壁越し', to_loop(out, coherent=True), -19, loop=True, ogg=True)
 
 
 def server_room():

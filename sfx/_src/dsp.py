@@ -428,20 +428,25 @@ def limiter(x, ceiling_db=-1.0, lookahead=0.003, rel=0.06):
         cur = v if v < cur else v + (cur - v) * a_r
         g[i] = cur
     # attack smoothing to avoid clicks
-    g = signal.lfilter([1 - np.exp(-1 / (0.0007 * SR))], [1, -np.exp(-1 / (0.0007 * SR))], g)
+    a_s = np.exp(-1 / (0.0007 * SR))
+    g, _ = signal.lfilter([1 - a_s], [1, -a_s], g, zi=[g[0] * a_s])  # start settled, not from 0
     g = np.minimum(g, need * 1.0 + (1 - need) * 0)  # never exceed the needed gain
     y = (st.T * g).T
     y = np.clip(y, -ceil, ceil)
     return y if x.ndim == 2 else y[:, 0]
 
 
-def seamless(y, loop_len, xfade):
-    """y must be at least loop_len + xfade long. Returns loop_len samples that loop seamlessly."""
+def seamless(y, loop_len, xfade, coherent=False):
+    """y must be at least loop_len + xfade long. Returns loop_len samples that loop seamlessly.
+
+    coherent=True for material that repeats exactly with the loop period (music):
+    a linear crossfade then keeps the level flat instead of bumping it +3 dB.
+    """
     L, X = ns(loop_len), ns(xfade)
     out = y[:L].copy()
     t = np.linspace(0, 1, X)
-    fi = np.sin(t * np.pi / 2)
-    fo = np.cos(t * np.pi / 2)
+    fi = t if coherent else np.sin(t * np.pi / 2)
+    fo = 1 - t if coherent else np.cos(t * np.pi / 2)
     if y.ndim == 2:
         fi, fo = fi[:, None], fo[:, None]
     out[:X] = y[:X] * fi + y[L:L + X] * fo

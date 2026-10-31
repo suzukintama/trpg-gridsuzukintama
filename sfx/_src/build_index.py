@@ -88,7 +88,9 @@ def main():
     sections = []
     total = 0
     for c in cats:
-        files = sorted(f for f in os.listdir(os.path.join(ROOT, c)) if f.endswith('.mp3'))
+        order = list(NOTES)
+        files = sorted((f for f in os.listdir(os.path.join(ROOT, c)) if f.endswith('.mp3')),
+                       key=lambda f: (order.index(f[:-4]) if f[:-4] in order else len(order), f))
         rows = []
         for f in files:
             base = f[:-4]
