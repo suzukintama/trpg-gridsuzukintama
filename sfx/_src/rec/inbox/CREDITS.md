@@ -29,6 +29,49 @@ The firearm library comes from the OpenGameArt mirror of the Free Firearm Sound 
 | indoor_gun/indoor-gun-range-hk416-01.mp3 | Shooting_inside.aif | ikbenraar | https://freesound.org/people/ikbenraar/sounds/592264/ | CC0 1.0 | Freesound HQ preview (MP3), original 5.8s |
 | indoor_gun/indoor-gun-range-pistol-02.mp3 | Unknown Gun Firing | AugustSandberg | https://freesound.org/people/AugustSandberg/sounds/231247/ | CC0 1.0 | Freesound HQ preview (MP3), original 6.2s |
 | indoor_gun/indoor-gun-ar15-room-03.mp3 | AR15 Indoors (open windows) | modusmogulus | https://freesound.org/people/modusmogulus/sounds/815698/ | CC0 1.0 | Freesound HQ preview (MP3), original 17.0s |
+| bullet_metal/bullet-metal-steel-plate-01.mp3 | novasound400.wav | vumseplutten1709 | https://freesound.org/people/vumseplutten1709/sounds/372185/ | CC0 1.0 | Freesound HQ preview (MP3), original 30.3s |
+| bullet_flesh/bullet-flesh-punch-dough-01.mp3 | Punching Dough.flac | qubodup | https://freesound.org/people/qubodup/sounds/172489/ | CC0 1.0 | Freesound HQ preview (MP3), original 16.1s |
+| bullet_flesh/bullet-flesh-pound-meat-02.mp3 | Someone is pounding a piece of meat | H%C3%BClyeHangok | https://freesound.org/people/H%C3%BClyeHangok/sounds/871872/ | CC0 1.0 | Freesound HQ preview (MP3), original 22.2s |
+| bullet_flesh/bullet-flesh-meat-slap-03.mp3 | d0 Meatslap on Glass 3 | dav0r | https://freesound.org/people/dav0r/sounds/223965/ | CC0 1.0 | Freesound HQ preview (MP3), original 1.6s |
+| neon/neon-sign-buzz-01.mp3 | neon sign buzz hum frizzy mono3.flac | kyles | https://freesound.org/people/kyles/sounds/637729/ | CC0 1.0 | Freesound HQ preview (MP3), original 64.8s |
+| neon/neon-fluorescent-old-02.mp3 | Noisy old fluorescent light | Brokkolix | https://freesound.org/people/Brokkolix/sounds/676841/ | CC0 1.0 | Freesound HQ preview (MP3), original 75.9s |
+| neon/neon-fluorescent-warmup-03.mp3 | Fluro_on_warmup.wav | Soundmark_Melbourne | https://freesound.org/people/Soundmark_Melbourne/sounds/268220/ | CC0 1.0 | Freesound HQ preview (MP3), original 65.6s |
+| neon/neon-flicker-on-04.mp3 | Lights Flicker On.wav | mmaruska | https://freesound.org/people/mmaruska/sounds/232447/ | CC0 1.0 | Freesound HQ preview (MP3), original 15.0s |
+| spark/spark-35kv-sparks-01.mp3 | Electric Sparks.wav | kev_durr | https://freesound.org/people/kev_durr/sounds/396470/ | CC0 1.0 | Freesound HQ preview (MP3), original 11.8s |
+| spark/spark-130kv-short-02.mp3 | 130kV Power line short circuit | prophecy77 | https://freesound.org/people/prophecy77/sounds/728157/ | CC0 1.0 | Freesound HQ preview (MP3), original 8.4s |
+| spark/spark-jacobs-ladder-03.mp3 | Jacob's ladder.wav | jensfelger | https://freesound.org/people/jensfelger/sounds/367456/ | CC0 1.0 | Freesound HQ preview (MP3), original 22.3s |
+| spark/spark-arc-welding-04.mp3 | Arc Welding.wav | squashy555 | https://freesound.org/people/squashy555/sounds/256915/ | CC0 1.0 | Freesound HQ preview (MP3), original 19.7s |
+| servo/servo-stair-climber-01.mp3 | Servo noises | peridactyloptrix | https://freesound.org/people/peridactyloptrix/sounds/188821/ | CC0 1.0 | Freesound HQ preview (MP3), original 80.3s |
+| servo/servo-sg90-close-02.mp3 | Small servo (arduino) | gpag1 | https://freesound.org/people/gpag1/sounds/520514/ | CC0 1.0 | Freesound HQ preview (MP3), original 55.9s |
+| servo/servo-motor-03.mp3 | ServoMotor.wav | derjuli | https://freesound.org/people/derjuli/sounds/824121/ | CC0 1.0 | Freesound HQ preview (MP3), original 18.0s |
+| servo/servo-linear-actuator-04.mp3 | Motors_Linear_Actuator_Medium_Sized | SoundsofTheMachine | https://freesound.org/people/SoundsofTheMachine/sounds/804931/ | CC0 1.0 | Freesound HQ preview (MP3), original 12.7s |
+| pneumatic/pneumatic-rig-air-release-01.mp3 | Slips air release v1 | mcpable | https://freesound.org/people/mcpable/sounds/131934/ | CC0 1.0 | Freesound HQ preview (MP3), original 4.3s |
+| pneumatic/pneumatic-train-door-02.mp3 | Pneumatic door close 1.WAV | Sandermotions | https://freesound.org/people/Sandermotions/sounds/275443/ | CC0 1.0 | Freesound HQ preview (MP3), original 16.2s |
+| pneumatic/pneumatic-emu-door-hiss-03.mp3 | train door close 1a | Yoyodaman234 | https://freesound.org/people/Yoyodaman234/sounds/341200/ | CC0 1.0 | Freesound HQ preview (MP3), original 11.4s |
+| pneumatic/pneumatic-compressor-valve-04.mp3 | Air compressor valve | soneproject | https://freesound.org/people/soneproject/sounds/185515/ | CC0 1.0 | Freesound HQ preview (MP3), original 0.5s |
+| street_night/street-night-la-01.mp3 | Downtown LA, Little Tokyo, late night semi distant traffic.wav | janbezouska | https://freesound.org/people/janbezouska/sounds/330427/ | CC0 1.0 | Freesound HQ preview (MP3), original 224.6s |
+| street_night/street-night-vancouver-02.mp3 | City Ambience, Night | HECKFRICKER | https://freesound.org/people/HECKFRICKER/sounds/723696/ | CC0 1.0 | Freesound HQ preview (MP3), original 176.1s |
+| street_night/street-night-lisbon-03.mp3 | AMB-Night,Quiet,DistantTraffic,Lisbon,Portugal | soundandmelodies | https://freesound.org/people/soundandmelodies/sounds/776263/ | CC0 1.0 | Freesound HQ preview (MP3), original 97.5s |
+| rain_city/rain-city-light-street-01.mp3 | Light rain on street.wav | BonnyOrbit | https://freesound.org/people/BonnyOrbit/sounds/380651/ | CC0 1.0 | Freesound HQ preview (MP3), original 105.0s |
+| rain_city/rain-city-strong-street-02.mp3 | Rain (strong), city, street, distant traffic | Dominik_W | https://freesound.org/people/Dominik_W/sounds/398593/ | CC0 1.0 | Freesound HQ preview (MP3), original 60.2s |
+| rain_city/rain-city-backstreet-gutter-03.mp3 | traffic light backstreet rain drops on front steps and stream from high gutter Havana, Cuba 2008.flac | kyles | https://freesound.org/people/kyles/sounds/362077/ | CC0 1.0 | Freesound HQ preview (MP3), original 195.9s |
+| rain_city/rain-city-downpipe-04.mp3 | rain water downpipe.wav | realgone | https://freesound.org/people/realgone/sounds/465698/ | CC0 1.0 | Freesound HQ preview (MP3), original 395.8s |
+| keyboard/keyboard-whitefox-01.mp3 | Keyboard Typing 10 (WhiteFox, Mechanical) | grcekh | https://freesound.org/people/grcekh/sounds/546167/ | CC0 1.0 | Freesound HQ preview (MP3), original 169.6s |
+| keyboard/keyboard-coolermaster-02.mp3 | Mechanical Keyboard Typing Sound | olehenriksen | https://freesound.org/people/olehenriksen/sounds/771251/ | CC0 1.0 | Freesound HQ preview (MP3), original 66.9s |
+| keyboard/keyboard-fast-03.mp3 | Keyboard_Typing.wav | 7h3_lark | https://freesound.org/people/7h3_lark/sounds/268575/ | CC0 1.0 | Freesound HQ preview (MP3), original 18.9s |
+| footsteps/footsteps-concrete-light-01.mp3 | light footsteps on concrete walking.wav | rsellick | https://freesound.org/people/rsellick/sounds/545543/ | CC0 1.0 | Freesound HQ preview (MP3), original 32.4s |
+| footsteps/footsteps-concrete-02.mp3 | ConcreteFootsteps.wav | JamGrif | https://freesound.org/people/JamGrif/sounds/554380/ | CC0 1.0 | Freesound HQ preview (MP3), original 13.4s |
+| footsteps/footsteps-metal-grate-03.mp3 | Metal Footsteps | SoftDistortionFX | https://freesound.org/people/SoftDistortionFX/sounds/398937/ | CC0 1.0 | Freesound HQ preview (MP3), original 91.1s |
+| footsteps/footsteps-metal-stairs-04.mp3 | FOLEY_Footsteps_Metal_002.wav | conleec | https://freesound.org/people/conleec/sounds/149454/ | CC0 1.0 | Freesound HQ preview (MP3), original 159.2s |
+| steam/steam-radiator-nyc-01.mp3 | NYC steam radiator hiss.wav | sethlind | https://freesound.org/people/sethlind/sounds/265013/ | CC0 1.0 | Freesound HQ preview (MP3), original 41.8s |
+| steam/steam-safety-valve-02.mp3 | steam_safety_valve.wav | Engineer_815 | https://freesound.org/people/Engineer_815/sounds/493558/ | CC0 1.0 | Freesound HQ preview (MP3), original 7.0s |
+| steam/steam-pipe-valve-beijing-03.mp3 | china_valve_steam.aif | nikitralala | https://freesound.org/people/nikitralala/sounds/139955/ | CC0 1.0 | Freesound HQ preview (MP3), original 136.3s |
+| vending/vending-coke-machine-01.mp3 | Vending machine | Emma7073 | https://freesound.org/people/Emma7073/sounds/250194/ | CC0 1.0 | Freesound HQ preview (MP3), original 6.7s |
+| vending/vending-bottle-drop-02.mp3 | Soda Machine Bottle Drop (Binaural).wav | courter | https://freesound.org/people/courter/sounds/448673/ | CC0 1.0 | Freesound HQ preview (MP3), original 22.4s |
+| vending/vending-udon-japan-03.mp3 | 052916 vending machine udon.mp3 | pflanigan | https://freesound.org/people/pflanigan/sounds/390305/ | CC0 1.0 | Freesound HQ preview (MP3), original 16.3s |
+| ev_car/ev-car-leaf-pass-01.mp3 | nissan-leaf | Eelke | https://freesound.org/people/Eelke/sounds/170421/ | CC0 1.0 | Freesound HQ preview (MP3), original 9.4s |
+| ev_car/ev-car-pass-02.mp3 | Car 22 | anteroidi | https://freesound.org/people/anteroidi/sounds/771393/ | CC0 1.0 | Freesound HQ preview (MP3), original 6.0s |
+| ev_car/ev-car-van-pass-03.mp3 | E-carLaPoste.wav | SiriusParsec | https://freesound.org/people/SiriusParsec/sounds/532071/ | CC0 1.0 | Freesound HQ preview (MP3), original 25.7s |
 | firearm_library/1911-A_34P.flac | The Free Firearm Sound Library, Prepared SFX Library: A_34P.wav (1911, handgun, pistol, semi automatic, .45, gunshot, mid distance, front of shooter, forward, back, stereo) | Still North Media (Ben Jaszczak et al.) | https://opengameart.org/content/the-free-firearm-sound-library | CC0 1.0 | WAV 96kHz/24bit converted losslessly to FLAC |
 | firearm_library/1911-A_42P.flac | The Free Firearm Sound Library, Prepared SFX Library: A_42P.wav (1911, handgun, pistol, semi automatic, .45, gunshot, near distance, front of shooter, left, right, stereo) | Still North Media (Ben Jaszczak et al.) | https://opengameart.org/content/the-free-firearm-sound-library | CC0 1.0 | WAV 96kHz/24bit converted losslessly to FLAC |
 | firearm_library/ak-47-C_27P.flac | The Free Firearm Sound Library, Prepared SFX Library: C_27P.wav (AK-47, rifle, fully automatic, semi automatic, machine gun, assault rifle, 7.62x39, gunshots, long burst, near distance, front of shooter, left, right, stereo) | Still North Media (Ben Jaszczak et al.) | https://opengameart.org/content/the-free-firearm-sound-library | CC0 1.0 | WAV 96kHz/24bit converted losslessly to FLAC |
@@ -62,7 +105,8 @@ The firearm library comes from the OpenGameArt mirror of the Free Firearm Sound 
 | firearm_library/walther-ppq-X_31P.flac | The Free Firearm Sound Library, Prepared SFX Library: X_31P.wav (Walther PPQ, handgun, pistol, semi automatic, striker, 9mm, gunshot, mid distance, front of shooter, forward, back, stereo) | Still North Media (Ben Jaszczak et al.) | https://opengameart.org/content/the-free-firearm-sound-library | CC0 1.0 | WAV 96kHz/24bit converted losslessly to FLAC |
 | firearm_library/walther-ppq-X_39P.flac | The Free Firearm Sound Library, Prepared SFX Library: X_39P.wav (Walther PPQ, handgun, pistol, semi automatic, striker, 9mm, gunshot, near distance, front of shooter, left, right, stereo) | Still North Media (Ben Jaszczak et al.) | https://opengameart.org/content/the-free-firearm-sound-library | CC0 1.0 | WAV 96kHz/24bit converted losslessly to FLAC |
 
-## 見つからなかったもの
+## 見つからなかったもの・足りないもの
 
-- whizz（弾が耳元をかすめる音）: freesound の CC0 で本物の録音は見つからなかった。候補はすべてシンセ、鞭の音の流用、動画からの抜き出しのいずれかだったので入れていない。
-- firearm_library の far マイク位置と weapon mechanics（作動音）: OpenGameArt の書庫には near/mid の発砲音しか入っていない。元サイト（freefirearmsfx.com / stillnorthmedia.com）は閉鎖済みで raw 版は取得できなかった。
+- whizz（弾が耳元をかすめる音）: freesound の CC0 で本物の録音は見つからなかった。候補はすべてシンセ、鞭の音の流用、動画からの抜き出し、古い映画用ライブラリのいずれかだったので入れていない。
+- bullet_metal（弾が金属に当たる音）: 本物の録音は鋼板に撃った1本だけ。ほかは硬貨を加工した物や動画・映画ライブラリ由来だったので除外した。
+- firearm_library の far マイク位置と weapon mechanics（作動音・リロード・空撃ち）: OpenGameArt の書庫には near/mid の発砲音しか入っていない。元サイト（freefirearmsfx.com / stillnorthmedia.com）は閉鎖済みで raw 版は取得できなかった。
