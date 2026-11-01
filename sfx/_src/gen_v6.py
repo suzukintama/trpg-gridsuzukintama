@@ -1,4 +1,4 @@
-"""Version 6: finished sounds cut from the CC0 recordings in rec/inbox/ (see rec/inbox/CREDITS.md).
+"""Version 6 (94 sounds): finished sounds cut from the CC0 recordings in rec/inbox/ (see rec/inbox/CREDITS.md).
 
 Three kinds of treatment, nothing synthetic:
   - one-shots: the recording is cut to the event itself (a few ms before the onset, a natural

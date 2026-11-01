@@ -52,7 +52,7 @@ python3 gen_v3.py              # v3（生の録音をそのまま。最後に実
 python3 gen_train.py           # 電車_車内放送（Kokoro のモデルが必要。取得方法はファイル冒頭に記載）
 python3 gen_v4.py              # v4（拳銃4種、金属音の作り直し、ドローン・重機関砲などの追加。v3 のあとに実行）
 python3 gen_v5.py              # v5（rec/inbox の新しい録音から。v3・v4 のあとに実行すると現在の内容になります）
-python3 gen_v6.py              # v6（rec/inbox の録音から切り出した 97 音。銃種別の銃声、通過音、環境音ループなど。名前は全部新規。inbox の各録音との対応は rec/inbox/日本語一覧.md）
+python3 gen_v6.py              # v6（rec/inbox の録音から切り出した 94 音。銃種別の銃声、通過音、環境音ループなど。名前は全部新規。inbox の各録音との対応は rec/inbox/日本語一覧.md）
 python3 build_index.py         # 試聴ページを作り直す
 SFX_QA=/tmp/qa python3 gen_guns.py   # 波形とスペクトログラムのPNGも出力する
 ```
