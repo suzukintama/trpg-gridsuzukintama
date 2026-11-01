@@ -1,0 +1,204 @@
+function PubRender(PUB_PAGE_CSS){
+  function pubEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+  function pubTitle(M){return M.handle||M.name||'';}
+
+  function pubWebURL(id){return 'https://suzukintama.github.io/trpg-gridsuzukintama/c/'+id+'.html';}
+
+  function pubWebHTML(M,id,width,height,opt){
+    if(typeof id!=='string'||id.length!==10||!/^[a-z0-9]{10}$/.test(id)||!Number.isSafeInteger(width)||width<1||!Number.isSafeInteger(height)||height<1)throw new Error('Web metadata');
+    var E=pubEsc,url=pubWebURL(id),parts=[M.title];
+    ['role','affil'].forEach(function(k){var c=M.chips.find(function(c){return c.i===k;});if(c)parts.push(c.v);});
+    var intro=M.blocks.find(function(b){return b.id==='intro';});
+    var desc=parts.filter(Boolean).join('／')||(intro?Array.from(intro.rows[0].v).slice(0,80).join(''):'')||'公開プロフィール';
+    var meta=[['og:type','profile'],['og:site_name','ROLLPLAYING OF SCIENCE FICTION'],['og:title',pubTitle(M)||'公開プロフィール'],
+      ['og:description',desc],['og:image',url.replace(/\.html$/,'.png')],['og:image:width',width],['og:image:height',height],['og:url',url]]
+      .map(function(pair){return '<meta property="'+pair[0]+'" content="'+E(pair[1])+'">';}).join('\n');
+    meta+='\n<meta name="twitter:card" content="summary_large_image">\n<meta name="theme-color" content="#3ee8ff">\n';
+    return pubHTML(M,opt).replace('<title>', '<meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;; img-src data: &#39;self&#39;; style-src &#39;unsafe-inline&#39;; base-uri &#39;none&#39;; form-action &#39;none&#39;">\n'+meta+'<title>');
+  }
+  function pubProse(value){return '<span class="pf-prose">'+pubEsc(value)+'</span>';}
+
+  function pubViewId(en){return 'pf-'+en.toLowerCase();}
+
+  function pubPortrait(M,expr,png,css){
+    var E=pubEsc, images=(M.stand?[{i:'stand',n:'',img:M.stand}]:[]).concat(expr), count=images.length;
+    if(!count)return '';
+    var image=function(r){return '<img'+(r.i?' data-i="'+E(r.i)+'"':'')+' src="'+r.img+'" alt="'+E(r.n||'')+'">';};
+    var floor='<svg class="pf-floor" viewBox="0 0 600 80" preserveAspectRatio="none" aria-hidden="true"><defs><radialGradient id="pf-shadow"><stop offset="0" stop-color="#000" stop-opacity=".85"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs><ellipse cx="300" cy="30" rx="260" ry="25" fill="url(#pf-shadow)"/><path d="M12 62H588M32 72H568"/></svg>';
+    if(M.card)return '<aside class="pf-stand glass" data-i="stand"><img src="'+M.stand+'" alt="">'+floor+'</aside>';
+    if(png)return '<div class="pf-portrait-print">'+(M.stand?'<aside class="pf-stand glass">'+image(images[0])+floor+'</aside>':'')+
+      (expr.length?'<div class="pf-gal pf-portrait-thumbs">'+expr.map(function(r){return '<figure>'+image(r)+(r.n?'<figcaption>'+E(r.n)+'</figcaption>':'')+'</figure>';}).join('')+'</div>':'')+'</div>';
+    var id=function(i){return 'pf-portrait-'+i;}, rules='', radios='', slides='', dots='';
+    images.forEach(function(r,i){
+      var label=r.n||(r.i==='stand'?'立ち絵':'画像 '+(i+1));
+      radios+='<input class="pf-portrait-radio" type="radio" name="pf-portrait" id="'+id(i)+'" aria-label="'+E(label)+'"'+(i===0?' checked':'')+'>';
+      rules+='#'+id(i)+':checked~.pf-portrait-stage [data-slide="'+i+'"]{display:grid;}\n';
+      rules+='#'+id(i)+':checked~.pf-portrait-dots [for="'+id(i)+'"]{background:var(--accent);}\n';
+      slides+='<figure class="pf-portrait-slide" data-slide="'+i+'">'+image(r)+
+        '<figcaption class="pf-portrait-caption">'+(count>1?'<span class="pf-portrait-count">'+(i+1)+' / '+count+'</span>':'')+(r.n?'<span>'+E(r.n)+'</span>':'')+'</figcaption>'+
+        (count>1?'<label class="pf-portrait-arrow pf-portrait-prev" for="'+id((i+count-1)%count)+'" aria-label="前の画像"></label><label class="pf-portrait-arrow pf-portrait-next" for="'+id((i+1)%count)+'" aria-label="次の画像"></label>':'')+'</figure>';
+      if(count>1)dots+='<label for="'+id(i)+'" aria-label="'+E(label)+'" title="'+E(label)+'"></label>';
+    });
+    css.push(rules);
+    return '<aside class="pf-stand glass pf-portrait">'+radios+'<div class="pf-portrait-stage">'+slides+'</div>'+floor+
+      (dots?'<div class="pf-portrait-dots">'+dots+'</div>':'')+'</aside>';
+  }
+  function pubHTML(M,opt){
+    opt=opt||{};var view=opt.view;
+    var E=pubEsc, o=[], portraitCSS=[];
+    var interactive=!M.card, png=!!view, fold=png?view.fold:(opt.fold||M.fold||[]), sections=[];
+    var begin=function(en,label,cls,attrs){
+      sections.push({en:en,h:label});
+      return '<details class="'+cls+' pf-section" id="'+pubViewId(en)+'" data-view="'+en+'"'+(attrs||'')+(fold.indexOf(en)<0?' open':'')+'><summary>'+head({en:en,h:label})+'</summary><div class="pf-content"'+(png?'':' tabindex="0" aria-label="'+E(label)+'"')+'>';
+    };
+    var end=function(){return '</div></details>';};
+    var head=function(b){return '<h2><span>'+E(b.en)+'</span>'+E(b.h)+'</h2>';};
+    var list=function(rows,cls){return '<ul class="pf-list'+(cls?' '+cls:'')+'">'+rows.map(function(r){
+      if(cls==='pf-skill-tree'){
+        var row='<span class="nm">'+E(r.n)+'</span>'+(r.m?'<span class="mt">'+E(r.m)+'</span>':'')+(r.p?'<span class="pf-skill-stat">'+E(r.p)+'</span>':'');
+        return '<li>'+(r.d?'<details class="pf-skill"><summary>'+row+'</summary>'+(png?'':'<div class="pf-description">'+pubProse(r.d)+'</div>')+'</details>':'<div class="pf-skill-row">'+row+'</div>')+'</li>';
+      }
+      var tag=M.card?'p':'div';
+      return '<li><span class="nm">'+E(r.n)+'</span>'+(r.m?'<span class="mt">'+E(r.m)+'</span>':'')+(r.p?'<'+tag+' class="pf-description">'+pubProse(r.p)+'</'+tag+'>':'')+'</li>';}).join('')+'</ul>';};
+    var kvs=function(rows){return '<dl class="pf-kv">'+rows.map(function(r){return '<div data-i="'+E(r.i)+'"><dt>'+E(r.l)+'</dt><dd>'+pubProse(r.v)+'</dd></div>';}).join('')+'</dl>';};
+    var stat=function(r){return '<div class="pf-st'+(r.ex?' ex':'')+'" data-i="'+E(r.i)+'"><span class="k">'+E(r.k)+'</span><span class="j">'+E(r.j)+'</span><span class="m"><i style="width:'+Math.max(0,Math.min(10,r.v))*10+'%"></i></span><b>'+E(r.v==null?'――':r.v)+'</b></div>';};
+    var chip=function(c){return '<li data-i="'+E(c.i)+'"><b>'+E(c.l)+'</b><span>'+E(c.v)+'</span></li>';};
+    var t=pubTitle(M);
+    var hero=t||M.title||M.icon||M.chips.length;
+    if(hero){
+      var roles=M.chips.filter(function(c){return c.i==='role'||c.i==='role_sub';});
+      var details=M.chips.filter(function(c){return c.i!=='role'&&c.i!=='role_sub';});
+      // Identity is always expanded; it still participates in viewer visibility/TOC.
+      if(interactive)sections.push({en:'IDENTITY',h:'基本情報'});
+      o.push('<header class="pf-hero glass"'+(interactive?' id="'+pubViewId('IDENTITY')+'" data-view="IDENTITY"':'')+'><ul class="pf-roles">'+roles.map(chip).join('')+'</ul><div class="pf-brand">ROLLPLAYING OF<br>SCIENCE FICTION</div>'+
+        (M.icon?'<img class="pf-icon" data-i="icon" src="'+M.icon+'" alt="">':'')+'<div class="pf-id"><div class="pf-sys"><span aria-hidden="true">&#9656;</span> PUBLIC PROFILE <span aria-hidden="true">&#9666;</span></div>'+
+        '<h1'+(M.handle?' data-i="handle"':(M.name?' data-i="name"':''))+'>'+E(t||'――')+'</h1>'+
+        (M.handle&&M.name?'<div class="pf-sub" data-i="name">'+E(M.name)+'</div>':'')+
+        (M.title?'<div class="pf-sub" data-i="title"><b>肩書き</b> '+E(M.title)+'</div>':'')+
+        '</div>'+(details.length?'<ul class="pf-chips">'+details.map(chip).join('')+'</ul>':'')+'</header>');
+    }
+    var cols=[[],[],[]], bottom=[], weights=[0,0,0],colViews=[[],[],[]];
+    // Keep the public allowlist/model stable; the old gallery now belongs to STAND.
+    var expr=[];if(!M.card)M.blocks.forEach(function(b){if(b.en==='EXPRESSIONS'&&b.t==='gal')expr=expr.concat(b.rows);});
+    var hasPortrait=!!(M.stand||expr.length||M.foldStand);
+    if(hasPortrait){
+      cols[1].push((interactive?begin('STAND','立ち絵','pf-b glass'):'')+pubPortrait(M,expr,png,portraitCSS)+(interactive?end():''));
+      weights[1]=fold.indexOf('STAND')>=0?64:520;
+      colViews[1].push('STAND');
+    }
+    M.blocks.forEach(function(b){
+      if(b.en==='EXPRESSIONS')return;
+      var compact=b.en==='ITEMS'||b.en==='TRAITS';
+      var h=interactive?begin(b.en,b.h,'pf-b glass',' data-block="'+E(b.en)+'"'):'<section class="pf-b glass" data-block="'+E(b.en)+'">'+head(b);
+      if(b.t==='text')h+=b.rows.map(function(r){var tag=M.card?'p':'div';return '<'+tag+' class="pf-txt" data-i="'+E(r.i)+'">'+pubProse(r.v)+'</'+tag+'>';}).join('');
+      else if(b.t==='stats'){
+        if(b.sci.length)h+='<h3>S.C.I.E.N.C.E.</h3>'+b.sci.map(stat).join('');
+        if(b.fic.length)h+='<h3>F.I.C.T.I.O.N.</h3>'+b.fic.map(stat).join('');
+        if(b.nums.length)h+='<div class="pf-nums">'+b.nums.map(function(n){return '<div data-i="'+E(n.i)+'"><span>'+E(n.l)+'</span><b>'+E(n.v)+'</b></div>';}).join('')+'</div>';
+      }
+      else if(b.t==='list')h+=(b.ri?'<div data-i="'+E(b.ri)+'"></div>':'')+list(b.rows,b.en==='SKILLS'?'pf-skill-tree':(compact?'pf-cards':''));
+      else if(b.t==='tags')h+='<ul class="pf-tags">'+b.rows.map(function(r){return '<li>'+E(r.n)+'</li>';}).join('')+'</ul>';
+      else if(b.t==='kv')h+=kvs(b.rows);
+      else if(b.t==='gear'){
+        if(b.eq)h+='<div class="pf-lbl">装備</div><div class="pf-txt" data-i="equip">'+pubProse(b.eq)+'</div>';
+        if(b.kv.length)h+='<h3>CYBERWARE</h3>'+kvs(b.kv);
+        if(b.edge.length)h+='<h3>EDGEWARE</h3>'+list(b.edge,'ex');
+      }
+      else if(b.t==='bg')h+=b.rows.map(function(r){return r.sub?('<h3>'+E(r.sub)+'</h3>'+kvs(r.rows)):kvs([r]);}).join('');
+      var col=/^(LOADOUT|ITEMS|WALLET)$/.test(b.en)?0:(/^(INTRODUCTION|APPEARANCE)$/.test(b.en)?1:2);
+      if(interactive){
+        // Keep equipment/items, portrait/introduction and status/skills grouped;
+        // place supplementary sections in the least occupied column.
+        if(/^(BACKGROUND|NOTE|WANTED|TRAITS|UNIQUE)$/.test(b.en))col=weights.indexOf(Math.min.apply(Math,weights));
+        var lines=Math.ceil(JSON.stringify(b).replace(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/g,'').length/28), rows=(b.rows||b.kv||[]).length;
+        weights[col]+=fold.indexOf(b.en)>=0?64:(b.t==='stats'?740:Math.min(1100,100+lines*16+rows*28));
+        cols[col].push(h+end());
+        colViews[col].push(b.en);
+      }else if(/^(BACKGROUND|NOTE|WANTED)$/.test(b.en))bottom.push(h+'</section>');
+      else cols[col].push(h+'</section>');
+    });
+    var body=o.join('');
+    if(hasPortrait||M.blocks.length){
+      body+='<div class="pf-grid" style="--pf-portrait-max:'+Math.max(320,Math.min(1000,Math.max(weights[0],weights[2])))+'px">'+cols.map(function(c,i){return c.length||M.card?'<div class="pf-col pf-col-'+i+'">'+c.join('')+'</div>':'';}).join('')+'</div>';
+    }
+    if(bottom.length)body+='<div class="pf-bottom">'+bottom.join('')+'</div>';
+    if(!hero&&!hasPortrait&&!M.blocks.length)body+='<p class="pf-empty glass">'+(png&&view.hidden.length?'表示中の節なし':'公開している項目がありません')+'</p>';
+    var rules='', tools='';
+    if(interactive&&!png&&sections.length){
+      tools='<nav class="pf-tools glass" aria-label="表示設定"><input class="pf-tools-toggle" type="checkbox" id="pf-tools-toggle"><label class="pf-tools-heading" for="pf-tools-toggle">表示する節</label><fieldset class="pf-tools-options"><legend>表示する節</legend>'+sections.map(function(s){
+        var id=pubViewId(s.en);
+        rules+='main:has(#show-'+s.en+':not(:checked)) [data-view="'+s.en+'"],main:has(#show-'+s.en+':not(:checked)) a[href="#'+id+'"]{display:none;}\n';
+        return '<label for="show-'+s.en+'"><input type="checkbox" id="show-'+s.en+'" checked><span>'+E(s.h)+'</span></label>';
+      }).join('')+'</fieldset><nav class="pf-toc" aria-label="目次"><b>目次</b>'+sections.map(function(s){return '<a href="#'+pubViewId(s.en)+'">'+E(s.h)+'</a>';}).join('')+'</nav></nav>';
+      colViews.forEach(function(names,i){if(names.length)rules+='main'+names.map(function(en){return ':has(#show-'+en+':not(:checked))';}).join('')+' .pf-col-'+i+'{display:none;}\n';});
+    }
+    return '<!DOCTYPE html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'+
+      '<meta name="robots" content="noindex">\n<meta name="color-scheme" content="dark">\n<title>'+E(t?t+'の公開プロフィール':'公開プロフィール')+'</title>\n<style>\n'+PUB_PAGE_CSS+portraitCSS.join('')+rules+'</style>\n</head>\n<body data-palette="'+(opt.palette||M.palette||'current')+'"'+(M.card?' class="pf-card"':(png?' class="pf-png"':''))+'>\n<main class="pf">\n'+tools+body+
+      '\n<footer class="pf-foot">ROLLPLAYING OF SCIENCE FICTION</footer>\n</main>\n</body>\n</html>\n';
+  }
+  var ENS='IDENTITY INTRODUCTION APPEARANCE STATUS SKILLS ABILITIES LOADOUT ITEMS WALLET BACKGROUND TRAITS UNIQUE NOTE WANTED STAND EXPRESSIONS'.split(' ');
+  function check(M){
+    try{
+      var fail=function(s){throw new Error(s);};
+      var obj=function(o,keys,optional){
+        if(!o||typeof o!=='object'||Array.isArray(o)||Object.keys(o).some(function(k){return keys.indexOf(k)<0;}))fail('不正な項目');
+        keys.forEach(function(k){if(!(optional||[]).includes(k)&&!Object.prototype.hasOwnProperty.call(o,k))fail('項目不足: '+k);});
+      };
+      var str=function(s,max){if(typeof s!=='string'||s.length>(max||20000))fail('文字列の形式または長さ');};
+      var arr=function(a,fn,max){if(!Array.isArray(a)||a.length>(max||300))fail('配列の形式または件数');a.forEach(fn);};
+      var img=function(s){if(s!==null&&(typeof s!=='string'||!/^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(s)))fail('画像の形式');};
+      var ident=function(i){if(typeof i!=='string'||!/^[A-Za-z0-9_-]{1,40}$/.test(i))fail('項目ID');};
+      var kv=function(r){obj(r,['i','l','v']);ident(r.i);str(r.l);str(r.v);};
+      var row=function(r,desc){obj(r,desc?['n','m','p','d']:['n','m','p'],desc?['d']:[]);str(r.n);str(r.m);str(r.p);if('d'in r)str(r.d);};
+      obj(M,['blocks','chips','name','handle','title','icon','stand','card','fold','palette']);
+      ['name','handle','title'].forEach(function(k){str(M[k],200);});
+      if(M.card!==false)fail('card');img(M.icon);img(M.stand);
+      arr(M.fold,function(x){if(!ENS.includes(x))fail('fold');});
+      if(!['current','2077'].includes(M.palette))fail('palette');
+      arr(M.chips,function(c){obj(c,['i','l','v']);if(!'role role_sub affil age gender height body'.split(' ').includes(c.i))fail('chip');str(c.l,200);str(c.v,200);},20);
+      arr(M.blocks,function(b){
+        var types={text:['INTRODUCTION','APPEARANCE','NOTE','WANTED'],stats:['STATUS'],list:['SKILLS','ABILITIES','ITEMS','TRAITS','UNIQUE'],kv:['WALLET'],gear:['LOADOUT'],bg:['BACKGROUND'],gal:['EXPRESSIONS']};
+        if(!b||!Object.hasOwn(types,b.t)||!types[b.t].includes(b.en))fail('節の種類');
+        var extra={text:['id','rows'],stats:['sci','fic','nums'],list:['rows','ri'],kv:['rows'],gear:['eq','kv','edge'],bg:['rows'],gal:['rows']}[b.t];
+        obj(b,['t','en','h'].concat(extra),b.t==='list'?['ri']:[]);str(b.h,100);
+        if(b.t==='text'){
+          if(b.id!==({INTRODUCTION:'intro',APPEARANCE:'appear',NOTE:'memo',WANTED:'wanted'})[b.en])fail('節ID');
+          arr(b.rows,kv,1);if(b.rows.length!==1||b.rows[0].l!=='')fail('本文');
+        }else if(b.t==='stats'){
+          var keys='Strength Constitution Intelligence Ego Nerve Chance Edge Firearms Interface Craft Techmed Influence Operations Neural'.split(' ');
+          var stat=function(r){obj(r,['i','k','j','v','ex'],['ex']);if(!keys.includes(r.k)||r.i!=='st-'+r.k)fail('ステータス名');str(r.j);if(r.v!==null&&(!Number.isInteger(r.v)||r.v<0||r.v>99))fail('ステータス値');if('ex'in r&&typeof r.ex!=='boolean')fail('ex');};
+          arr(b.sci,stat);arr(b.fic,stat);arr(b.nums,function(r){kv(r);if(!['humanity','ego_eff','hp'].includes(r.i))fail('数値項目');});
+        }else if(b.t==='list'){
+          if('ri'in b&&(b.en!=='ABILITIES'||!['','rolepick'].includes(b.ri)))fail('ri');arr(b.rows,function(r){row(r,true);});
+        }else if(b.t==='kv')arr(b.rows,kv);
+        else if(b.t==='gear'){str(b.eq);arr(b.kv,kv);arr(b.edge,function(r){row(r,false);});}
+        else if(b.t==='bg')arr(b.rows,function(r){if(r&&'sub'in r){obj(r,['sub','rows']);str(r.sub);arr(r.rows,kv);}else kv(r);});
+        else arr(b.rows,function(r){obj(r,['n','img']);str(r.n);img(r.img);});
+      },40);
+      return {ok:true};
+    }catch(e){return {ok:false,error:e.message};}
+  }
+  function text(M){
+    var out=[pubTitle(M)];
+    if(M.name&&M.handle)out.push('名前：'+M.name);
+    if(M.title)out.push('肩書き：'+M.title);
+    M.chips.forEach(function(c){out.push(c.l+'：'+c.v);});
+    if(M.icon)out.push('アイコン：（画像あり）');if(M.stand)out.push('立ち絵：（画像あり）');
+    var rows=function(a){(a||[]).forEach(function(r){
+      if('sub'in r){out.push(r.sub);rows(r.rows);}
+      else if('img'in r)out.push(r.n+'：（画像あり）');
+      else if('k'in r)out.push(r.j+'：'+(r.v===null?'――':r.v));
+      else if('v'in r)out.push((r.l?r.l+'：':'')+r.v);
+      else out.push([r.n,r.m,r.p,r.d].filter(Boolean).join('：'));
+    });};
+    M.blocks.forEach(function(b){out.push('\n'+b.h);if(b.eq)out.push(b.eq);['rows','sci','fic','nums','kv','edge'].forEach(function(k){rows(b[k]);});});
+    return out.join('\n');
+  }
+  return {VERSION:1,esc:pubEsc,title:pubTitle,viewId:pubViewId,prose:pubProse,portrait:pubPortrait,html:pubHTML,webHTML:pubWebHTML,check:check,text:text,webURL:pubWebURL,
+    draftURL:function(id){return 'https://suzukintama.github.io/trpg-gridsuzukintama/p/'+id;}};
+
+}
+
+
+module.exports=PubRender(":root{\n  --bg:#0b1020;--panel:#151d32;--panel-deep:#0d1426;--frame:#3ee8ff;--frame-soft:#294b64;\n  --heading:#3ee8ff;--accent:#3ee8ff;--ink:#e8eef9;--ink-2:#c0cde0;--ink-3:#a9b8cf;\n  --meter-start:#3ee8ff;--meter-end:#9b7bff;--node-fill:#18233a;\n  --f-jp:\"BIZ UDPGothic\",\"Yu Gothic UI\",\"Meiryo\",sans-serif;\n  --f-mono:\"Cascadia Mono\",\"Consolas\",monospace;\n  --f-disp:\"Bahnschrift\",\"Segoe UI\",sans-serif;\n  --cut:16px;\n}\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}\nhtml{min-width:0;background:var(--bg);}\nbody[data-palette=\"2077\"]{\n  --bg:#10090c;--panel:#1d1015;--panel-deep:#140c10;--frame:#c4434e;--frame-soft:#633039;\n  --heading:#ff6b72;--accent:#f4e76b;--ink:#f3eceb;--ink-2:#d4bdc1;--ink-3:#c59da6;\n  --meter-start:#b89136;--meter-end:#f4e76b;--node-fill:#24141a;\n}\nbody{width:100%;min-width:0;max-width:1920px;margin:auto;min-height:100vh;padding:28px;background:var(--bg);color:var(--ink);font:400 15px/1.65 var(--f-jp);}\n.pf{position:relative;width:100%;min-width:0;max-width:100%;margin:0 auto;padding:16px;border:1px solid var(--frame);overflow-wrap:anywhere;\n  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));\n  background:linear-gradient(155deg,var(--panel-deep),var(--bg) 50%);}\n.glass{position:relative;min-width:0;border:1px solid var(--frame-soft);\n  background:linear-gradient(165deg,var(--panel),var(--panel-deep));\n  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));}\n.glass::before,.pf::before{content:\"\";position:absolute;inset:0;pointer-events:none;\n  background:linear-gradient(45deg,transparent 10px,var(--frame) 10px,var(--frame) 11px,transparent 11px) bottom left/16px 16px no-repeat,\n    linear-gradient(45deg,transparent 10px,var(--frame) 10px,var(--frame) 11px,transparent 11px) top right/16px 16px no-repeat;}\n/* Bound intrinsic sizing at each details/flex/grid boundary, not by clipping. */\n.pf-tools,.pf-hero,.pf-grid,.pf-col,.pf-b,.pf-content,.pf-bottom{min-width:0;max-width:100%;}\n.pf-tools,.pf-hero,.pf-grid,.pf-b,.pf-content{width:100%;}\n.pf-hero>*,.pf-content>*,.pf-chips li>*{min-width:0;max-width:100%;}\n.pf-hero{display:grid;grid-template-columns:144px minmax(0,1fr) 144px;gap:16px 24px;align-items:center;padding:22px 24px;margin-bottom:20px;border-color:var(--frame);}\n.pf-roles{grid-column:1/3;grid-row:1;display:flex;flex-wrap:wrap;align-items:start;gap:12px 28px;list-style:none;padding-right:20px;}\n.pf-roles li{min-width:0;max-width:100%;}\n.pf-roles b{display:block;font-size:14px;color:var(--ink-3);}\n.pf-roles span{display:block;font:700 25px/1.4 var(--f-jp);}\n.pf-brand{grid-column:3;grid-row:1;justify-self:end;color:var(--ink-2);font:700 14px/1.3 var(--f-disp);letter-spacing:.05em;text-align:right;}\n.pf-icon{grid-column:1;grid-row:2;width:128px;height:128px;object-fit:cover;border:1px solid var(--frame);}\n.pf-id{grid-column:2;grid-row:2;text-align:center;min-width:0;}\n.pf-sys{display:flex;align-items:center;justify-content:center;gap:18px;color:var(--accent);font:700 26px/1.3 var(--f-disp);letter-spacing:.15em;}\n.pf-sys span{font-size:22px;letter-spacing:0;}\n.pf-hero h1{margin-top:8px;color:var(--heading);font:700 58px/1.2 var(--f-disp);letter-spacing:.04em;text-transform:uppercase;word-break:break-word;}\n.pf-sub{margin-top:6px;font-size:16px;color:var(--ink-2);}\n.pf-chips{grid-column:1/-1;display:flex;justify-content:center;flex-wrap:wrap;gap:8px;list-style:none;padding-top:14px;border-top:1px solid var(--frame-soft);}\n.pf-chips li{max-width:100%;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;padding:4px 12px;border:1px solid var(--frame-soft);}\n.pf-chips b{color:var(--ink-3);font-size:14px;}\n.pf-chips span{color:var(--ink);}\n.pf-grid{display:flex;gap:18px;align-items:start;}\n.pf-col{display:flex;flex-direction:column;gap:16px;min-width:0;}\n.pf-col{flex:1;}\n.pf-col-1{flex:1.15;}\n.pf-b{padding:18px;break-inside:avoid;}\n.pf-b h2{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-bottom:14px;color:var(--heading);font:700 18px/1.5 var(--f-jp);}\n.pf-b h2 span{font:700 14px/1.5 var(--f-mono);letter-spacing:.08em;}\n.pf-b h2::after{content:\"\";flex:1;align-self:center;min-width:12px;height:1px;background:var(--frame-soft);}\n.pf-b h3{margin:14px 0 10px;color:var(--heading);font:700 14px/1.5 var(--f-mono);letter-spacing:.05em;}\n.pf-txt{white-space:pre-wrap;word-break:break-word;color:var(--ink);}\n.pf-lbl{margin-bottom:6px;color:var(--ink-2);font-size:14px;}\n.pf-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}\n.pf-kv>div{min-width:0;padding:10px;background:var(--panel-deep);border:1px solid var(--frame-soft);}\n.pf-kv dt{margin-bottom:6px;color:var(--ink-3);font-size:14px;font-weight:700;}\n.pf-kv dd{white-space:pre-wrap;word-break:break-word;}\n[data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;align-items:start;}\n[data-block=\"LOADOUT\"] .pf-kv>div{min-width:0;min-height:0;padding:8px;border-color:var(--frame);}\n[data-block=\"LOADOUT\"] .pf-kv dd{font-size:14px;line-height:1.6;}\n[data-block=\"WALLET\"] .pf-kv{grid-template-columns:minmax(0,1fr);}\n[data-block=\"WALLET\"] dd{color:var(--accent);font:700 clamp(14px,1.6vw,24px)/1.4 var(--f-mono);white-space:nowrap;word-break:normal;}\n[data-block=\"WALLET\"] .pf-prose{white-space:nowrap;overflow-wrap:normal;}\n.pf-list{display:flex;flex-direction:column;gap:8px;list-style:none;}\n.pf-list li{min-width:0;padding:10px 12px;background:var(--panel-deep);border:1px solid var(--frame-soft);break-inside:avoid;}\n.pf-list .nm{font-weight:700;}\n.pf-list .mt{display:inline-block;max-width:100%;margin:2px 0 2px 8px;padding:1px 6px;border:1px solid var(--frame-soft);color:var(--accent);font-size:14px;font-weight:700;}\n.pf-list p,.pf-description{margin-top:5px;color:var(--ink-2);font-size:15px;white-space:pre-wrap;word-break:break-word;}\n.pf-list.pf-cards{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;}\n[data-block=\"ITEMS\"] .pf-list li{padding:16px;border-color:var(--frame);}\n.pf-nums{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}\n.pf-nums>div{flex:1;min-width:110px;padding:10px 12px;border-radius:12px;border:1px solid var(--frame-soft);background:var(--panel-deep);}\n.pf-nums span{display:block;font-size:14px;color:var(--ink-2);}\n.pf-nums b{color:var(--ink);font:700 30px/1.2 var(--f-mono);}\n.pf-st{display:grid;grid-template-columns:110px minmax(0,1fr) 40px 30px;gap:8px;align-items:center;padding:5px 0;}\n.pf-st+.pf-st{border-top:1px solid var(--frame-soft);}\n.pf-st .k{font:700 14px var(--f-mono);color:var(--ink);}\n.pf-st .j{font-size:14px;color:var(--ink-2);}\n.pf-st .m{height:6px;border-radius:999px;background:var(--frame-soft);overflow:hidden;}\n.pf-st .m i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--meter-start),var(--meter-end));}\n.pf-st b{font:700 20px var(--f-mono);color:var(--accent);text-align:right;}\n.pf-st.ex .m i{background:linear-gradient(90deg,var(--heading),var(--meter-end));}\n.pf-st.ex b{color:var(--heading);}\n.pf-skill-tree{position:relative;padding-left:24px;}\n.pf-skill-tree::before{content:\"\";position:absolute;left:8px;top:14px;bottom:14px;width:1px;background:var(--accent);}\n.pf-skill-tree li{position:relative;}\n.pf-skill-tree li::before{content:\"\";position:absolute;left:-24px;top:14px;width:15px;height:15px;background:var(--accent);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);}\n.pf-skill>summary,.pf-skill-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0;list-style:none;}\n.pf-skill>summary{cursor:pointer;}\n.pf-skill>summary::-webkit-details-marker{display:none;}\n.pf-skill>summary .nm,.pf-skill-row .nm{flex:1;min-width:0;}\n.pf-skill-tree .mt{margin:0;}\n.pf-skill-stat{color:var(--ink-2);font-size:14px;}\n.pf-skill>summary::after{content:\"\";flex:none;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid var(--accent);}\n.pf-skill[open]>summary::after{transform:rotate(90deg);}\n.pf-skill>.pf-description{margin-top:10px;padding-top:10px;border-top:1px solid var(--frame-soft);}\n.pf-tags{display:flex;flex-wrap:wrap;gap:8px;list-style:none;}\n.pf-tags li{max-width:100%;padding:5px 10px;border:1px solid var(--frame);background:var(--panel-deep);color:var(--ink);font-size:15px;}\n.pf-stand{padding:20px 16px 70px;break-inside:avoid;}\n.pf-stand img{position:relative;z-index:1;display:block;width:100%;height:auto;max-height:var(--pf-portrait-max,80vh);object-fit:contain;object-position:center bottom;}\n.pf-floor{position:absolute;bottom:8px;left:4%;width:92%;height:80px;pointer-events:none;}\n.pf-floor path{fill:none;stroke:var(--frame);stroke-width:1;}\n.pf-gal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}\n.pf-gal figure{min-width:0;padding:6px;background:var(--panel-deep);border:1px solid var(--frame-soft);}\n.pf-gal img{display:block;width:100%;height:130px;object-fit:contain;}\n.pf-gal figcaption{margin-top:6px;text-align:center;font-size:14px;color:var(--ink-2);}\n/* Radios stay keyboard-focusable; all slides share a fixed portrait frame. */\n.pf-portrait{position:relative;min-width:0;max-width:100%;padding:0 0 70px;}\n.pf-portrait-radio{position:absolute;top:0;left:0;width:1px;height:1px;margin:0;clip-path:inset(50%);overflow:hidden;white-space:nowrap;}\n.pf-portrait-stage{position:relative;z-index:1;height:min(var(--pf-portrait-max,80vh),60vh,640px);min-width:0;}\n.pf-portrait-slide{position:relative;display:none;grid-template-rows:minmax(0,1fr) 3.3em;width:100%;height:100%;min-width:0;}\n.pf-portrait-slide>img{width:100%;height:100%;min-height:0;max-height:none;object-fit:contain;object-position:center bottom;}\n.pf-portrait-caption{display:flex;justify-content:center;align-items:start;gap:8px;min-width:0;padding:6px 40px;overflow:auto;color:var(--ink-2);font-size:14px;text-align:center;}\n.pf-portrait-caption>span{min-width:0;overflow-wrap:anywhere;}\n.pf-portrait-count{flex:none;white-space:nowrap;font-family:var(--f-mono);}\n.pf-portrait-arrow{position:absolute;z-index:2;top:calc((100% - 3.3em)/2);transform:translateY(-50%);display:grid;place-items:center;width:36px;height:44px;border:1px solid var(--frame);background:var(--panel-deep);cursor:pointer;}\n.pf-portrait-prev{left:4px;}\n.pf-portrait-next{right:4px;}\n.pf-portrait-arrow::before{content:\"\";width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;}\n.pf-portrait-prev::before{border-right:10px solid var(--accent);}\n.pf-portrait-next::before{border-left:10px solid var(--accent);}\n.pf-portrait-arrow:hover{background:var(--node-fill);}\n.pf-portrait-radio:focus-visible~.pf-portrait-stage .pf-portrait-arrow{outline:2px solid var(--accent);outline-offset:2px;}\n.pf-portrait-radio:focus-visible~.pf-portrait-stage{outline:2px solid var(--accent);outline-offset:-2px;}\n.pf-portrait-dots{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-width:0;padding:4px;}\n.pf-portrait-dots label{display:grid;place-items:center;width:24px;height:24px;border:1px solid var(--frame-soft);border-radius:50%;background:var(--panel-deep);cursor:pointer;}\n.pf-portrait-dots label::after{content:\"\";width:6px;height:6px;border-radius:50%;background:var(--ink);}\n.pf-portrait-print{min-width:0;max-width:100%;}\n.pf-portrait-print .pf-stand{position:relative;margin:0;border:1px solid var(--frame-soft);}\n.pf-portrait-thumbs{gap:0;}\n.pf-portrait-thumbs figure{border-top:0;}\n.pf-bottom{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px;align-items:start;}\n.pf-empty{padding:40px 24px;text-align:center;color:var(--ink-2);}\n.pf-foot{display:flex;align-items:center;gap:12px;margin-top:20px;color:var(--ink-3);font:700 14px/1.5 var(--f-mono);letter-spacing:.12em;}\n.pf-foot::before{content:\"\";flex:1;height:1px;background:var(--frame-soft);}\n.pf-card{width:1600px;min-height:1000px;padding:24px;}\n.pf-card .pf-grid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.1fr) minmax(0,1fr);}\n.pf-card .pf-hero{padding:18px 20px;grid-template-columns:112px minmax(0,1fr) 112px;gap:12px 20px;}\n.pf-card .pf-icon{width:100px;height:100px;}\n.pf-card .pf-hero h1{font-size:50px;}\n.pf-card .pf-stand img{height:650px;max-height:none;}\n\n/* Native controls keep exported pages entirely script-free. */\n.pf-tools{padding:14px 18px;margin-bottom:18px;font-size:14px;}\n.pf-tools fieldset{border:0;display:flex;flex-wrap:wrap;gap:4px 14px;width:100%;min-width:0;max-width:100%;}\n.pf-tools legend{max-width:100%;font-weight:700;color:var(--heading);margin-bottom:4px;}\n.pf-tools label{display:inline-flex;align-items:center;gap:7px;min-width:0;min-height:36px;max-width:100%;cursor:pointer;}\n.pf-tools label span{min-width:0;overflow-wrap:anywhere;}\n.pf-tools input{flex:none;width:18px;height:18px;accent-color:var(--accent);}\n.pf-tools .pf-tools-toggle,.pf-tools .pf-tools-heading{display:none;}\n.pf-toc{display:flex;flex-wrap:wrap;gap:6px 14px;min-width:0;max-width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--frame-soft);}\n.pf-toc a{color:var(--accent);text-underline-offset:3px;min-width:0;min-height:32px;max-width:100%;}\n.pf-toc b{color:var(--ink-2);}\n.pf-section{scroll-margin-top:16px;min-width:0;}\n.pf-section>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;min-height:40px;}\n.pf-section>summary::-webkit-details-marker{display:none;}\n.pf-section>summary::before{content:\"+\";flex:none;color:var(--accent);font:700 18px var(--f-mono);}\n.pf-section[open]>summary::before{content:\"−\";}\n.pf-section>summary h2{flex:1;min-width:0;margin:0;}\n.pf-section>summary h2 span{overflow-wrap:anywhere;}\n.pf-section[open]>.pf-content{padding-top:14px;}\n.pf-section>.pf-content{max-height:min(60vh,640px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) var(--panel-deep);}\n.pf-section[data-block=\"STATUS\"]>.pf-content{max-height:none;}\n/* PNG measures the entire expanded section in its off-screen layout frame. */\n.pf-png .pf-section>.pf-content{max-height:none;overflow:visible;}\n.pf-stand{padding-top:0;border:0;}\n.pf-card .pf-stand{padding-top:20px;border:1px solid var(--frame-soft);}\nsummary:focus-visible,a:focus-visible,input:focus-visible,.pf-content:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}\n.pf-section:target{outline:2px solid var(--accent);outline-offset:-2px;}\n\n.pf-prose{display:block;white-space:pre-wrap;overflow-wrap:anywhere;}\n\n@media(max-width:1100px){\n  body:not(.pf-card){padding:14px;}\n  .pf-grid{flex-wrap:wrap;}\n  .pf-col{flex-basis:calc(50% - 18px);}\n  .pf-col-1{flex:1 1 calc(50% - 18px);}\n  .pf-hero{grid-template-columns:100px minmax(0,1fr) 100px;padding:16px;gap:12px;}\n  .pf-icon{width:88px;height:88px;}\n  .pf-hero h1{font-size:40px;}\n  .pf-sys{font-size:18px;gap:8px;}\n  [data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:repeat(2,minmax(0,1fr));}\n}\n@media(max-width:600px){\n  body:not(.pf-card){padding:8px;font-size:15px;}\n  .pf{padding:8px;}\n  /* Small padding cannot clear 16px cut corners. Never mask mobile overflow. */\n  body:not(.pf-card) .pf,body:not(.pf-card) .glass{clip-path:none;}\n  .pf-grid{display:flex;flex-direction:column;align-items:stretch;gap:12px;}\n  .pf-col,.pf-col-1{width:100%;flex:auto;gap:12px;}\n  .pf-b{padding:12px;}\n  .pf-tools{padding:12px;}\n  .pf-hero{grid-template-columns:64px minmax(0,1fr);padding:12px;}\n  .pf-brand{grid-column:1/-1;grid-row:1;justify-self:start;text-align:left;}\n  .pf-roles{grid-column:1/-1;grid-row:2;padding:0;}\n  .pf-roles span{font-size:20px;}\n  .pf-icon{grid-column:1;grid-row:3;width:56px;height:56px;}\n  .pf-id{grid-column:2;grid-row:3;}\n  .pf-hero h1{font-size:28px;}\n  .pf-sys{font-size:14px;letter-spacing:0;gap:4px;flex-wrap:wrap;}\n  .pf-sys span{font-size:14px;}\n  .pf-kv{grid-template-columns:minmax(0,1fr);}\n  .pf-gal{grid-template-columns:repeat(2,minmax(0,1fr));}\n  .pf-stand img{max-height:70vh;}\n  .pf-nums>div{min-width:0;flex-basis:100%;}\n}\n@media(max-width:360px){\n  [data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:minmax(0,1fr);}\n}\n@media(width \u003c 600px){\n  .pf-tools .pf-tools-toggle{display:block;position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;}\n  .pf-tools .pf-tools-heading{display:flex;font-weight:700;color:var(--heading);}\n  .pf-tools-heading::before{content:\"+\";font:700 18px var(--f-mono);}\n  .pf-tools-toggle:checked+.pf-tools-heading::before{content:\"−\";}\n  .pf-tools-toggle:focus-visible+.pf-tools-heading{outline:2px solid var(--accent);outline-offset:2px;}\n  .pf-tools .pf-tools-options{display:none;}\n  .pf-tools-toggle:checked~.pf-tools-options{display:flex;}\n  .pf-tools-options legend{display:none;}\n  .pf-toc{gap:2px 4px;margin-top:6px;padding-top:6px;font-size:12px;line-height:1.4;letter-spacing:0;}\n  .pf-toc a{min-height:0;}\n}\n");
