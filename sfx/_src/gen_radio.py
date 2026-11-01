@@ -77,6 +77,16 @@ SCRIPT = [
 
 
 def tts():
+    wavs = os.environ.get('RADIO_WAVS')   # a folder of 00.wav, 01.wav ... made by tts_chatterbox.py
+    if wavs:
+        import soundfile as sf
+        out = []
+        for i, (text, pause, speed) in enumerate(SCRIPT):
+            s, sr = sf.read(os.path.join(wavs, f'{i:02d}.wav'))
+            s = s.mean(axis=1) if s.ndim == 2 else s
+            s = signal.resample_poly(s, SR, sr)
+            out.append((s / (np.max(np.abs(s)) + 1e-12), pause))
+        return out
     from kokoro_onnx import Kokoro
     k = Kokoro(os.path.join(KOKORO_DIR, 'kokoro-v1.0.onnx'), os.path.join(KOKORO_DIR, 'voices-v1.0.bin'))
     out = []
