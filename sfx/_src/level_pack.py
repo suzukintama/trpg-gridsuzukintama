@@ -106,7 +106,8 @@ def main(apply):
             gain = EFFECT_MAX - mm if mm > EFFECT_MAX else (EFFECT_MIN - mm if mm < EFFECT_MIN else 0.0)
         new_tp = tp + gain
         rows.append((d, f[:-4], mm, il, tp, gain))
-        if apply and abs(gain) > 0.3:
+        # under 0.5 dB is MP3 decode drift: leave the file alone rather than re-encode it again
+        if apply and abs(gain) > 0.5:
             # short transients (single shots) lose level to the limiter, so iterate on the measured value
             z = y
             for _ in range(12):
