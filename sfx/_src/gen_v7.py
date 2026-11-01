@@ -150,7 +150,32 @@ def hacking():
     export(D5 + '電磁ノイズ_盗聴', W('server-em-emissions', 20.0, 6.0, 0.3, 0.8), -22)
 
 
-JOBS = {'guns': guns, 'hacking': hacking}
+# ================================================================ 02 ricochets (2026-11-01: only the two recorded ricochets of 跳弾1/2)
+def ricochets():
+    from gen_v3 import pan
+    r1, r2 = lv('wf_ric1'), lv('wf_ric2')
+    # three ricochets, left / right / centre, each one a little quieter (the round losing energy)
+    export('02_被弾・着弾/跳弾_連続', seq([(0.0, pan(r1, -0.5)), (0.55, pan(r2, 0.55) * 0.85), (1.2, pan(r1, 0.0) * 0.7)]),
+           -16, max_gr=6)
+    # pinned down: far rifle bursts, the rounds smacking the cover (rock breaking) and whining off it (跳弾1/2)
+    g = Gen(7213)
+    parts, t = [], 0.0
+    rock = ['bfh1_rock_breaking_01', 'bfh1_rock_breaking_02', 'bfh1_rock_breaking_03']
+    while t < 4.2:
+        for k in range(int(g.u(3, 6))):
+            parts.append((t, gun(['shot-1', 'shot-2', 'shot-3', 'shot-4'][k % 4], 0.22)))
+            land = t + 0.08
+            r = g.u()
+            if r < 0.45:
+                parts.append((land, pan(lv(rock[g.r.integers(3)], g.u(0.35, 0.6)), g.u(-0.8, 0.8))))
+            elif r < 0.8:
+                parts.append((land, pan([r1, r2][g.r.integers(2)] * g.u(0.45, 0.7), g.u(-0.8, 0.8))))
+            t += 60 / 750 + g.u(-0.006, 0.006)
+        t += g.u(0.4, 0.9)
+    export('02_被弾・着弾/制圧射撃を受ける', seq(parts), -15, max_gr=6)
+
+
+JOBS = {'guns': guns, 'hacking': hacking, 'ricochets': ricochets}
 
 if __name__ == '__main__':
     import sys

@@ -15,58 +15,64 @@ from master import export
 from gen_rec import load
 
 KOKORO_DIR = os.environ.get('KOKORO_DIR', 'C:/Users/owner/Documents/models/kokoro')
-VOICE, LANG, SPEED = 'am_onyx', 'en-us', 0.92
+VOICE = os.environ.get('RADIO_VOICE', 'am_puck')      # a young man; am_onyx for the older, deeper take
+LANG = 'en-us'
+OUT_NAME = os.environ.get('RADIO_NAME', 'ハロウバンド_再建の夜')
 
-# One entry per paragraph; the number is the pause after it (seconds).
+# One entry per paragraph: text, pause after it (seconds), speaking speed.
+# Kokoro has no emotion control, so the feeling comes from pacing: fast and loose when he's
+# riffing, slower when the story turns, a long breath before the punchlines.
 SCRIPT = [
-    ("Hey. Neon City, after midnight. You getting this? "
+    ("Hey! Neon City, after midnight. You getting this? "
      "This is Hollow Band, the junk frequency that keeps humming from the edge of town. "
      "No sponsors. No ad agency, no corporate PR desk has the guts to lean on a broadcast like this. "
-     "All you get is me, a microphone, and a backbeat I pulled off an old cassette.", 1.2),
-    ("So. Tonight's word is: rebuilding. ... Don't laugh. "
+     "All you get is me, a microphone, and a backbeat I pulled off an old cassette.", 1.2, 1.04),
+    ("So. Tonight's word is... rebuilding.", 0.9, 0.96),
+    ("Hey, don't laugh. "
      "When you live between collapsed towers and burnt-out lots, anybody wants to snort at a word like that. "
-     "But the Neon City Re-Building Center is seriously hungry for hands right now.", 1.0),
-    ("Quote: Able-bodied citizens welcome! No experience required! Come build the future of your city! Unquote. "
-     "That's the official line. Sounds like the instructions on a toy kit. "
+     "But the Neon City Re-Building Center is seriously hungry for hands right now.", 1.0, 1.0),
+    ("Quote: Able-bodied citizens welcome! No experience required! Come build the future of your city! Unquote.", 0.6, 1.1),
+    ("That's the official line. Sounds like the instructions on a toy kit. "
      "What it actually means is: you sign a contract that weighs less than a hot dog wrapper, "
-     "and you go roll around in rubble and dust.", 1.0),
-    ("I know a nomad. Can't say the name. She answered that ad and lost an arm inside two weeks. "
-     "A crane sensor glitched and the boom came down. Compensation? Come on. "
+     "and you go roll around in rubble and dust.", 1.1, 0.98),
+    ("I know a nomad. Can't say the name. She answered that ad... and lost an arm inside two weeks. "
+     "A crane sensor glitched, and the boom came down.", 0.9, 0.88),
+    ("Compensation? Come on. "
      "The second you skipped past the words 'limitation of liability', your life, your body, your cyber-insurance, all of it became your own problem. "
-     "And they tell you, straight-faced: 'That was not a work incident. That was a matter of your personal health.' "
-     "Funny, right?", 1.2),
-    ("What's not funny is this: if we don't work there, the rubble in this city stays rubble forever. "
+     "And they tell you, straight-faced: 'That was not a work incident. That was a matter of your personal health.'", 0.8, 0.95),
+    ("Funny, right?", 1.4, 0.86),
+    ("What's not funny is this: if we don't work there, the rubble in this city stays rubble. Forever. "
      "Somebody has to stand the steel up. Somebody has to pour the concrete. "
-     "Otherwise the city stays a ruin.", 1.0),
-    ("Quote: Decent pay! Meals provided! Sleep shelter on site! Unquote. More copy. "
-     "And sure, they hand you zilico at the end of the week. There's a synth-rice lunchbox. "
+     "Otherwise the city stays a ruin.", 1.1, 0.92),
+    ("Quote: Decent pay! Meals provided! Sleep shelter on site! Unquote. More copy.", 0.6, 1.08),
+    ("And sure, they hand you zilico at the end of the week. There's a synth-rice lunchbox. "
      "The beds are bunks: the top one's got a busted neon tube that never stops flickering, "
-     "the bottom one's got rats keeping warm. But it keeps the rain off. "
-     "It keeps most of the gunfire off. Beats sleeping in an alley.", 1.2),
-    ("Takes me back. Ten years ago I took a job just like it. "
+     "the bottom one's got rats keeping warm. But hey, it keeps the rain off. "
+     "It keeps most of the gunfire off. Beats sleeping in an alley.", 1.3, 1.0),
+    ("Takes me back. Ten years ago, I took a job just like it. "
      "Before dawn, with the fog still hanging, I was torquing bolts into rusted girders. "
      "The tools were so cold my fingers quit on me, and the guy next to me laughed and said: "
-     "'This city's dead. We're the zombies.' "
-     "Looking back, that's the day I decided to change jobs. A zombie has no future.", 1.2),
+     "'This city's dead. We're the zombies.'", 1.0, 0.88),
+    ("Looking back, that's the day I decided to change jobs. A zombie has no future.", 1.3, 0.9),
     ("And still, right now, Neon City is doing the same thing all over again. "
-     "The only difference is the corporate eyes are sharper than they were. "
+     "The only difference? The corporate eyes are sharper than they were. "
      "The zilico people hold the flow of currency, their subsidiaries stuff rusuru into locked vaults, "
-     "and the credits we sweat for turn into cold light somewhere on an upper floor. "
-     "Well. Knowing all that and working anyway isn't the worst thing you can do.", 1.0),
-    ("Here's a useless little fact for you. The soup they hand out at the site canteen has a powder in it called 'reinforced yeast'. "
+     "and the credits we sweat for turn into cold light somewhere on an upper floor.", 0.8, 0.97),
+    ("Well. Knowing all that and working anyway... isn't the worst thing you can do.", 1.2, 0.9),
+    ("Okay, here's a useless little fact for you! The soup they hand out at the site canteen has a powder in it called 'reinforced yeast'. "
      "Supposed to help with muscle fatigue. What it is, is expired culture. "
-     "Tastes like mold, and once your stomach gets used to it you get strangely homesick for it. "
-     "Two years on, I still catch myself wanting that taste. Addictive, or just a poor man's tongue? No idea.", 1.0),
-    ("... Whoops. Drifting again.", 1.2),
-    ("If you heard all that and thought, 'not bad', then go to the Re-Building Center first thing tomorrow morning. "
+     "Tastes like mold, and once your stomach gets used to it, you get strangely homesick for it. "
+     "Two years on, I still catch myself wanting that taste. Addictive, or just a poor man's tongue? No idea.", 0.9, 1.05),
+    ("... Whoops. Drifting again.", 1.3, 0.92),
+    ("If you heard all that and thought 'not bad', then go to the Re-Building Center first thing tomorrow morning. "
      "A hologram receptionist will smile and ask for your signature. "
-     "If you've changed your mind, now's the time to run. "
-     "From the moment you sign, your life is on loan to the loan sharks upstairs, like a debt.", 1.2),
+     "If you've changed your mind? Now's the time to run. "
+     "From the moment you sign, your life is on loan to the loan sharks upstairs. Like a debt.", 1.3, 0.95),
     ("Okay. That's enough on that. I'm going to put some music on and smoke-screen the whole thing. "
      "Next track is... yeah. 'Rusted Hands'. A blues, written by a guy who lost his fingers on a construction site. "
-     "By the time it's over, there'll be a fresh job poster on some wall in this city.", 1.0),
+     "By the time it's over, there'll be a fresh job poster on some wall in this city.", 1.0, 0.96),
     ("This has been Hollow Band, coming to you from the bottom of Neon City. "
-     "Keep your ears open, choom. Catch you on the next one.", 0.0),
+     "Keep your ears open, choom. Catch you on the next one!", 0.0, 1.02),
 ]
 
 
@@ -74,8 +80,8 @@ def tts():
     from kokoro_onnx import Kokoro
     k = Kokoro(os.path.join(KOKORO_DIR, 'kokoro-v1.0.onnx'), os.path.join(KOKORO_DIR, 'voices-v1.0.bin'))
     out = []
-    for text, pause in SCRIPT:
-        s, sr = k.create(text, voice=VOICE, speed=SPEED, lang=LANG)
+    for text, pause, speed in SCRIPT:
+        s, sr = k.create(text, voice=VOICE, speed=speed, lang=LANG)
         s = signal.resample_poly(s, SR, sr)
         out.append((s / (np.max(np.abs(s)) + 1e-12), pause))
     return out
@@ -160,7 +166,7 @@ def radio_show():
     ir = make_ir(g, rt60=0.3, predelay=0.004, lp_start=8000, lp_end=3000, tail_energy=0.25)
     y = convolve(np.stack([mix, mix], 1), ir)[:n]
     y = y[:n] + np.stack([mix, mix], 1) * 0.0
-    export('08_ラジオ/ハロウバンド_再建の夜', y, -16, note='Hollow Band: rebuilding (English talk segment)')
+    export('08_ラジオ/' + OUT_NAME, y, -16, note=f'Hollow Band: rebuilding (English talk segment, voice {VOICE})')
 
 
 if __name__ == '__main__':
