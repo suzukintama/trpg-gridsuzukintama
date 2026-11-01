@@ -483,6 +483,16 @@
   .skill-out:empty{display:none;}
   .skill-desc{grid-column:1/-1;margin-top:-4px;font:400 12px/1.6 var(--f-jp);color:#8aa0b6;}
   .skill-desc:empty{display:none;}
+  .skill-name{display:flex;align-items:center;gap:6px;min-width:0;}
+  .skill-name .dyn-name{min-width:0;flex:1;}
+  .skill-tier{white-space:nowrap;font-size:10px;color:var(--tx-3,#8a929b);}
+  .skill-tier-note,.skill-prereq{grid-column:1/-1;font-size:12px;color:var(--tx-3,#8a929b);}
+  .skill-tier-note:empty,.skill-prereq:empty{display:none;}
+  .skill-prereq.invalid{color:var(--warn,#ffd27d);}
+  .dyn-row.skill.skill-prereq-missing{background:#000;color:#f2f2f2;}
+  .dyn-row.skill.skill-prereq-missing input,.dyn-row.skill.skill-prereq-missing button{background:#111;color:#f2f2f2;}
+  .dyn-row.skill.skill-prereq-missing .skill-tier,.dyn-row.skill.skill-prereq-missing .skill-tier-note,.dyn-row.skill.skill-prereq-missing .skill-prereq,.dyn-row.skill.skill-prereq-missing .skill-desc,.dyn-row.skill.skill-prereq-missing .skill-ab,.dyn-row.skill.skill-prereq-missing .skill-mult,.dyn-row.skill.skill-prereq-missing .skill-chk{color:#f2f2f2;}
+  .skill-prereq-link{border:0;padding:0;background:transparent;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;}
   .skill-mult{align-self:center;white-space:nowrap;font:700 11px var(--f-mono);letter-spacing:.04em;color:#7a8fa0;}
   .skill-mult.x2{color:#ffd27d;}
   .skill-mult.x3{color:#ff9d7d;}
@@ -499,6 +509,8 @@
        .dyn-row .dyn-text の全幅指定（560px以下の共通規則）が効くと縦に伸びるので、ここで打ち消す */
     .dyn-row.skill{grid-template-columns:minmax(0,1fr) auto auto auto;gap:8px;}
     .dyn-row.skill .dyn-name{grid-column:1/-1;}
+    .dyn-row.skill .skill-name{grid-column:1/-1;}
+    .dyn-row.skill .skill-tier-note,.dyn-row.skill .skill-prereq{order:2;}
     .dyn-row.skill .dyn-text{grid-column:auto;}
     .dyn-row.skill .skill-ab{max-width:none;justify-self:start;text-align:left;}
     .dyn-row.skill .skill-chk{grid-column:1/-1;order:1;}
@@ -802,6 +814,7 @@
       <div class="full"><label class="fld" for="f-holotel"><b>ホロフォンの番号</b><span>HOLO NUMBER</span></label><input id="f-holotel" class="inp" readonly tabindex="-1" style="background:rgba(var(--accent-rgb),0.06);cursor:default;"><div style="margin-top:6px;font:400 11px/1.55 var(--f-jp);color:#7a8fa0;">キャラを作ったときに決まる番号。VTT のホロフォンでこの番号を使い、どの卓でも同じ番号でやり取りが続く。変えるときは GM に頼む。</div></div>
       <!-- 肩書き（2026-10-25 先生の指示）。自由記入。候補にロール名を出すが、何を書いてもよい。VTT の肩書きにそのまま出る -->
       <div class="full"><label class="fld" for="f-title"><b>肩書き</b><span>TITLE</span></label><input id="f-title" class="inp" data-f="title" list="title-cands" placeholder="自由入力" autocomplete="off"><datalist id="title-cands"></datalist></div>
+      <div class="full"><label class="fld" for="f-title-show"><b>表向きの肩書き</b><span>PUBLIC TITLE</span></label><input id="f-title-show" class="inp" data-f="title_show" placeholder="自由入力" autocomplete="off"><div style="margin-top:6px;font:400 11px/1.55 var(--f-jp);color:#7a8fa0;">VTT の名前の横と公開ページに出る肩書き。本当の肩書きとは別に、偽りを書いてもよい。</div></div>
       <div><label class="fld" for="f-age"><b>年齢</b><span>AGE</span></label><input id="f-age" class="inp" data-f="age" placeholder="外見年齢のみでも可"></div>
       <div><span class="fld" id="lb-gender"><b>性別</b><span>GENDER</span></span><div class="seg" role="group" aria-labelledby="lb-gender"><button type="button" class="seg-btn" data-val="男">男</button><button type="button" class="seg-btn" data-val="女">女</button><button type="button" class="seg-btn" data-val="不明">不明</button><input type="hidden" id="gender-in" data-f="gender" value="不明"></div></div>
       <div><label class="fld" for="height-in"><b>身長</b><span>HEIGHT cm</span></label><input class="inp" type="number" id="height-in" data-f="height" placeholder="cm を入力（例：172）"></div>
@@ -908,6 +921,8 @@
     <div class="shd"><span class="tag">// LOADOUT</span><h2>装備・サイバーウェア</h2><span class="ln"></span></div>
     <div class="grid"><div class="full"><label class="fld" for="f-equip"><b>装備</b><span>EQUIPMENT</span></label><div style="font-size:12px;line-height:1.7;color:#7a8fa0;margin-bottom:8px;">メモ欄。ここに書いた品はセッションツールへ渡らない。卓で使う銃や道具は「所持品」に書く。</div><textarea id="f-equip" class="inp" data-f="equip" style="min-height:180px;" placeholder="銃 / 刃物 / ガジェットなど"></textarea></div></div>
     <div class="grp-ttl" style="margin-top:18px;">サイバーウェア — 部位マップ</div>
+    <div class="hm-slot" id="cw-slotline" title="義体を入れた部位の数。上限は【Neural】×2。エッジウェアは別枠">義体の枠　<b id="cw-slots">0／0</b></div>
+    <div id="cw-slotwarn" style="display:none;color:var(--danger,var(--alert));font-size:12px;margin-top:6px;">枠を超えています。〈義体過負荷制御〉の判定が要ります</div>
     <div class="cw-map">
       <div class="cw-col left">
         <div class="cw-card"><div class="cw-head"><span class="cw-name">基幹システム・チップ系</span></div><textarea class="cw-parts" data-f="cw_core" placeholder="装着パーツ……"></textarea></div>
@@ -2300,6 +2315,13 @@ var ROLE_SKILLS=[
 
   function statInputs(){return document.querySelectorAll('input[data-stat]');}
   function getStat(k){var i=document.querySelector('input[data-stat="'+k+'"]');var v=parseInt(i.value,10);return isNaN(v)?0:v;}
+  var CYBER_SLOT_FIELDS=['cw_core','cw_vision','cw_nerve','cw_immune','cw_skeleton','cw_skin','cw_head','cw_torso','cw_arm','cw_waist','cw_leg'];
+  function renderCyberSlots(){
+    var used=CYBER_SLOT_FIELDS.filter(function(k){var f=document.querySelector('[data-f="'+k+'"]');return f&&f.value.trim();}).length;
+    var max=getStat('Neural')*2;
+    el('cw-slots').textContent=used+'／'+max;
+    el('cw-slotwarn').style.display=used>max?'':'none';
+  }
   // 能力値欄を整数の範囲（Edge は0〜10、ほかは1〜10）へ直した値。空・小数・範囲外は欄を離れたとき・書き出すときに直す（P043）
   function statMin(e){return e.getAttribute('data-stat')==='Edge'?0:1;}
   function statNorm(e,raw){var mn=statMin(e),v=parseInt(raw==null?e.value:raw,10);if(isNaN(v))v=mn;return String(Math.min(10,Math.max(mn,v)));}
@@ -2324,6 +2346,7 @@ var ROLE_SKILLS=[
   }
   function recalc(){
     syncNums();
+    renderCyberSlots();
     var sm=statSums(), sci=sm.sci, fic=sm.fic;
     var so=sci>SCI_MAX, fo=fic>FIC_MAX, cyan='var(--accent)', mag='var(--alert)';
     el('sci-val').textContent=pad(sci)+' / '+pad(SCI_MAX); el('sci-val').style.color=so?mag:cyan;
@@ -2417,9 +2440,9 @@ var ROLE_SKILLS=[
     var skill=(id==='skill-list');
     var item=(id==='item-list');
     var row=document.createElement('div'); row.className='dyn-row'+(skill?' skill':'')+(item?' item':'');
-    var name=document.createElement('input'); name.className='inp dyn-name'; name.placeholder=ph.name; name.value=data.name||'';
+    var name=document.createElement('input'); name.className='inp dyn-name'; name.placeholder=ph.name; name.value=skill?skillRename(data.name||''):(data.name||'');
     var text;
-    if(skill){text=document.createElement('input'); text.type='number'; text.min='1'; text.className='inp dyn-text dyn-lvl skill-lvl'; text.placeholder=ph.text; text.value=data.text||'';}
+    if(skill){text=document.createElement('input'); text.type='number'; text.min='0'; text.className='inp dyn-text dyn-lvl skill-lvl'; text.placeholder=ph.text; text.value=data.text||'';text.dataset.accepted=text.value;}
     else{text=document.createElement('textarea'); text.className='inp dyn-text'; text.placeholder=ph.text; text.value=data.text||'';}
     var cat=null;
     if(item&&data.cat&&!isItemCat(data.cat)){
@@ -2434,11 +2457,11 @@ var ROLE_SKILLS=[
     // 行の中の知らない鍵（VTT が足した物など）は行に持たせ、collectList で同じ値のまま返す（S17・R42）
     var rx=pickExtra(data,['name','text'].concat(item?['cat']:skill?['own']:[])); if(Object.keys(rx).length)row._x=rx;
     var del=document.createElement('button'); del.type='button'; del.className='del-btn'; del.textContent='✕';
-    del.addEventListener('click',function(){row.parentNode.removeChild(row);if(skill)clampSkills();if(id==='edge-list')recalc();persist();});
+    del.addEventListener('click',function(){row.parentNode.removeChild(row);if(skill){skillAutoForget();clampSkills();}if(id==='edge-list')recalc();persist();});
     var mult=null,ab=null;
     if(skill){
       // 自作技能は行そのものに控えを持たせる。名前を書き換えても対応ステータスと倍率が離れない
-      var od=data.own||OWN[data.name||''];
+      var od=data.own||OWN[name.value];
       if(od&&od.ab){row.dataset.own='1';row.dataset.ab=od.ab;row.dataset.x=String(od.x||1);}
       ab=document.createElement('span'); ab.className='skill-ab'; ab.textContent='—';
       mult=document.createElement('span'); mult.className='skill-mult'; mult.textContent='×1';
@@ -2449,8 +2472,15 @@ var ROLE_SKILLS=[
       chk.innerHTML='<span class="chk-v">判定<b>—</b></span><span class="chk-sk">腕前<b>—</b></span><span class="chk-tr"></span><button type="button" class="skill-roll" style="display:none;">振る</button>';
       chk.querySelector('.skill-roll').addEventListener('click',function(){skillRoll(row);});
     }
-    row.appendChild(name); if(cat)row.appendChild(cat); if(ab)row.appendChild(ab); if(mult)row.appendChild(mult); row.appendChild(skill?numWrap(text):text); if(chk)row.appendChild(chk); row.appendChild(del);
+    var nameBox=name;
+    if(skill){nameBox=document.createElement('span');nameBox.className='skill-name';nameBox.appendChild(name);var tier=document.createElement('span');tier.className='skill-tier';nameBox.appendChild(tier);}
+    row.appendChild(nameBox); if(cat)row.appendChild(cat); if(ab)row.appendChild(ab); if(mult)row.appendChild(mult); row.appendChild(skill?numWrap(text):text); if(chk)row.appendChild(chk); row.appendChild(del);
     if(skill){
+      var tierNote=document.createElement('div');tierNote.className='skill-tier-note';row.appendChild(tierNote);
+      var prereq=document.createElement('div');prereq.className='skill-prereq';prereq.setAttribute('aria-live','polite');row.appendChild(prereq);
+      row.addEventListener('click',function(e){
+        if(row.classList.contains('skill-prereq-missing')&&!e.target.closest('input,button,textarea,select,a'))skillAutoStart(row);
+      });
       var warn=document.createElement('div'); warn.className='skill-warn'; row.appendChild(warn);
       var out=document.createElement('div'); out.className='skill-out'; out.setAttribute('aria-live','polite'); row.appendChild(out);
       var dsc=document.createElement('div'); dsc.className='skill-desc'; row.appendChild(dsc);
@@ -2461,7 +2491,35 @@ var ROLE_SKILLS=[
   function collectList(id){
     var out=[]; var rows=document.getElementById(id).querySelectorAll('.dyn-row');
     Array.prototype.forEach.call(rows,function(r){var o={name:r.querySelector('.dyn-name').value,text:r.querySelector('.dyn-text').value};var c=r.querySelector('.dyn-cat');if(c)o.cat=(c.tagName==='SELECT')?c.value:c.getAttribute('data-cat');if(r._x)putExtra(o,r._x);out.push(o);});
+    if(id==='skill-list')out.forEach(function(o){o.name=skillRename(o.name);});
     return out;
+  }
+  var SKILL_RENAME={
+    '密輸ルート嗅ぎ／調達':'〈密輸ルート把握／調達〉','密輸ルート嗅ぎ':'〈密輸ルート把握／調達〉','調達':'〈密輸ルート把握／調達〉',
+    'スコア読み':'〈等級査定〉',
+    'ナワバリ作法／掟読み':'〈縄張りの掟〉','ナワバリ作法':'〈縄張りの掟〉','掟読み':'〈縄張りの掟〉',
+    '密造／ジャンク調理':'〈密造／ジャンク加工〉','密造':'〈密造／ジャンク加工〉','ジャンク調理':'〈密造／ジャンク加工〉',
+    '口話読唇':'〈読唇術〉',
+    'ブレインダンス離脱コントロール':'〈BD離脱制御〉','ブレインダンス離脱':'〈BD離脱制御〉'
+  };
+  function skillRename(name){return SKILL_RENAME&&SKILL_RENAME[normSkill(name)]||name;}
+  function skillRenameFields(fields){
+    try{
+      var pal=JSON.parse(fields.vtt_palette);
+      if(Array.isArray(pal)){
+        var names=Object.keys(SKILL_RENAME).sort(function(a,b){return b.length-a.length;});
+        var re=new RegExp('(^|[^\\p{L}\\p{N}_／])('+names.join('|')+')(?=$|[^\\p{L}\\p{N}_／])','gu');
+        fields.vtt_palette=JSON.stringify(pal.map(function(line){return typeof line==='string'?line.replace(re,function(_,before,name){return before+SKILL_RENAME[name].slice(1,-1);}):line;}));
+      }
+    }catch(e){}
+    try{
+      var own=JSON.parse(fields.skill_own);
+      if(own&&typeof own==='object'&&!Array.isArray(own)){
+        var next={};Object.keys(own).forEach(function(name){next[skillRename(name)]=own[name];});
+        fields.skill_own=JSON.stringify(next);
+      }
+    }catch(e){}
+    return fields;
   }
   // 技能マスター（ルール/技能一覧.md 2026-08-25版から抽出。11カテゴリ・139項目）
   // 1件＝[正式名, 対応ステータス, 取得コスト倍率] 。倍率は 無印=1・★上級=2・★★特級=3
@@ -2480,8 +2538,8 @@ var ROLE_SKILLS=[
     ['射撃',[
       ['〈ハンドガン〉','Firearms',1],['〈ライフル〉','Firearms',1],['〈ショットガン〉','Firearms',1],
       ['〈重火器〉','Firearms',2],['〈弓術〉','Firearms',1],
-      ['〈フルオート射撃〉','各武器技能＋Firearms',2],['〈精密射撃〉','各武器技能＋Firearms',3],
-      ['〈制圧射撃〉','各武器技能＋Firearms',3],['〈アキンボ〉','各武器技能＋指定ステ・技能＋α',3],
+      ['〈フルオート射撃〉','Firearms',2],['〈精密射撃〉','Firearms',3],
+      ['〈制圧射撃〉','Firearms',3],['〈アキンボ〉','Firearms',3],
       ['〈投擲〉','Nerve',1],['〈早抜き／クイックドロー〉','Nerve',2],['〈ガンファイト〈CQB〉〉','Firearms',2]
     ]],
     ['乗り物',[
@@ -2490,8 +2548,8 @@ var ROLE_SKILLS=[
       ['〈エアロダイン操縦〉','Nerve',1],['〈飛行船操縦〉','Nerve',1],['〈船舶操縦〉','Nerve',1],['〈騎乗〉','Nerve',1]
     ]],
     ['感覚',[
-      ['〈知覚〉','Intelligence',1],['〈集中〉','Ego',1],['〈口話読唇〉','Intelligence',1],
-      ['〈隠密〉','Nerve',1],['〈尾行／追跡〉','Nerve',1],['〈隠蔽／発見〉','Intelligence',1],
+      ['〈知覚〉','Intelligence',1],['〈集中〉','Ego',1],['〈読唇術〉','Intelligence',1],
+      ['〈隠密〉','Nerve',1],['〈尾行／追跡〉','Nerve＋Operations',1],['〈隠蔽／発見〉','Intelligence＋Operations',1],
       ['〈第六感／直感〉','Chance',2]
     ]],
     ['芸術・表現',[
@@ -2510,24 +2568,24 @@ var ROLE_SKILLS=[
       ['〈人類学〉','Intelligence',1],['〈生物学〉','Intelligence',1],['〈動物学〉','Intelligence',1],
       ['〈植物学〉','Intelligence',1],['〈地質学〉','Intelligence',1],['〈化学〉','Intelligence',1],
       ['〈物理学〉','Intelligence',1],['〈数学〉','Intelligence',1],['〈暗号学〉','Intelligence',1],
-      ['〈推理／プロファイリング〉','Intelligence',2],['〈鑑識／フォレンジック〉','Intelligence',2],
-      ['〈戦術指揮〉','Intelligence',2],
+      ['〈推理／プロファイリング〉','Intelligence',2],['〈鑑識／フォレンジック〉','Intelligence',1],
+      ['〈戦術指揮〉','Intelligence＋Operations',2],
       ['〈土地鑑〈地域指定〉〉','Intelligence',1,'土地鑑','地域','第5区'],
       ['〈言語〈指定〉〉','Intelligence',1,'言語','言語','ロウアー隠語'],
       ['〈情報収集／検索〉','Intelligence',1],['〈システム知識〉','Interface',1],
       ['〈専門知識〈指定〉〉','Intelligence',1,'専門知識','分野','経済'],
       ['〈野外生存術〉','Intelligence',1],['〈ビジネス〉','Intelligence',1],
-      ['〈鑑定／目利き〉','Intelligence',2],['〈動物使い／調教〉','Influence',1]
+      ['〈鑑定／目利き〉','Intelligence',1],['〈動物使い／調教〉','Influence',1]
     ]],
     ['技術・電脳',[
       ['〈ベーシック・テク〉','Craft',1],['〈サイバー技術〉','Craft',2],['〈義体応急整備〉','Craft',1],
       ['〈武器製作〉','Craft',1],['〈車両整備〉','Craft',1],['〈航空機整備〉','Craft',1],
       ['〈エアロダイン整備〉','Craft',1],['〈ジャイロ整備〉','Craft',1],['〈船舶整備〉','Craft',1],
       ['〈メカニック〉','Craft',1],['〈爆破工作〉','Craft',1],['〈偽造〉','Craft',1],
-      ['〈変装〉','Craft',1],['〈鍵開け〉','Craft',1],['〈スリ〉','Craft',1],
+      ['〈変装〉','Craft',1],['〈鍵開け〉','Craft',1],['〈スリ〉','Nerve',1],
       ['〈エレクトロニクス〉','Craft',1],['〈電子・保安技術〉','Craft',1],['〈プログラミング〉','Interface',1],
       ['〈ブリーチ・プロトコル〉','Interface',2],['〈電子戦〈ジャミング〉〉','Interface',2],
-      ['〈ドローン操作〈リギング〉〉','Interface',2],['〈密造／ジャンク調理〉','Craft',1]
+      ['〈ドローン操作〈リギング〉〉','Interface＋Neural',2],['〈密造／ジャンク加工〉','Craft',1]
     ]],
     ['社会',[
       ['〈エチケット〉','Influence',1],['〈裏社会〉','Influence',1],['〈取引〉','Influence',1],
@@ -2537,25 +2595,223 @@ var ROLE_SKILLS=[
       ['〈文化知識〈指定〉〉','Intelligence',1,'文化知識','文化・地域','ノマド'],
       ['〈詐欺〉','Influence',3],['〈ギャンブル〉','Chance＋Intelligence',1],
       ['〈威圧〉','Influence',1],['〈尋問〉','Influence',1],['〈誘惑／魅了〉','Influence',1],
-      ['〈スコア読み〉','Intelligence',1],['〈ナワバリ作法／掟読み〉','Influence',1],
-      ['〈密輸ルート嗅ぎ／調達〉','Operations',2]
+      ['〈等級査定〉','Intelligence',1],['〈縄張りの掟〉','Influence',1],
+      ['〈密輸ルート把握／調達〉','Operations',1]
     ]],
     ['抵抗',[
-      ['〈拷問／薬物抵抗〉','Constitution or Ego',1],['〈耐痛〉','Constitution or Ego',1],
+      ['〈拷問／薬物抵抗〉','Constitution＋Ego',1],['〈耐痛〉','Constitution＋Ego',1],
       ['〈精神集中〉','Ego',1],['〈環境耐性〉','Constitution',1],['〈出血管理〉','Constitution',2],
-      ['〈ショック耐性〉','Constitution',1],['〈毒／薬物抵抗〉','Constitution',1],['〈電磁耐性〉','Constitution',1],
+      ['〈ショック耐性〉','Constitution',1],['〈毒／薬物抵抗〉','Constitution',1],['〈電磁耐性〉','Constitution＋Neural',1],
       ['〈恐慌抵抗〈クー・ド・グラ〉〉','Ego＋Edge',1],['〈拘束離脱〉','Strength＋Nerve',1],
-      ['〈踏ん張り／耐衝〉','Strength or Constitution',1],['〈コンバージョン順応〉','Constitution',2],
-      ['〈義体過負荷制御〉','Nerve',3],['〈ブレインダンス離脱コントロール〉','Ego',2]
+      ['〈踏ん張り／耐衝〉','Strength＋Constitution',1],['〈コンバージョン順応〉','Constitution＋Neural',2],
+      ['〈義体過負荷制御〉','Nerve＋Neural',3],['〈BD離脱制御〉','Ego',2]
     ]]
   ];
+  // 技能の3段分類。表示の「その他」は内部では M。
+  var SKILL_TIER={
+    B:['運動','怪力','耐久力／忍耐','呼吸調節','格闘','白兵戦〈近接武器〉','回避','投擲','知覚','拡張知覚','集中','隠密','尾行／追跡','隠蔽／発見','芸能','絵画','写真／映像','文筆','舞踊','ファッション','ブレインダンス使用','身繕い','応急手当','教育／一般知識','下見／段取り','情報収集／検索','ベーシック・テク','エチケット','裏社会','会話術','真意看破','商才','ギャンブル','威圧','誘惑／魅了','等級査定','縄張りの掟','拷問／薬物抵抗','耐痛','精神集中','環境耐性','ショック耐性','毒／薬物抵抗','電磁耐性','恐慌抵抗〈クー・ド・グラ〉','拘束離脱','踏ん張り／耐衝'],
+    M:['水泳','ハンドガン','ライフル','ショットガン','弓術','車両操縦','バイク操縦','重機操作','船舶操縦','騎乗','楽器演奏','演技','診断','野外生存術','動物使い／調教','義体応急整備','変装','鍵開け','スリ','密造／ジャンク加工','取引','弁舌／説得','袖の下／買収','官僚術','尋問'],
+    S:[]
+  };
+  SKILL_DB.forEach(function(c){c[1].forEach(function(s){var n=s[0].slice(1,-1);if(SKILL_TIER.B.indexOf(n)<0&&SKILL_TIER.M.indexOf(n)<0)SKILL_TIER.S.push(n);});});
+  // 前提技能_データ_2026-11-01.json の groups / prerequisites の写し。
+  var SKILL_PREREQ={
+    groups:{'銃技能':['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉']},
+    prerequisites:{
+      '〈フェンシング〉':[{skill:'〈白兵戦〈近接武器〉〉',lv:3}],
+      '〈二刀流／双兵装〉':[{skill:'〈白兵戦〈近接武器〉〉',lv:5}],
+      '〈ガンファイト〈CQB〉〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:3},{anyOf:['〈格闘〉','〈白兵戦〈近接武器〉〉'],lv:2}],
+      '〈アキンボ〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:5}],
+      '〈ガン＝カタ〉':[{skill:'〈アキンボ〉',lv:1},{skill:'〈ガンファイト〈CQB〉〉',lv:1},{anyOf:[{prefix:'〈武術〈'}],lv:1}],
+      '〈外科医術〉':[{skill:'〈応急手当〉',lv:4}],
+      '〈精神分析／メンタルケア〉':[{skill:'〈会話術〉',lv:2}],
+      '〈推理／プロファイリング〉':[{anyOf:['〈知覚〉','〈情報収集／検索〉'],lv:2}],
+      '〈サイバー技術〉':[{skill:'〈ベーシック・テク〉',lv:2},{skill:'〈応急手当〉',lv:2}],
+      '〈精密射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉','〈弓術〉'],lv:3}],
+      '〈制圧射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:3}],
+      '〈フルオート射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:3}]
+    }
+  };
+  // 前提技能_データ_2026-11-01.json (2026-11-01b) の追加データ。
+  var SKILL_MAX_LEVEL={'〈フェンシング〉':1,'〈二刀流／双兵装〉':1,'〈精密射撃〉':1,'〈アキンボ〉':1};
+  var SKILL_COST_MARK={'〈鑑識／フォレンジック〉':'無印','〈鑑定／目利き〉':'無印','〈密輸ルート把握／調達〉':'無印'};
+  var SKILL_STAT_AXIS={'〈スリ〉':'Nerve','〈フルオート射撃〉':'Firearms','〈精密射撃〉':'Firearms','〈制圧射撃〉':'Firearms','〈アキンボ〉':'Firearms'};
+  function skillCanonical(name){
+    var n=normSkill(name),ix=skillIndex(),rec=ix.byName[n]||ix.byAlias[n];
+    if(rec)return rec.full;
+    for(var k in ix.byBase)if(n.indexOf(k)===0)return ix.byBase[k].full;
+    return name;
+  }
+  function skillClassOf(name){
+    var n=normSkill(skillCanonical(name));
+    for(var t in SKILL_TIER)if(SKILL_TIER[t].some(function(s){return normSkill(s)===n;}))return t;
+    return 'B';
+  }
+  function skillPrereqMissing(name){
+    var req=SKILL_PREREQ.prerequisites[skillCanonical(name)]||[],rows=collectList('skill-list');
+    function has(item,lv){return rows.some(function(r){return (parseInt(r.text,10)||0)>=lv&&(typeof item==='string'?normSkill(skillCanonical(r.name))===normSkill(skillCanonical(item)):String(r.name).indexOf(item.prefix)===0);});}
+    return req.filter(function(r){return r.skill?!has(r.skill,r.lv):!r.anyOf.some(function(a){return has(a,r.lv);});});
+  }
+  function skillPrereqText(req){
+    return req.length?'前提：'+req.map(function(r){
+      if(r.skill)return r.skill+'Lv'+r.lv+' が必要';
+      if(r.anyOf.some(function(a){return typeof a!=='string';}))return '〈武術〈流派指定〉〉のどれか1流派Lv'+r.lv;
+      return r.anyOf.join('')+'のどれかLv'+r.lv;
+    }).join('、'):'';
+  }
+  function skillPrereqFocus(item){
+    var rows=document.querySelectorAll('#skill-list .dyn-row'),target=null;
+    for(var i=0;i<rows.length;i++){
+      var name=rows[i].querySelector('.dyn-name').value;
+      if(typeof item==='string'?normSkill(skillCanonical(name))===normSkill(skillCanonical(item)):String(name).indexOf(item.prefix)===0){target=rows[i];break;}
+    }
+    if(target){target.scrollIntoView({block:'center'});target.querySelector('.skill-lvl').focus();return;}
+    PK.cat='';pkOpen('list');
+    PK.find=typeof item==='string'?item:'武術';el('sk-find').value=PK.find;renderPkList();el('sk-find').focus();
+  }
+  function renderSkillPrereq(box,req,limitText){
+    box.textContent='';
+    function text(s){box.appendChild(document.createTextNode(s));}
+    function link(item){
+      var b=document.createElement('button');b.type='button';b.className='skill-prereq-link';
+      b.textContent=typeof item==='string'?item:'〈武術〈流派指定〉〉';
+      b.addEventListener('click',function(){skillPrereqFocus(item);});box.appendChild(b);
+    }
+    if(req.length)text('前提：');
+    req.forEach(function(r,i){
+      if(i)text('、');
+      if(r.skill){link(r.skill);text('Lv'+r.lv+' が必要');}
+      else if(r.anyOf.some(function(a){return typeof a!=='string';})){
+        link(r.anyOf.filter(function(a){return typeof a!=='string';})[0]);text('のどれか1流派Lv'+r.lv);
+      }else{r.anyOf.forEach(link);text('のどれかLv'+r.lv);}
+    });
+    if(limitText)text((req.length?'　':'')+limitText);
+    if(req.length){
+      var auto=document.createElement('button');auto.type='button';auto.className='mbtn skill-auto-open';
+      auto.textContent='前提をまとめて取る';auto.title='足りない前提の技能を、必要なレベルまでまとめて上げる';
+      auto.addEventListener('click',function(){skillAutoStart(box.closest('.dyn-row'));});box.appendChild(auto);
+    }
+  }
+  var SK_AUTO={serial:0,undo:null,resolve:null};
+  function skillAutoForget(){
+    SK_AUTO.undo=null;
+    var note=el('skill-auto-notice');if(note)note.remove();
+  }
+  function skillAutoClose(){
+    SK_AUTO.serial++;
+    if(SK_AUTO.resolve){var done=SK_AUTO.resolve;SK_AUTO.resolve=null;done(null);}
+    var modal=el('skill-auto-modal');if(modal)modal.classList.remove('on');
+  }
+  function skillAutoUI(){
+    if(el('skill-auto-modal'))return;
+    var m=document.createElement('div');m.id='skill-auto-modal';m.className='modal';m.style.zIndex='70';
+    m.innerHTML='<div class="box" role="dialog" aria-modal="true" aria-labelledby="skill-auto-title"><h3 id="skill-auto-title">前提をまとめて取る</h3><p id="skill-auto-body" style="white-space:pre-line" aria-live="polite"></p><div id="skill-auto-choices" style="display:flex;flex-wrap:wrap;gap:8px"></div><div class="acts"><button type="button" class="mbtn" id="skill-auto-cancel">やめる</button><button type="button" class="mbtn go" id="skill-auto-go">足す</button></div></div>';
+    document.body.appendChild(m);
+    el('skill-auto-cancel').addEventListener('click',skillAutoClose);
+    var down=false;m.addEventListener('mousedown',function(e){down=e.target===m;});
+    m.addEventListener('click',function(e){if(down&&e.target===m)skillAutoClose();down=false;});
+  }
+  async function skillAutoStart(target){
+    skillAutoUI();skillAutoClose();skillAutoForget();
+    var serial=SK_AUTO.serial,modal=el('skill-auto-modal'),body=el('skill-auto-body'),choices=el('skill-auto-choices'),go=el('skill-auto-go');
+    var rows=Array.prototype.slice.call(el('skill-list').querySelectorAll('.dyn-row'));
+    var before=rows.map(function(row){return {row:row,name:row.querySelector('.dyn-name').value,value:row.querySelector('.skill-lvl').value};});
+    var signature=JSON.stringify(collectList('skill-list')),budget=spBudget(),plan=[],selected={},visiting={};
+    function key(name){return String(name).indexOf('〈武術〈')===0?normSkill(name):normSkill(skillCanonical(name));}
+    function owned(name){
+      var k=key(name),best=null;
+      before.forEach(function(r){if(key(r.name)===k&&(!best||(parseInt(r.value,10)||0)>(parseInt(best.value,10)||0)))best=r;});
+      return best;
+    }
+    function level(name){var r=owned(name);return r?parseInt(r.value,10)||0:0;}
+    function choose(names,prefix){
+      body.textContent=prefix?'取得する武術の流派名を入力してください。':'取得する前提技能を選んでください。';choices.textContent='';go.style.display='none';
+      return new Promise(function(resolve){
+        SK_AUTO.resolve=resolve;
+        function finish(value){SK_AUTO.resolve=null;resolve(value);}
+        if(prefix){
+          var input=document.createElement('input');input.id='skill-auto-style';input.className='inp';input.setAttribute('aria-label','流派名');choices.appendChild(input);
+          var next=document.createElement('button');next.type='button';next.className='mbtn';next.textContent='次へ';choices.appendChild(next);
+          next.onclick=function(){var style=input.value.trim();if(!style){skillAutoClose();return;}finish(prefix+style+'〉〉');};input.focus();
+        }else names.forEach(function(name){var b=document.createElement('button');b.type='button';b.className='mbtn';b.textContent=name;b.dataset.skill=name;b.onclick=function(){finish(name);};choices.appendChild(b);});
+      });
+    }
+    async function need(name,wanted){
+      if(serial!==SK_AUTO.serial)return;
+      var k=key(name),current=level(name),entry=plan.find(function(p){return p.key===k;});
+      var cap=SKILL_MAX_LEVEL[skillCanonical(name)];if(cap&&wanted>cap)throw new Error('この技能はLv'+cap+'までです。');
+      if(entry){entry.to=Math.max(entry.to,wanted);return;}
+      if(visiting[k])throw new Error('前提技能が循環しているため取得できません。');
+      visiting[k]=true;
+      var reqs=SKILL_PREREQ.prerequisites[skillCanonical(name)]||[];
+      for(var i=0;i<reqs.length;i++){
+        var req=reqs[i],pick=req.skill;
+        if(!pick){
+          var names=[];
+          req.anyOf.forEach(function(item){
+            if(typeof item==='string')names.push(item);
+            else before.forEach(function(r){if(r.name.indexOf(item.prefix)===0&&(parseInt(r.value,10)||0)>0)names.push(r.name);});
+          });
+          var best=null;names.forEach(function(n){if(level(n)>0&&(!best||level(n)>level(best)))best=n;});
+          var group=JSON.stringify(req.anyOf);
+          pick=best||selected[group];
+          if(!pick){
+            var prefix=req.anyOf.find(function(item){return typeof item!=='string';});
+            pick=await choose(names,prefix&&prefix.prefix);
+            if(!pick||serial!==SK_AUTO.serial)return;
+            selected[group]=pick;
+          }
+        }
+        // Existing sufficient prerequisites do not need their own ancestry repaired.
+        if(level(pick)<req.lv)await need(pick,req.lv);
+        if(serial!==SK_AUTO.serial)return;
+      }
+      delete visiting[k];
+      if(current<wanted){var original=owned(name);plan.push({key:k,name:original?original.name:name,row:original&&original.row,from:current,to:wanted});}
+    }
+    modal.classList.add('on');go.style.display='none';go.disabled=false;choices.textContent='';body.textContent='必要な前提技能を確認中';
+    try{
+      var targetName=target.querySelector('.dyn-name').value;
+      await need(targetName,Math.max(1,parseInt(target.querySelector('.skill-lvl').value,10)||0));
+      if(serial!==SK_AUTO.serial)return;
+      choices.textContent='';
+      var total=plan.reduce(function(sum,p){return sum+(p.to-p.from)*skillInfoOf(p.name,p.row).mult;},0);
+      var text=plan.map(function(p){return p.name+'を'+p.from+'→'+p.to;}).join('、')+'（計'+total+'点）を足します。';
+      var short=budget>0?total-(budget-skillSpUsed()):0;
+      body.textContent=text+(short>0?'\nあと'+short+'点足りません。':'');go.style.display='';go.disabled=short>0||!plan.length;
+      go.onclick=function(){
+        if(serial!==SK_AUTO.serial)return;
+        if(signature!==JSON.stringify(collectList('skill-list'))||budget!==spBudget()){
+          body.textContent='技能かポイントが変わりました。閉じて、もう一度お試しください。';go.disabled=true;return;
+        }
+        var added=[];
+        plan.forEach(function(p){
+          var row=p.row;
+          if(!row){addRow('skill-list',{name:p.name,text:String(p.to)},PH.skill);row=el('skill-list').lastElementChild;added.push(row);}
+          else row.querySelector('.skill-lvl').value=String(p.to);
+        });
+        clampSkills();persist();skillAutoClose();
+        SK_AUTO.undo={before:before,added:added,cid:CUR};
+        var note=document.createElement('div');note.id='skill-auto-notice';note.setAttribute('aria-live','polite');note.textContent='前提を取得　';
+        var undo=document.createElement('button');undo.type='button';undo.id='skill-auto-undo';undo.className='mbtn';undo.textContent='取り消す';note.appendChild(undo);
+        el('skill-list').before(note);toast('前提を取得');
+        undo.onclick=function(){
+          var saved=SK_AUTO.undo;if(!saved||saved.cid!==CUR)return;
+          saved.added.forEach(function(row){row.remove();});
+          saved.before.forEach(function(r){r.row.querySelector('.skill-lvl').value=r.value;});
+          skillAutoForget();clampSkills();persist();
+        };
+      };
+      el('skill-auto-cancel').focus();
+    }catch(err){if(serial===SK_AUTO.serial){body.textContent=err.message;choices.textContent='';go.style.display='none';}}
+  }
   // 自作技能の対応ステータス候補（S.C.I.E.N.C.E. 7値＋F.I.C.T.I.O.N. 7値）
   var ABILITIES=['Strength','Constitution','Intelligence','Ego','Nerve','Chance','Edge',
                  'Firearms','Interface','Craft','Techmed','Influence','Operations','Neural'];
   function spField(){return document.querySelector('[data-f="sp"]');}
   // 技能の取得コスト倍率（ルール/技能一覧.md 2026-08-10改稿版から機械抽出。無印=1点/Lv・★=2点/Lv・★★=3点/Lv）
   // 別名・複合名（「／」の左右）・括弧つき専門化（〈武術〈空手〉〉等）は対応ステータス表と同じ流儀で解決する
-  var SKILL_X2=['軽業／パルクール','軽業','パルクール','武術','フェンシング','重火器','フルオート射撃','フルオート制御','早抜き／クイックドロー','早抜き','クイックドロー','ガンファイト','第六感／直感','第六感','直感','救急医療','外科医術','精神分析／メンタルケア','精神分析','メンタルケア','推理／プロファイリング','推理','プロファイリング','鑑識／フォレンジック','鑑識','フォレンジック','戦術指揮','鑑定／目利き','鑑定','目利き','サイバー技術','ブリーチ・プロトコル','ブリーチプロトコル','電子戦','ドローン操作','リギング','密輸ルート嗅ぎ／調達','密輸ルート嗅ぎ','調達','出血管理','コンバージョン順応','ブレインダンス離脱コントロール'];
+  var SKILL_X2=['軽業／パルクール','軽業','パルクール','武術','フェンシング','重火器','フルオート射撃','フルオート制御','早抜き／クイックドロー','早抜き','クイックドロー','ガンファイト','第六感／直感','第六感','直感','救急医療','外科医術','精神分析／メンタルケア','精神分析','メンタルケア','推理／プロファイリング','推理','プロファイリング','戦術指揮','サイバー技術','ブリーチ・プロトコル','ブリーチプロトコル','電子戦','ドローン操作','リギング','出血管理','コンバージョン順応','BD離脱制御'];
   var SKILL_X3=['二刀流／双兵装','二刀流','双兵装','ガン＝カタ','ガンカタ','精密射撃','制圧射撃','アキンボ','二丁拳銃','詐欺','義体過負荷制御'];
   var _skillMult=null;
   function skillMultLegacy(n){
@@ -2658,7 +2914,7 @@ var ROLE_SKILLS=[
     "騎乗":"馬・改造獣・大型動物に乗って移動し、戦う。車両の通れない辺境の足になる。",
     "知覚":"五感で危険・隠された物・尾行に気づく。撃ち手に狙いを渡す観測役も担う。",
     "集中":"雑音と動揺を締め出して作業を続ける。狙撃の姿勢を保ち、妨害の下で解析する。",
-    "口話読唇":"口の動きから会話を読む。ホロコール越しの相手や、口元の隠れた相手には効かない。",
+    "読唇術":"口の動きから会話を読む。ホロコール越しの相手や、口元の隠れた相手には効かない。",
     "隠密":"気配と音を消して近づき、忍び込み、見つからずに動く。物陰と足音の技術。",
     "尾行／追跡":"気づかれずに跡を追う。または残された痕跡から所在を割り出す。",
     "隠蔽／発見":"物を隠す技術と、隠された物・罠・隠し扉を見つける目。隠す側でも探す側でも、振るのはこれ。",
@@ -2726,7 +2982,7 @@ var ROLE_SKILLS=[
     "ブリーチ・プロトコル":"現地で触れられる機器・錠・端末の認証を突破し、侵入するか、無力化する。",
     "電子戦〈ジャミング〉":"通信を妨げ、電波を撹乱し、ドローンや誘導兵器の信号を乗っ取る。戦場でこれを持つ側が主導権を握る。",
     "ドローン操作〈リギング〉":"偵察機・戦闘ドローン・ロボットを制御リンクで遠隔操縦する。操り手は離れた場所から支える。",
-    "密造／ジャンク調理":"廃材と規格外の素材から、合成酒・薬・食い物を即席で作る。失敗すると有毒物になる。",
+    "密造／ジャンク加工":"廃材と規格外の素材から、合成酒・薬・食い物を即席で作る。失敗すると有毒物になる。",
     "エチケット":"礼儀作法・ビジネスマナー・社交。上流の場で不審がられずに立つ。",
     "裏社会":"ストリートと犯罪社会の常識。闇市、ギャング、袖の下の相場を知っている。",
     "取引":"売買・価格交渉・契約。相手の足元を見て、値も条件もこちらの得になるよう詰める。",
@@ -2744,9 +3000,9 @@ var ROLE_SKILLS=[
     "威圧":"銃口と気迫で戦意を挫き、降伏・後退・自白を迫る。怯ませられるのは一人までで、その先は職業スキルの領分。",
     "尋問":"捕虜や容疑者から、脅迫・揺さぶり・取引で情報を引き出す。守る側は〈拷問／薬物抵抗〉で抗う。",
     "誘惑／魅了":"色香と距離の詰め方で警戒を解き、好意や油断を引き出す。ハニートラップの芯になる。",
-    "スコア読み":"ホロコールの表示・身なり・作法から、相手の顧客等級と立入の資格を読む。外すと礼儀違反になる。",
-    "ナワバリ作法／掟読み":"ギャングの縄張りで、落書き・印・上納と礼節の作法を読み、無用の衝突を避ける。",
-    "密輸ルート嗅ぎ／調達":"封鎖された物資を、移動市場や密輸網から最短の経路と相場で割り出す。",
+    "等級査定":"ホロコールの表示・身なり・作法から、相手の顧客等級と立入の資格を読む。外すと礼儀違反になる。",
+    "縄張りの掟":"ギャングの縄張りで、落書き・印・上納と礼節の作法を読み、無用の衝突を避ける。",
+    "密輸ルート把握／調達":"封鎖された物資を、移動市場や密輸網から最短の経路と相場で割り出す。",
     "拷問／薬物抵抗":"尋問されても吐かず、意志で情報を守る。自白剤の効きも意志で押し返す。",
     "耐痛":"痛みの中でも意識を失わずに動きつづける。戦闘不能になるのを遅らせる。",
     "精神集中":"恐怖・幻覚・心理干渉を振り払い、冷静を保つ。制圧射撃の釘付けに抗うときもこれで振る。",
@@ -2760,7 +3016,7 @@ var ROLE_SKILLS=[
     "踏ん張り／耐衝":"ノックバック・吹き飛ばし・爆風の押しに抗い、後退も転倒もせず踏み止まる。",
     "コンバージョン順応":"義体を新しく入れた直後、感覚のずれとコンバージョン酔いに抗って動く。失敗すると一時の感覚混乱が残る。",
     "義体過負荷制御":"サイバーウェアを連続して酷使した局面で、過熱と神経の過負荷を押し止める。その場の踏ん張りに限る。",
-    "ブレインダンス離脱コントロール":"違法・拷問・記憶のBDを常用した後、フラッシュバックと依存の引きに抗って任務を続ける。"
+    "BD離脱制御":"違法・拷問・記憶のBDを常用した後、フラッシュバックと依存の引きに抗って任務を続ける。"
   };
   var _skDesc=null,_skDescKeys=null;
   function skillDescOf(name){
@@ -2780,7 +3036,7 @@ var ROLE_SKILLS=[
       _skDesc=flat;
       _skDescKeys=Object.keys(flat).sort(function(a,b){return b.length-a.length;});
     }
-    var n=String(name||'').replace(/[〈〉《》\s　]/g,'');
+    var n=String(skillRename(name)||'').replace(/[〈〉《》\s　]/g,'');
     if(!n)return '';
     if(_skDesc[n])return _skDesc[n];
     var base=n.split(/[（(]/)[0];
@@ -2794,9 +3050,10 @@ var ROLE_SKILLS=[
     '〈応急手当〉':'治療 手当て','〈鍵開け〉':'ピッキング 解錠','〈ブリーチ・プロトコル〉':'ハッキング ハック',
     '〈威圧〉':'脅し 脅迫','〈真意看破〉':'心理学 嘘を見抜く','〈車両操縦〉':'運転 ドライブ','〈運動〉':'ジャンプ 登攀 走る'
   };
+  Object.keys(SKILL_RENAME).forEach(function(old){var name=SKILL_RENAME[old];SKILL_FIND[name]=(SKILL_FIND[name]||'')+' '+old;});
   // ── 判定・腕前・振る（S15・R22） ──
   // 判定＝【対応ステータス】＋〈技能レベル〉（これに1d10を足して振る）。腕前＝判定＋5（VTT の技能一覧の「腕前の目安」と同じ値）。
-  // Ego は精算後の値（ego_eff と同じ）で引く。複合・選択の対応ステータスは、VTT と同じく一番高い能力値を採る（2026-08-15 GM裁定）。
+  // Ego は精算後の値（ego_eff と同じ）で引く。二つの対応ステータスは平均（端数切り上げ）、Edge を含むときは合計（2026-11-01裁定）。
   // 目標値の無いシートでは難易度の補正（腕前と目標値の段の差。2026-10-24 に K-1 の＋3 を置き換え）は足さない。振った出目は画面にだけ出し、保存にもコードにも入れない
   var SKILL_NO_ROLL=[];  // 振るを出さない技能（normSkill した名）。VTT の技能一覧が振らない技能をここへ入れる
   function checkStat(k){return k==='Ego'?computeHumanity().effEmp:getStat(k);}
@@ -2816,8 +3073,13 @@ var ROLE_SKILLS=[
     var cands=ABILITIES.filter(function(a){return src.indexOf(a)>=0;});
     if(src.indexOf('各武器技能')>=0&&cands.indexOf('Firearms')<0)cands.push('Firearms');
     if(!cands.length)return o;
-    var best=cands.reduce(function(a,b){return checkStat(b)>checkStat(a)?b:a;});
-    o.ab=best; o.abVal=checkStat(best); o.check=o.abVal+lv; o.skill=o.check+5;
+    if(cands.length>1){
+      cands.sort(function(a,b){return src.indexOf(a)-src.indexOf(b);});
+      var addEdge=cands.indexOf('Edge')>=0,total=cands.reduce(function(sum,a){return sum+checkStat(a);},0);
+      o.ab=cands.join(addEdge?'＋':'・')+(addEdge?'':' 平均');o.abVal=addEdge?total:Math.ceil(total/cands.length);
+      if(addEdge)o.formula=cands.map(function(a){return '【'+a+'】'+checkStat(a);}).join('＋');
+    }else{o.ab=cands[0];o.abVal=checkStat(cands[0]);}
+    o.check=o.abVal+lv; o.skill=o.check+5;
     o.roll=SKILL_NO_ROLL.indexOf(normSkill(name))<0;
     return o;
   }
@@ -2839,7 +3101,7 @@ var ROLE_SKILLS=[
       var tr=box.querySelector('.chk-tr');
       if(tr){var ti=on?skillTierOf(c.skill):null;tr.textContent=ti?ti.label:'';tr.style.color=ti?ti.c:'';tr.style.borderColor=ti?ti.c:'';}
       // 式は VTT の技能一覧の書き方（【Firearms】6＋〈技能〉5＋5）にそろえ、指を置いたときにだけ出す
-      var f=on?('【'+c.ab+'】'+c.abVal+(c.ab==='Ego'?'（精算後）':'')+'＋〈技能〉'+c.lv):'';
+      var f=on?((c.formula||('【'+c.ab+'】'+c.abVal+(c.ab==='Ego'?'（精算後）':'')))+'＋〈技能〉'+c.lv):'';
       box.querySelector('.chk-v').title=f; box.querySelector('.chk-sk').title=f?(f+'＋5'):'';
       box.querySelector('.skill-roll').style.display=(on&&c.roll)?'':'none';
       var out=r.querySelector('.skill-out');
@@ -2854,7 +3116,7 @@ var ROLE_SKILLS=[
     var byName={},byBase={},byAlias={},flat=[];
     SKILL_DB.forEach(function(c){
       c[1].forEach(function(s){
-        var rec={cat:c[0],full:s[0],ab:s[1],x:s[2],base:s[3]||null,label:s[4]||null,ex:s[5]||null};
+        var rec={cat:c[0],full:s[0],ab:SKILL_STAT_AXIS[s[0]]||s[1],x:SKILL_COST_MARK[s[0]]==='無印'?1:s[2],base:s[3]||null,label:s[4]||null,ex:s[5]||null};
         flat.push(rec);
         byName[normSkill(s[0])]=rec;
         if(rec.base)byBase[normSkill(rec.base)]=rec;
@@ -2873,6 +3135,7 @@ var ROLE_SKILLS=[
       var tgt=byName[normSkill(SKILL_ALIAS[al])];
       if(tgt&&!byName[al]&&!byAlias[al])byAlias[al]=tgt;
     }
+    Object.keys(SKILL_RENAME).forEach(function(old){var rec=byName[normSkill(SKILL_RENAME[old])];if(rec)byAlias[normSkill(old)]=rec;});
     _skIx={byName:byName,byBase:byBase,byAlias:byAlias,flat:flat};
     return _skIx;
   }
@@ -2908,18 +3171,30 @@ var ROLE_SKILLS=[
   // 技能の消費の合計。画面の残りと、書き出しの【予算超過】の両方がこれを使う（P093）
   function skillSpUsed(){var t=0;Array.prototype.forEach.call(document.querySelectorAll('#skill-list .dyn-row'),function(r){t+=skillRowInfo(r).cost;});return t;}
   function clampSkills(active){
-    var sp=spBudget();
+    var sp=spBudget(),autoTarget=null;
+    if(active&&active.closest&&active.closest('#skill-list'))skillAutoForget();
     var rows=document.querySelectorAll('#skill-list .dyn-row');
     // 行のバッジ表示もここで揃える
     var rowInfo=skillRowInfo, sum=skillSpUsed;
-    // only the field currently being edited is ever modified; SP edits and load never touch skill levels
+    // Only the edited row can change; SP edits and load never touch skill levels.
+    if(active&&active.classList&&active.classList.contains('dyn-name')&&!MA_COMPOSE){
+      var renamedRow=active.closest('.dyn-row'),renamedLevel=renamedRow.querySelector('.skill-lvl');
+      if(active.dataset.acceptedSkill!==normSkill(skillCanonical(active.value))&&(parseInt(renamedLevel.value,10)||0)>=1&&skillPrereqMissing(active.value).length){renamedLevel.value='0';autoTarget=renamedRow;}
+    }
     if(active&&active.classList&&active.classList.contains('skill-lvl')&&active.value!==''){
       var cv=parseInt(active.value,10);
-      if(isNaN(cv)||cv<1){active.value=1;cv=1;}
+      if(isNaN(cv)||cv<0){active.value=0;cv=0;}
+      var activeRow=active.closest('.dyn-row'),previous=active.dataset.accepted||'';
+      var missingPrereq=skillPrereqMissing(activeRow.querySelector('.dyn-name').value).length>0;
+      var existingMissing=missingPrereq&&(parseInt(previous,10)||0)>=1;
+      var limit=SKILL_MAX_LEVEL[skillCanonical(activeRow.querySelector('.dyn-name').value)];
+      delete active.dataset.limitBlocked;
+      if(limit&&cv>limit&&!existingMissing){active.value=String(limit);cv=limit;active.dataset.limitBlocked='1';}
+      if(cv>=1&&(parseInt(previous,10)||0)<1&&missingPrereq){active.value=previous;cv=parseInt(previous,10)||0;autoTarget=activeRow;}
       if(sp>0){
         var actMult=1;
         var others=0;Array.prototype.forEach.call(rows,function(r){var inf=rowInfo(r);if(inf.lvl!==active)others+=inf.cost;else actMult=inf.mult;});
-        var mx=Math.floor((sp-others)/actMult); if(mx<1)mx=1;
+        var mx=Math.floor((sp-others)/actMult); if(mx<0)mx=0;
         if(cv>mx)active.value=mx;
       }
     }
@@ -2927,8 +3202,19 @@ var ROLE_SKILLS=[
     Array.prototype.forEach.call(rows,function(r){
       // 〈武術〈流派〉〉の流派が5流派になければ行の下に警告（BXS）。名前を入力している最中は、打った文字が5流派の頭と一致する間は出さない
       var wEl=r.querySelector('.skill-warn'), wNm=r.querySelector('.dyn-name'), wFocus=!!wNm&&wNm===document.activeElement;
+      if(wNm&&!(active===wNm&&MA_COMPOSE))wNm.dataset.acceptedSkill=normSkill(skillCanonical(wNm.value));
       if(wEl&&!(wFocus&&MA_COMPOSE))setWarn(wEl,maWarnOf(maStyleOfName(wNm?wNm.value:''),wFocus));
       var inf=rowInfo(r); if(!inf.badge)return;
+      var tier=skillClassOf(wNm?wNm.value:''),missing=skillPrereqMissing(wNm?wNm.value:''),reason=skillPrereqText(missing);
+      r.querySelector('.skill-tier').textContent=wNm&&wNm.value?({B:'基本',M:'その他',S:'専門'}[tier]):'';
+      r.querySelector('.skill-tier-note').textContent=inf.lvlVal<1?(tier==='S'?'取得が必要':tier==='M'?'未修得は目標値＋3':''):'';
+      var maxLevel=SKILL_MAX_LEVEL[skillCanonical(wNm?wNm.value:'')],overLevel=!!maxLevel&&inf.lvlVal>maxLevel;
+      if(maxLevel&&!(reason&&inf.lvlVal>=1))inf.lvl.max=String(maxLevel);else{inf.lvl.removeAttribute('max');delete inf.lvl.dataset.limitBlocked;}
+      var limitText=overLevel||inf.lvl.dataset.limitBlocked?'この技能はLv1まで':'';
+      r.classList.toggle('skill-prereq-missing',!!reason);
+      var prereq=r.querySelector('.skill-prereq');prereq.classList.toggle('invalid',!!limitText);
+      renderSkillPrereq(prereq,missing,limitText);
+      inf.lvl.dataset.accepted=inf.lvl.value;
       inf.badge.textContent='×'+inf.mult+(inf.lvlVal>0?('＝'+inf.cost+'pt'):'');
       inf.badge.className='skill-mult'+(inf.mult===2?' x2':inf.mult===3?' x3':'');
       if(inf.abEl){
@@ -2942,6 +3228,7 @@ var ROLE_SKILLS=[
     skillChecks();
     syncNums();
     refreshNav();
+    if(autoTarget)skillAutoStart(autoTarget);
   }
   // ── 技能ピッカー（カテゴリ別の一覧／〈指定〉系の具体名／自作技能） ──
   var PK={mode:'list',cat:'',find:'',sel:null,abs:[],x:1};
@@ -2954,6 +3241,7 @@ var ROLE_SKILLS=[
   }
   // 技能を1件、行へ入れる。空いている行があればそこを使い、無ければ足す
   function skillAdd(name,own){
+    skillAutoForget();
     var rows=document.querySelectorAll('#skill-list .dyn-row'),target=null,i,nm,lv;
     for(i=0;i<rows.length;i++){
       nm=rows[i].querySelector('.dyn-name'); lv=rows[i].querySelector('.skill-lvl');
@@ -2964,10 +3252,11 @@ var ROLE_SKILLS=[
       var all=document.querySelectorAll('#skill-list .dyn-row'); target=all[all.length-1];
     }
     target.querySelector('.dyn-name').value=name;
-    var lvl=target.querySelector('.skill-lvl'); if(lvl&&!lvl.value)lvl.value='1';
+    var lvl=target.querySelector('.skill-lvl'); if(lvl&&!lvl.value)lvl.value=skillPrereqMissing(name).length?'0':'1';
     if(own&&own.ab){target.dataset.own='1';target.dataset.ab=own.ab;target.dataset.x=String(own.x||1);}
     else{delete target.dataset.own;delete target.dataset.ab;delete target.dataset.x;}
     clampSkills(); persist();
+    if(skillPrereqMissing(name).length)skillAutoStart(target);
   }
   function xMark(x){return x===2?'★':x===3?'★★':'無印';}
   function xWord(x){return x===2?'★上級（2点/Lv）':x===3?'★★特級（3点/Lv）':'無印（1点/Lv）';}
@@ -2999,6 +3288,9 @@ var ROLE_SKILLS=[
         var b=document.createElement('button'); b.type='button'; b.className='pk-item'+(got?' taken':'');
         b.title=s[0]+'　対応ステータス：'+s[1]+'　'+xWord(s[2]);
         var nm=document.createElement('span'); nm.className='pk-nm'; nm.textContent=s[0]+(got?'　取得済み':'');
+        var tier=skillClassOf(s[0]),tierBadge=document.createElement('span');tierBadge.className='skill-tier';tierBadge.textContent=' '+({B:'基本',M:'その他',S:'専門'}[tier]);nm.appendChild(tierBadge);
+        var owned=collectList('skill-list').some(function(r){return normSkill(skillCanonical(r.name))===normSkill(s[0])&&(parseInt(r.text,10)||0)>=1;});
+        if(!owned&&tier!=='B'){var note=document.createElement('span');note.className='skill-tier-note';note.textContent=' '+(tier==='S'?'取得が必要':'未修得は目標値＋3');nm.appendChild(note);}
         var ab=document.createElement('span'); ab.className='pk-ab'; ab.textContent=s[1];
         var xx=document.createElement('span'); xx.className='pk-x'+(s[2]===2?' x2':s[2]===3?' x3':''); xx.textContent=xMark(s[2]);
         b.appendChild(nm); b.appendChild(ab); b.appendChild(xx);
@@ -3160,7 +3452,7 @@ var ROLE_SKILLS=[
     var o={};
     Array.prototype.forEach.call(document.querySelectorAll('#skill-list .dyn-row'),function(r){
       if(!r.dataset||r.dataset.own!=='1')return;
-      var nm=r.querySelector('.dyn-name'), k=nm?nm.value:'';
+      var nm=r.querySelector('.dyn-name'), k=nm?skillRename(nm.value):'';
       if(k)o[k]={ab:r.dataset.ab||'',x:parseInt(r.dataset.x,10)||1};
     });
     OWN=o;
@@ -3245,6 +3537,7 @@ var ROLE_SKILLS=[
     // 読み込んだときにシートが読まなかった鍵を、同じ値のまま返す（S17・R42）
     o.pub=pubGet();
     putExtra(img,EXTRA.images); putExtra(f,EXTRA.fields); putExtra(s,EXTRA.stats); putExtra(o.lists,EXTRA.lists); putExtra(o,EXTRA.top);
+    skillRenameFields(f);
     // 予算超過のまま書き出したら、先頭に warn を1行足す。読み込み側は知らない鍵として読み飛ばす
     // （コードはbase64一本で渡す決まりなので、行を前に足すとVTTのdecodeSheetが落ちる。中に入れる）
     var ov=budgetNote(); if(!ov)return o;
@@ -3252,6 +3545,8 @@ var ROLE_SKILLS=[
   }
   function apply(d){
     if(!d)return;
+    if(d.fields)d=Object.assign({},d,{fields:skillRenameFields(Object.assign({},d.fields))});
+    skillAutoClose();skillAutoForget();
     readExtra(d);
     pubLoad(d);
     // ホロフォンの番号（2026-10-31）。コードや保存に番号があればそれを使う。無ければ今の番号のまま（古いコード）
@@ -3583,6 +3878,7 @@ var ROLE_SKILLS=[
     line('名前（本名）',g('name'));
     line('ハンドル',g('handle'));
     line('肩書き',g('title'));
+    line('表向きの肩書き',g('title_show'));
     line('ホロフォンの番号',telFmt(d.tel));
     line('年齢',g('age'));
     line('性別',g('gender'));
@@ -3701,6 +3997,7 @@ var ROLE_SKILLS=[
     if(t.id==='height-in')renderBody();
     // エッジウェアの行を書き足したら、枠との比べ直し（P193）
     if(t.closest&&t.closest('#edge-list'))recalc();
+    if(CYBER_SLOT_FIELDS.indexOf(t.getAttribute('data-f'))!==-1)renderCyberSlots();
     if(t.id==='gender-in')setBody();
     if((t.classList&&t.classList.contains('skill-lvl'))||t.getAttribute('data-f')==='sp')clampSkills(t);
     // 技能名の変更でも倍率と消費を引き直す（倍率は技能名から引くため）
@@ -3711,7 +4008,7 @@ var ROLE_SKILLS=[
         delete srow.dataset.own; delete srow.dataset.ab; delete srow.dataset.x;
       }
       MA_COMPOSE=!!e.isComposing;
-      clampSkills();
+      clampSkills(t);
     }
     if(t.tagName==='TEXTAREA')autoGrow(t);
     if(t.closest&&t.closest('.num'))syncNums();
@@ -3730,12 +4027,12 @@ var ROLE_SKILLS=[
     var t=e.target; if(!isSkillName(t))return;
     var st=maStyleOfName(t.value);
     if(st){var nm='〈武術〈'+st+'〉〉'; if(t.value!==nm)t.value=nm;}
-    MA_COMPOSE=false; clampSkills();
+    MA_COMPOSE=false; clampSkills(t);
     // changeの時点では、まだ欄にフォーカスが残っていることがある。この行は確定した値として見直す
     setWarn(t.closest('.dyn-row').querySelector('.skill-warn'),maWarnOf(maStyleOfName(t.value),false));
     persist();
   });
-  el('sheet').addEventListener('compositionend',function(e){if(isSkillName(e.target)){MA_COMPOSE=false;clampSkills();}if(isMoney(e.target)){moneyInput(e.target);persist();}});
+  el('sheet').addEventListener('compositionend',function(e){if(isSkillName(e.target)){MA_COMPOSE=false;clampSkills(e.target);}if(isMoney(e.target)){moneyInput(e.target);persist();}});
 
   // 精算後Egoが1未満のビルドは書き出し不可（人間性ルール準拠）
   function guardHumanity(){recalc();if(!humanityValid){toast('【注意】精算後Egoが1未満です。このビルドは書き出せません。Edgeを下げるか、Egoを上げてください');var hb=el('humanity-box');if(hb&&hb.scrollIntoView)hb.scrollIntoView({behavior:'smooth',block:'center'});return false;}return true;}
@@ -4024,6 +4321,7 @@ var ROLE_SKILLS=[
   });
   document.addEventListener('keydown',function(e){
     if(e.key!=='Escape'||e.isComposing)return;
+    if(el('skill-auto-modal')&&el('skill-auto-modal').classList.contains('on')){skillAutoClose();e.preventDefault();return;}
     if(el('skmodal').classList.contains('on')){
       if(PK.mode!=='own'&&PK.sel){hideSpec();el('sk-find').focus();}else closeSk();
       e.preventDefault();
@@ -4047,6 +4345,7 @@ var ROLE_SKILLS=[
   });
   // 新規作成と読み込みの共通の初期化。性別は「不明」、有無の欄は「無」へ戻す（P177）
   function resetSheet(){
+    skillAutoClose();skillAutoForget();
     fields().forEach(function(e){if(e.tagName==='SELECT')e.selectedIndex=0;else e.value='';});
     Array.prototype.forEach.call(document.querySelectorAll('.seg input'),function(i){i.value=(i.getAttribute('data-f')==='gender')?'不明':'無';});
     statInputs().forEach(function(e){e.value=(e.getAttribute('data-stat')==='Edge')?'0':'1';});
@@ -4187,7 +4486,7 @@ function PubRender(PUB_PAGE_CSS){
         (M.icon?'<img class="pf-icon" data-i="icon" src="'+M.icon+'" alt="">':'')+'<div class="pf-id"><div class="pf-sys"><span aria-hidden="true">&#9656;</span> PUBLIC PROFILE <span aria-hidden="true">&#9666;</span></div>'+
         '<h1'+(M.handle?' data-i="handle"':(M.name?' data-i="name"':''))+'>'+E(t||'――')+'</h1>'+
         (M.handle&&M.name?'<div class="pf-sub" data-i="name">'+E(M.name)+'</div>':'')+
-        (M.title?'<div class="pf-sub" data-i="title"><b>肩書き</b> '+E(M.title)+'</div>':'')+
+        (M.title?'<div class="pf-sub" data-i="'+(M.titleKey==='title_show'?'title_show':'title')+'"><b>肩書き</b> '+E(M.title)+'</div>':'')+
         '</div>'+(details.length?'<ul class="pf-chips">'+details.map(chip).join('')+'</ul>':'')+'</header>');
     }
     var cols=[[],[],[]], bottom=[], weights=[0,0,0],colViews=[[],[],[]];
@@ -4263,12 +4562,13 @@ function PubRender(PUB_PAGE_CSS){
       var ident=function(i){if(typeof i!=='string'||!/^[A-Za-z0-9_-]{1,40}$/.test(i))fail('項目ID');};
       var kv=function(r){obj(r,['i','l','v']);ident(r.i);str(r.l);str(r.v);};
       var row=function(r,desc){obj(r,desc?['n','m','p','d']:['n','m','p'],desc?['d']:[]);str(r.n);str(r.m);str(r.p);if('d'in r)str(r.d);};
-      obj(M,['blocks','chips','name','handle','title','icon','stand','card','fold','palette']);
+      obj(M,['blocks','chips','name','handle','title','titleKey','icon','stand','card','fold','palette'],['titleKey']);
+      if('titleKey'in M&&M.titleKey!=='title_show')fail('肩書きID');
       ['name','handle','title'].forEach(function(k){str(M[k],200);});
       if(M.card!==false)fail('card');img(M.icon);img(M.stand);
       arr(M.fold,function(x){if(!ENS.includes(x))fail('fold');});
       if(!['current','2077'].includes(M.palette))fail('palette');
-      arr(M.chips,function(c){obj(c,['i','l','v']);if(!'role role_sub affil age gender height body'.split(' ').includes(c.i))fail('chip');str(c.l,200);str(c.v,200);},20);
+      arr(M.chips,function(c){obj(c,['i','l','v']);if(!'title role role_sub affil age gender height body'.split(' ').includes(c.i))fail('chip');str(c.l,200);str(c.v,200);},20);
       arr(M.blocks,function(b){
         var types={text:['INTRODUCTION','APPEARANCE','NOTE','WANTED'],stats:['STATUS'],list:['SKILLS','ABILITIES','ITEMS','TRAITS','UNIQUE'],kv:['WALLET'],gear:['LOADOUT'],bg:['BACKGROUND'],gal:['EXPRESSIONS']};
         if(!b||!Object.hasOwn(types,b.t)||!types[b.t].includes(b.en))fail('節の種類');
@@ -4312,7 +4612,6 @@ function PubRender(PUB_PAGE_CSS){
 
 }
 
-
   // ── 公開範囲（キャラ公開シート・2026-10-24） ──
   // シートの入力・計算・コードはそのまま使い、その上に「どの項目を見せるか」を足す。
   //   pub は {v:1,on:[公開する項目名],lie:{項目名:公開値},webid:公開ID}。追加値は使うときだけ保存し、通常シートも未知の値として保持する。
@@ -4324,9 +4623,14 @@ function PubRender(PUB_PAGE_CSS){
   var pubEsc=R.esc,pubTitle=R.title,pubWebURL=R.webURL,pubViewId=R.viewId;
   function pubHTML(M,view){return R.html(M,{view:view,fold:pubFold(),palette:pubPalette()});}
   function pubWebHTML(M,id,w,h){return R.webHTML(M,id,w,h,{fold:pubFold(),palette:pubPalette()});}
-  var PUB_ON, PUB_READY, PUB_T, PUB_FOLD, PUB_LIE, PUB_WEBID;
-  function pubDefaults(){return ['handle','title','role','role_sub','affil','appear','pub_intro','icon','stand'];}
-  function pubSet(){if(!PUB_ON){PUB_ON={};pubDefaults().forEach(function(k){PUB_ON[k]=1;});}return PUB_ON;}
+  var PUB_ON, PUB_READY, PUB_T, PUB_FOLD, PUB_LIE, PUB_WEBID, PUB_TITLE_DEFAULT;
+  function pubHasTitleShow(d){
+    if(d)return !!pubStr((d.fields||{}).title_show);
+    var input=typeof document!=='undefined'?document.querySelector('[data-f="title_show"]'):null;
+    return !!(input&&pubStr(input.value));
+  }
+  function pubDefaults(d){return ['handle','title_show','role','role_sub','affil','appear','pub_intro','icon','stand'].concat(pubHasTitleShow(d)?[]:['title']);}
+  function pubSet(d){if(!PUB_ON){if(PUB_TITLE_DEFAULT==null)PUB_TITLE_DEFAULT=true;PUB_ON={};pubDefaults(d).forEach(function(k){PUB_ON[k]=1;});}return PUB_ON;}
   function pubGet(){
     var s=pubSet(),p={v:1,on:Object.keys(s).filter(function(k){return !!s[k];}).sort()},lie={};
     Object.keys(PUB_LIE||{}).sort().forEach(function(k){if(isPub(k)&&pubLieSpec(k))lie[k]=PUB_LIE[k];});
@@ -4340,17 +4644,22 @@ function PubRender(PUB_PAGE_CSS){
     PUB_WEBID=p&&typeof p.webid==='string'&&p.webid.length===10&&/^[a-z0-9]{10}$/.test(p.webid)?p.webid:null;
     PUB_LIE=Object.create(null);
     PUB_FOLD=p&&Array.isArray(p.fold)?p.fold.filter(function(k,i,a){return typeof k==='string'&&/^[A-Z]+$/.test(k)&&k.length<40&&a.indexOf(k)===i;}):null;
-    if(p&&typeof p==='object'&&Array.isArray(p.on)){PUB_ON={};p.on.forEach(function(k){if(typeof k==='string'&&k&&k.length<=400)PUB_ON[k]=1;});}
+    PUB_TITLE_DEFAULT=!(p&&typeof p==='object'&&Array.isArray(p.on));
+    if(!PUB_TITLE_DEFAULT){PUB_ON={};p.on.forEach(function(k){if(typeof k==='string'&&k&&k.length<=400)PUB_ON[k]=1;});}
     else PUB_ON=null;
-    pubSet();
+    pubSet(d);
     if(p&&p.lie&&typeof p.lie==='object'&&!Array.isArray(p.lie))Object.keys(p.lie).forEach(function(k){
       if(isPub(k)&&pubLieSpec(k))PUB_LIE[k]=pubLieNormalize(k,p.lie[k]);
     });
     if(PUB_READY)setTimeout(pubRefresh,0);
   }
-  function pubReset(){PUB_ON=null;PUB_FOLD=null;PUB_WEBID=null;PUB_LIE=Object.create(null);pubSet();if(PUB_READY)setTimeout(pubRefresh,0);}
+  function pubReset(){PUB_ON=null;PUB_TITLE_DEFAULT=true;PUB_FOLD=null;PUB_WEBID=null;PUB_LIE=Object.create(null);pubSet();if(PUB_READY)setTimeout(pubRefresh,0);}
   function isPub(k){return !!pubSet()[k];}
-  function setPub(k,on){var s=pubSet();if(on)s[k]=1;else{delete s[k];if(PUB_LIE)delete PUB_LIE[k];}}
+  function setPub(k,on){var s=pubSet();if(k==='title')PUB_TITLE_DEFAULT=false;if(on)s[k]=1;else{delete s[k];if(PUB_LIE)delete PUB_LIE[k];}}
+  function pubTitleInput(e){
+    if(!PUB_TITLE_DEFAULT||!e.target||e.target.getAttribute('data-f')!=='title_show')return;
+    var s=pubSet();if(pubHasTitleShow())delete s.title;else s.title=1;
+  }
 
   // Function-only schema: restore() runs before PUB_SECS has been initialized.
   // Invalid overrides remain blank overrides; falling back would expose truth.
@@ -4359,7 +4668,7 @@ function PubRender(PUB_PAGE_CSS){
     if(k==='height')return {min:0,step:'any'};
     if(/^(zc|rusuru|humanity|hp)$/.test(k))return {min:0,step:1};
     if(k==='ego_eff')return {step:1};
-    if(/^(name|handle|title|age|gender|role|role_sub|affil|appear|pub_intro|origin|past_event|past_effect|past_rel|bel_belief|bel_goal|bel_conflict|syn_target|syn_detail|syn_action|syn_release|scar_mark|scar_habit|scar_trigger|scar_trigger_effect|scar_release|memo|wanted|equip|cw_core|cw_vision|cw_nerve|cw_immune|cw_skeleton|cw_skin|cw_head|cw_torso|cw_arm|cw_waist|cw_leg|cw_exterior|cw_sub)$/.test(k))return {text:true};
+    if(/^(name|handle|title|title_show|age|gender|role|role_sub|affil|appear|pub_intro|origin|past_event|past_effect|past_rel|bel_belief|bel_goal|bel_conflict|syn_target|syn_detail|syn_action|syn_release|scar_mark|scar_habit|scar_trigger|scar_trigger_effect|scar_release|memo|wanted|equip|cw_core|cw_vision|cw_nerve|cw_immune|cw_skeleton|cw_skin|cw_head|cw_torso|cw_arm|cw_waist|cw_leg|cw_exterior|cw_sub)$/.test(k))return {text:true};
     return null;
   }
   function pubLieNormalize(k,value){
@@ -4392,7 +4701,7 @@ function PubRender(PUB_PAGE_CSS){
   function pF(k,l){return {k:k,l:l,f:k};}
   var PUB_STATS=SCI.map(function(s){return [s[0],s[1]];}).concat([['Edge','狂気・限界域']]).concat(FIC.map(function(s){return [s[0],s[1]];}));
   var PUB_SECS=[
-    {id:'identity',h:'基本情報',items:[pF('name','名前（本名）'),pF('handle','ハンドル / ニックネーム'),pF('title','肩書き'),pF('age','年齢'),pF('gender','性別'),pF('height','身長'),pF('body','体格'),
+    {id:'identity',h:'基本情報',items:[pF('name','名前（本名）'),pF('handle','ハンドル / ニックネーム'),pF('title','肩書き'),pF('title_show','表向きの肩書き'),pF('age','年齢'),pF('gender','性別'),pF('height','身長'),pF('body','体格'),
       pF('role','メインロール'),pF('role_sub','サブロール'),pF('affil','所属・立場'),pF('appear','容姿')]},
     {id:'intro',h:'自己紹介',items:[pF('pub_intro','自己紹介')]},
     {id:'status',h:'ステータス',items:PUB_STATS.map(function(s){return {k:'st:'+s[0],l:s[0]+'（'+s[1]+'）',stat:s[0]};})
@@ -4469,10 +4778,13 @@ function PubRender(PUB_PAGE_CSS){
     M.card=mode==='card';
     var P=function(k){return isPub(k);};
     var g=function(k){return pubValue(k,d);};
-    M.handle=g('handle'); M.name=g('name'); M.title=g('title');
+    var hasTitleShow=!!pubStr(f.title_show)||pubIsLie('title_show');
+    M.handle=g('handle'); M.name=g('name'); M.title=hasTitleShow?g('title_show'):g('title');
+    if(hasTitleShow)M.titleKey='title_show';
     if(P('icon'))M.icon=pubOkImg(d.images&&d.images.icon);
     if(P('stand'))M.stand=pubOkImg(d.images&&d.images.stand);
     var chip=function(k,l,v){if(v)M.chips.push({i:k,l:l,v:v});};
+    if(hasTitleShow)chip('title','肩書き',g('title'));
     var mainRole=pubIsLie('role')||pubStr(f.role)?g('role'):(P('rolepick')?pubStr(C.role&&C.role.main):'');
     chip('role','メインロール',mainRole); chip('role_sub','サブロール',g('role_sub')); chip('affil','所属・立場',g('affil'));
     chip('age','年齢',g('age')); chip('gender','性別',g('gender'));
@@ -4930,6 +5242,7 @@ function PubRender(PUB_PAGE_CSS){
     el('pp-web-copy').addEventListener('click',pubWebCopy);
     new ResizeObserver(pubFitPreview).observe(el('pp-viewport'));
     window.__pubExportPlain=pubExport; // 試験専用。画面のボタンは無い
+    document.addEventListener('input',pubTitleInput,true); document.addEventListener('change',pubTitleInput,true);
     document.addEventListener('input',pubSoon); document.addEventListener('change',pubSoon);
     // 画像の読み込みや行の削除は input を出さないので、押したあとにも見直す
     document.addEventListener('click',function(e){if(e.target&&e.target.closest&&!e.target.closest('.pv,#pubdrawer,#pubprev'))pubSoon();});
