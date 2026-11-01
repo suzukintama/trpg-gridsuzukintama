@@ -30,6 +30,8 @@ EFFECT_MIN = -16.0   # ... nor below this, so small sounds stay smaller than exp
 BED_LUFS = -22.0     # LUFS integrated, loops (they sit under voice chat)
 RADIO_LUFS = -20.0   # LUFS integrated, radio shows (meant to be listened to)
 CEIL = -1.0          # dBTP
+# per-file integrated targets that override BED_LUFS (2026-11-02 GM: the bar was too loud)
+OVERRIDE = {'下層のバー': -25.0, '下層のバー_曲だけ': -25.0}
 
 
 def decode(path):
@@ -97,17 +99,21 @@ def main(apply):
         # loops are levelled from the OGG (the better copy) when there is one
         y, sr = decode(ogg if has_ogg else mp3)
         bed = d.startswith('07') or d.startswith('08')
+        bed_t = OVERRIDE.get(f[:-4], BED_LUFS)
         mm, il, tp = max_momentary(y, sr), integrated(y, sr), true_peak(y)
         if d.startswith('08'):
             gain = RADIO_LUFS - il
         elif bed:
-            gain = BED_LUFS - il
+            gain = bed_t - il
         else:
             gain = EFFECT_MAX - mm if mm > EFFECT_MAX else (EFFECT_MIN - mm if mm < EFFECT_MIN else 0.0)
         new_tp = tp + gain
         rows.append((d, f[:-4], mm, il, tp, gain))
         # under 0.5 dB is MP3 decode drift: leave the file alone rather than re-encode it again
-        if apply and abs(gain) > 0.5:
+        # a quiet transient that already touches the ceiling can only be raised by limiting it
+        # harder; doing that on every run would squash it a bit more each time, so leave it
+        stuck = gain > 0 and tp > CEIL - 0.6
+        if apply and abs(gain) > 0.5 and not stuck:
             # short transients (single shots) lose level to the limiter, so iterate on the measured value
             z = y
             for _ in range(12):
@@ -120,7 +126,7 @@ def main(apply):
                 if d.startswith('08'):
                     gain = RADIO_LUFS - integrated(z, sr)
                 elif bed:
-                    gain = BED_LUFS - integrated(z, sr)
+                    gain = bed_t - integrated(z, sr)
                 else:
                     m2 = max_momentary(z, sr)
                     gain = EFFECT_MAX - m2 if m2 > EFFECT_MAX else (EFFECT_MIN - m2 if m2 < EFFECT_MIN else 0.0)

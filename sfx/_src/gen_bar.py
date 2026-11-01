@@ -400,8 +400,9 @@ def bar():
     # the clatter sparse but heard (its peaks stand out well above its average)
     def at(x, db):
         return x * 10 ** ((db - lufs(x)) / 20)
-    mus = at(mus, -24.5)
-    mix = at(crowd, -20.0) + mus + at(noise, -25.0)
+    # 2026-11-02 GM: the song up front, the crowd and clatter pushed back
+    mus = at(mus, -20.0)
+    mix = at(crowd, -25.5) + mus + at(noise, -29.0)
     export('07_環境音ループ/下層のバー', mix, -20, loop=True, ogg=True, note='96s loop: crowd + clatter + an original downtempo song')
     # the song on its own, for the VTT when the crowd is not wanted
     export('07_環境音ループ/下層のバー_曲だけ', mus, -20, loop=True, ogg=True, note='96s loop: the bar song through the speaker')
