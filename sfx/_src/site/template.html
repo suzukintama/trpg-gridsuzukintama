@@ -1,0 +1,207 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>サイバーパンク効果音パック</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* layout: one column of tap-to-play rows under a sticky search + category strip, a player docked to the bottom */
+:root{
+  --bg:#0a0d14; --panel:#111622; --panel2:#171d2c; --line:#242c3f;
+  --fg:#e7ebf3; --fg2:#9aa4b8; --cyan:#3fd0d8; --pink:#ff4f9a; --amber:#ffc35a;
+  --display:"Chakra Petch","Zen Kaku Gothic New",system-ui,sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{font:15px/1.6 var(--body);margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{padding-block:22px 6px}
+h1{font:700 26px/1.2 var(--display);letter-spacing:.04em;margin:0;text-wrap:balance}
+h1 span{color:var(--cyan)}
+.lead{color:var(--fg2);font-size:13.5px;margin:8px 0 0}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px 0}
+.search{display:flex;gap:8px;align-items:center}
+.search input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:10px 12px;font:15px var(--body)}
+.search input:focus{outline:2px solid var(--cyan);outline-offset:1px}
+.count{font:12px var(--mono);color:var(--fg2);white-space:nowrap}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-block:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:var(--panel);border:1px solid var(--line);color:var(--fg2);border-radius:999px;padding:6px 12px;font:500 13px var(--body);cursor:pointer}
+.chip b{font:500 11px var(--mono);color:var(--cyan);margin-right:5px}
+.chip[aria-pressed="true"]{background:var(--cyan);color:#05181a;border-color:var(--cyan)}
+.chip[aria-pressed="true"] b{color:#05181a}
+main{padding-block:6px 150px}
+section h2{font:700 15px var(--display);letter-spacing:.06em;color:var(--cyan);margin:26px 0 8px;display:flex;gap:8px;align-items:baseline}
+section h2 small{font:400 12px var(--mono);color:var(--fg2)}
+.list{display:flex;flex-direction:column;gap:6px}
+.row{all:unset;box-sizing:border-box;display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;width:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.row:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.row:active{background:var(--panel2)}
+.icon{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:var(--cyan)}
+.icon svg{width:14px;height:14px;fill:currentColor}
+.txt{min-width:0}
+.name{font-weight:700;font-size:15px;overflow-wrap:anywhere}
+.note{color:var(--fg2);font-size:12.5px;line-height:1.5;margin-top:2px}
+.meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.len{font:12px var(--mono);color:var(--fg2);font-variant-numeric:tabular-nums}
+.tag{font:500 10.5px var(--mono);color:var(--amber);border:1px solid currentColor;border-radius:4px;padding:0 5px;letter-spacing:.04em}
+.row.on{border-color:var(--pink);background:var(--panel2)}
+.row.on .icon{border-color:var(--pink);color:var(--pink)}
+.empty{color:var(--fg2);text-align:center;padding:40px 0}
+.player{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--panel2);border-top:1px solid var(--line);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.pin{max-width:760px;margin:0 auto;display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center}
+.pbtn{all:unset;box-sizing:border-box;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--pink);color:#1a0610;cursor:pointer}
+.pbtn svg{width:16px;height:16px;fill:currentColor}
+.pbtn:focus-visible,.tbtn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.pinfo{min-width:0}
+.pname{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog{position:relative;height:18px;cursor:pointer;touch-action:none}
+.prog::before{content:"";position:absolute;left:0;right:0;top:8px;height:3px;background:var(--line);border-radius:2px}
+.prog i{position:absolute;left:0;top:8px;height:3px;background:var(--pink);border-radius:2px;width:0}
+.ptime{font:11px var(--mono);color:var(--fg2);font-variant-numeric:tabular-nums}
+.tbtn{all:unset;box-sizing:border-box;font:500 12px var(--body);color:var(--fg2);border:1px solid var(--line);border-radius:8px;padding:7px 9px;cursor:pointer;white-space:nowrap}
+.tbtn[aria-pressed="true"]{color:var(--amber);border-color:var(--amber)}
+.msg{color:var(--amber);font-size:12px}
+@media (prefers-reduced-motion:no-preference){.row.on .icon{animation:pulse 1.2s ease-in-out infinite}}
+@keyframes pulse{50%{box-shadow:0 0 0 5px rgba(255,79,154,.18)}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>サイバーパンク<span>効果音</span>パック</h1>
+    <p class="lead">行をタップすると鳴り、もう一度タップすると止まります。音が出ないときは、本体の音量を上げてください。環境音ループは、下のループのボタンをオンにすると繰り返し鳴ります。</p>
+  </header>
+</div>
+<div class="bar"><div class="wrap">
+  <div class="search"><input id="q" type="search" placeholder="名前や説明で探す（例：歓声、雨、AK）" autocomplete="off"><span class="count" id="count"></span></div>
+  <nav class="chips" id="chips" aria-label="カテゴリ"></nav>
+</div></div>
+<main class="wrap" id="list"></main>
+
+<div class="player" id="player">
+  <div class="pin">
+    <button class="pbtn" id="pp" aria-label="再生"><svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6z"/></svg></button>
+    <div class="pinfo">
+      <div class="pname" id="pname">まだ何も選んでいません</div>
+      <div class="prog" id="prog"><i id="fill"></i></div>
+      <div class="ptime" id="ptime">0:00 / 0:00</div>
+    </div>
+    <button class="tbtn" id="loop" aria-pressed="false">ループ</button>
+    <button class="tbtn" id="stop">停止</button>
+  </div>
+</div>
+
+<script>
+const DATA = __DATA__;
+const PLAY = '<svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6z"/></svg>';
+const PAUSE = '<svg viewBox="0 0 16 16"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg>';
+const $ = id => document.getElementById(id);
+const audio = new Audio();
+audio.preload = 'none';
+let cur = null, curRow = null, cat = 'all';
+
+function fmt(s){ if(!isFinite(s)) s = 0; s = Math.floor(s); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+
+function render(){
+  const q = $('q').value.trim().toLowerCase();
+  const list = $('list'); list.textContent = '';
+  let n = 0;
+  for (const g of DATA){
+    if (cat !== 'all' && g.k !== cat) continue;
+    const items = g.items.filter(it => !q || (it.n + ' ' + it.d + ' ' + g.c).toLowerCase().includes(q));
+    if (!items.length) continue;
+    n += items.length;
+    const sec = document.createElement('section');
+    sec.innerHTML = `<h2>${g.c}<small>${items.length}</small></h2>`;
+    const box = document.createElement('div'); box.className = 'list';
+    for (const it of items){
+      const b = document.createElement('button');
+      b.className = 'row' + (cur === it ? ' on' : '');
+      b.innerHTML = `<span class="icon">${cur === it && !audio.paused ? PAUSE : PLAY}</span>
+        <span class="txt"><span class="name"></span><span class="note"></span></span>
+        <span class="meta"><span class="len">${it.t.toFixed(1)}s</span>${it.l ? '<span class="tag">LOOP</span>' : ''}</span>`;
+      b.querySelector('.name').textContent = it.n;
+      b.querySelector('.note').textContent = it.d;
+      b.querySelector('.note').style.display = it.d ? 'block' : 'none';
+      b.addEventListener('click', () => toggle(it, b));
+      if (cur === it) curRow = b;
+      box.appendChild(b);
+    }
+    sec.appendChild(box); list.appendChild(sec);
+  }
+  if (!n) list.innerHTML = '<p class="empty">見つかりませんでした。別のことばで探してください。</p>';
+  $('count').textContent = n + '音';
+}
+
+function chips(){
+  const c = $('chips');
+  const mk = (k, label, num) => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.setAttribute('aria-pressed', k === cat);
+    b.innerHTML = (num != null ? `<b>${num}</b>` : '') ; b.append(label);
+    b.addEventListener('click', () => { cat = k; for (const x of c.children) x.setAttribute('aria-pressed', x === b); render(); window.scrollTo({top:0}); });
+    c.appendChild(b);
+  };
+  mk('all', 'すべて', null);
+  for (const g of DATA) mk(g.k, g.c, g.items.length);
+}
+
+function setIcons(){
+  if (curRow) curRow.querySelector('.icon').innerHTML = audio.paused ? PLAY : PAUSE;
+  $('pp').innerHTML = audio.paused ? PLAY : PAUSE;
+  $('pp').setAttribute('aria-label', audio.paused ? '再生' : '一時停止');
+}
+
+function toggle(it, row){
+  $('pname').classList.remove('msg');
+  if (cur === it){
+    if (audio.paused) audio.play().catch(fail); else audio.pause();
+    return;
+  }
+  if (curRow) { curRow.classList.remove('on'); curRow.querySelector('.icon').innerHTML = PLAY; }
+  cur = it; curRow = row; row.classList.add('on');
+  audio.src = it.f;
+  audio.loop = it.l;
+  $('loop').setAttribute('aria-pressed', it.l);
+  $('pname').textContent = it.n;
+  audio.play().catch(fail);
+}
+
+function fail(e){
+  if (e && e.name === 'AbortError') return;
+  $('pname').textContent = '再生できませんでした。もう一度タップしてください';
+  $('pname').classList.add('msg');
+  setIcons();
+}
+
+audio.addEventListener('play', setIcons);
+audio.addEventListener('pause', setIcons);
+audio.addEventListener('ended', setIcons);
+audio.addEventListener('error', () => fail());
+audio.addEventListener('timeupdate', () => {
+  const d = audio.duration || (cur ? cur.t : 0);
+  $('fill').style.width = (d ? audio.currentTime / d * 100 : 0) + '%';
+  $('ptime').textContent = fmt(audio.currentTime) + ' / ' + fmt(d);
+});
+$('pp').addEventListener('click', () => {
+  if (!cur){ const first = DATA[0].items[0]; const r = document.querySelector('.row'); if (r) toggle(first, r); return; }
+  if (audio.paused) audio.play().catch(fail); else audio.pause();
+});
+$('stop').addEventListener('click', () => { audio.pause(); audio.currentTime = 0; setIcons(); });
+$('loop').addEventListener('click', () => { audio.loop = !audio.loop; $('loop').setAttribute('aria-pressed', audio.loop); });
+const seek = e => {
+  const r = $('prog').getBoundingClientRect();
+  const d = audio.duration; if (!d) return;
+  audio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * d;
+};
+$('prog').addEventListener('pointerdown', seek);
+$('q').addEventListener('input', render);
+
+chips(); render();
+</script>
