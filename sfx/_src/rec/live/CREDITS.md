@@ -1,7 +1,7 @@
 # CREDITS — rec/live
 
 Real recordings of concert and gig crowds (cheers, screams, whistles, applause, encore claps, boos, gasps), used for
-07_環境音ループ/ライブハウス_* and 09_観客の反応/ in gen_live.py.
+07_環境音ループ/ライブハウス_* and 09_観客の反応/ in gen_live.py (clapping, singing, panic, coughs and camera shutters too).
 Recordings with the band audible in them were left out or cut around (checked on spectrograms: no stable harmonic lines or beat).
 Every file is CC0 1.0; the licence was checked on each file's own Freesound page. Files are the site's HQ preview (MP3, 128 kbps).
 
@@ -49,3 +49,33 @@ Every file is CC0 1.0; the licence was checked on each file's own Freesound page
 | boo-hiss-loop-1.mp3 | AF Crowd Boo Hiss LOOP.wav | mglennsound | https://freesound.org/people/mglennsound/sounds/678538/ | CC0 1.0 | Freesound HQ preview (MP3), original 10.1s |
 | boo-hiss-loop-2.mp3 | AF Crowd Boo Hiss LOOP 2.wav | mglennsound | https://freesound.org/people/mglennsound/sounds/678537/ | CC0 1.0 | Freesound HQ preview (MP3), original 16.1s |
 | hey-men-shout.mp3 | Hey - Men Shouting together - Jewish Wedding | khenshom | https://freesound.org/people/khenshom/sounds/527740/ | CC0 1.0 | Freesound HQ preview (MP3), original 0.6s |
+| clap-single-person.mp3 | Single Hand Clapping - Klatschen einer Person | florianreichelt | https://freesound.org/people/florianreichelt/sounds/405624/ | CC0 1.0 | Freesound HQ preview (MP3), original 21.7s |
+| applause-one-person.mp3 | Applause - One person solo | Vrymaa | https://freesound.org/people/Vrymaa/sounds/734612/ | CC0 1.0 | Freesound HQ preview (MP3), original 8.2s |
+| clap-solo.mp3 | Solo Clap | OwlStorm | https://freesound.org/people/OwlStorm/sounds/151219/ | CC0 1.0 | Freesound HQ preview (MP3), original 3.4s |
+| clap-group-unison.mp3 | clapping group unisono | Yuval | https://freesound.org/people/Yuval/sounds/197435/ | CC0 1.0 | Freesound HQ preview (MP3), original 65.4s |
+| clap-along-no-music.mp3 | clapping along with music.wav | xv920 | https://freesound.org/people/xv920/sounds/548027/ | CC0 1.0 | Freesound HQ preview (MP3), original 32.6s |
+| applause-small.mp3 | Small applause | Breviceps | https://freesound.org/people/Breviceps/sounds/462362/ | CC0 1.0 | Freesound HQ preview (MP3), original 4.5s |
+| applause-small-group.mp3 | small group applauding (48/24) | neilraouf | https://freesound.org/people/neilraouf/sounds/484513/ | CC0 1.0 | Freesound HQ preview (MP3), original 8.0s |
+| applause-few-people.mp3 | Claps Few People | Wakerone | https://freesound.org/people/Wakerone/sounds/417554/ | CC0 1.0 | Freesound HQ preview (MP3), original 6.1s |
+| applause-slow.mp3 | People - Slow applause (mono).wav | jodybruchon | https://freesound.org/people/jodybruchon/sounds/433880/ | CC0 1.0 | Freesound HQ preview (MP3), original 5.1s |
+| applause-awkward-slow.mp3 | Light, slow uncomfortable clapping | TurboFool | https://freesound.org/people/TurboFool/sounds/561020/ | CC0 1.0 | Freesound HQ preview (MP3), original 6.2s |
+| cheer-small-crowd-20.mp3 | small crowd cheering | HowardV | https://freesound.org/people/HowardV/sounds/264377/ | CC0 1.0 | Freesound HQ preview (MP3), original 24.6s |
+| small-crowd-reactions.mp3 | Small crowd reactions | IENBA | https://freesound.org/people/IENBA/sounds/488472/ | CC0 1.0 | Freesound HQ preview (MP3), original 37.4s |
+| panic-crowd.mp3 | Crowd in panic | IENBA | https://freesound.org/people/IENBA/sounds/491405/ | CC0 1.0 | Freesound HQ preview (MP3), original 39.0s |
+| panic-crowd-screaming.mp3 | Crowd Screaming | DigestContent | https://freesound.org/people/DigestContent/sounds/459101/ | CC0 1.0 | Freesound HQ preview (MP3), original 17.6s |
+| panic-running-feet.mp3 | Running.wav | kasjura | https://freesound.org/people/kasjura/sounds/612143/ | CC0 1.0 | Freesound HQ preview (MP3), original 5.0s |
+| panic-crowd-stairs.mp3 | Crowd on Stairs.wav | quattrostagii | https://freesound.org/people/quattrostagii/sounds/361172/ | CC0 1.0 | Freesound HQ preview (MP3), original 27.0s |
+| panic-scream-single.mp3 | Panic-stricken screaming #2 | Klangkobold | https://freesound.org/people/Klangkobold/sounds/547964/ | CC0 1.0 | Freesound HQ preview (MP3), original 1.4s |
+| quiet-coughs.mp3 | Coughs Unprocessed | midwestdocumentary | https://freesound.org/people/midwestdocumentary/sounds/722623/ | CC0 1.0 | Freesound HQ preview (MP3), original 37.1s |
+| quiet-murmur-hall.mp3 | General murmur, echoey space | peridactyloptrix | https://freesound.org/people/peridactyloptrix/sounds/196099/ | CC0 1.0 | Freesound HQ preview (MP3), original 41.1s |
+| quiet-low-murmurs.mp3 | R07-45-Low Murmurs.wav | craigsmith | https://freesound.org/people/craigsmith/sounds/480756/ | CC0 1.0 | Freesound HQ preview (MP3), original 22.7s |
+| jump-rhythmic-300.mp3 | Rhythmic_Jumps_ses2.wav | freesound | https://freesound.org/people/freesound/sounds/25316/ | CC0 1.0 | Freesound HQ preview (MP3), original 38.4s |
+| stomp-hall.mp3 | Stomping In Hall.WAV | jfreem3 | https://freesound.org/people/jfreem3/sounds/108539/ | CC0 1.0 | Freesound HQ preview (MP3), original 12.1s |
+| encore-chant-vissza.mp3 | Crowd shouting vissza | misjoc | https://freesound.org/people/misjoc/sounds/400589/ | CC0 1.0 | Freesound HQ preview (MP3), original 13.7s |
+| woo-guys.mp3 | Woo 1 just guys.wav | jayfrosting | https://freesound.org/people/jayfrosting/sounds/333418/ | CC0 1.0 | Freesound HQ preview (MP3), original 1.1s |
+| whoops-whistles-laughter.mp3 | R07-40-Whoops, Whistles, Laughter.wav | craigsmith | https://freesound.org/people/craigsmith/sounds/480754/ | CC0 1.0 | Freesound HQ preview (MP3), original 13.2s |
+| cheers-yays.mp3 | Cheers and Yays | qubodup | https://freesound.org/people/qubodup/sounds/848423/ | CC0 1.0 | Freesound HQ preview (MP3), original 7.4s |
+| sing-vowel-uh-f-omni.mp3 | CRWDSing_Uh Vowel Sung Near F 02_ShaneVincent_GSC24_SpacedOmni-MK012.wav | ShangusBurger | https://freesound.org/people/ShangusBurger/sounds/764344/ | CC0 1.0 | Freesound HQ preview (MP3), original 7.9s |
+| sing-vowel-uh-f-ambeo.mp3 | CRWDSing_Uh Vowel Sung Near F 02_ShaneVincent_GSC24_FUMA-AmbeoVR.wav | ShangusBurger | https://freesound.org/people/ShangusBurger/sounds/764126/ | CC0 1.0 | Freesound HQ preview (MP3), original 7.9s |
+| camera-paparazzi.mp3 | Paparazzi Edit | dkreidler | https://freesound.org/people/dkreidler/sounds/723007/ | CC0 1.0 | Freesound HQ preview (MP3), original 13.6s |
+| walla-exterior-event.mp3 | Generic Exterior Walla | brunoboselli | https://freesound.org/people/brunoboselli/sounds/634880/ | CC0 1.0 | Freesound HQ preview (MP3), original 31.0s |

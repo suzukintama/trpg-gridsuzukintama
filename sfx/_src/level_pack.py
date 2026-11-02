@@ -32,10 +32,12 @@ RADIO_LUFS = -20.0   # LUFS integrated, radio shows (meant to be listened to)
 CEIL = -1.0          # dBTP
 # per-file integrated targets that override BED_LUFS (2026-11-02 GM: the bar was too loud)
 OVERRIDE = {'下層のバー': -25.0, '下層のバー_曲だけ': -25.0,
-            # the live-house crowds: a wall of noise, kept a little under the other loops
-            'ライブハウス_開演前のざわめき': -24.0, 'ライブハウス_演奏中の歓声': -24.0,
-            'ライブハウス_小さなハコの熱気': -24.0, 'ライブハウス_アンコールの手拍子': -24.0,
-            'ライブハウス_ブーイングが続く': -24.0, 'ライブハウス_終演後のざわめき': -25.0}
+            # the live-house crowds are a wall of noise, kept a little under the other loops (LIVE_LUFS);
+            # the thin ones lower still, so a near-empty room really sounds near empty
+            'ライブハウス_終演後のざわめき': -25.0, 'ライブハウス_客入り2_まばら': -25.0,
+            'ライブハウス_出待ちのファン': -25.0,
+            'ライブハウス_客入り1_ほぼ空': -27.0, 'ライブハウス_演奏前の静けさ': -27.0}
+LIVE_LUFS = -24.0
 
 
 def decode(path):
@@ -103,7 +105,7 @@ def main(apply):
         # loops are levelled from the OGG (the better copy) when there is one
         y, sr = decode(ogg if has_ogg else mp3)
         bed = d.startswith('07') or d.startswith('08')
-        bed_t = OVERRIDE.get(f[:-4], BED_LUFS)
+        bed_t = OVERRIDE.get(f[:-4], LIVE_LUFS if f.startswith('ライブハウス_') else BED_LUFS)
         mm, il, tp = max_momentary(y, sr), integrated(y, sr), true_peak(y)
         if d.startswith('08'):
             gain = RADIO_LUFS - il
