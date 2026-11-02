@@ -2618,22 +2618,25 @@ var ROLE_SKILLS=[
   var SKILL_PREREQ={
     groups:{'銃技能':['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉']},
     prerequisites:{
+      '〈電子戦〈ジャミング〉〉':[{skill:'〈エレクトロニクス〉',lv:2}],
+      '〈軽業／パルクール〉':[{skill:'〈運動〉',lv:2}],
+      '〈救急医療〉':[{skill:'〈応急手当〉',lv:2}],
       '〈フェンシング〉':[{skill:'〈白兵戦〈近接武器〉〉',lv:3}],
       '〈二刀流／双兵装〉':[{skill:'〈白兵戦〈近接武器〉〉',lv:5}],
-      '〈ガンファイト〈CQB〉〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:3},{anyOf:['〈格闘〉','〈白兵戦〈近接武器〉〉'],lv:2}],
-      '〈アキンボ〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:5}],
-      '〈ガン＝カタ〉':[{skill:'〈アキンボ〉',lv:1},{skill:'〈ガンファイト〈CQB〉〉',lv:1},{anyOf:[{prefix:'〈武術〈'}],lv:1}],
-      '〈外科医術〉':[{skill:'〈応急手当〉',lv:4}],
+      '〈ガンファイト〈CQB〉〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉'],lv:3},{skill:'〈格闘〉',lv:2}],
+      '〈アキンボ〉':[{skill:'〈ハンドガン〉',lv:5}],
+      '〈ガン＝カタ〉':[{skill:'〈ハンドガン〉',lv:5},{skill:'〈アキンボ〉',lv:5},{skill:'〈格闘〉',lv:5}],
+      '〈外科医術〉':[{skill:'〈応急手当〉',lv:2},{skill:'〈診断〉',lv:2}],
       '〈精神分析／メンタルケア〉':[{skill:'〈会話術〉',lv:2}],
       '〈推理／プロファイリング〉':[{anyOf:['〈知覚〉','〈情報収集／検索〉'],lv:2}],
       '〈サイバー技術〉':[{skill:'〈ベーシック・テク〉',lv:2},{skill:'〈応急手当〉',lv:2}],
-      '〈精密射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉','〈弓術〉'],lv:3}],
-      '〈制圧射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:3}],
+      '〈精密射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈弓術〉'],lv:3}],
+      '〈制圧射撃〉':[{skill:'〈フルオート射撃〉',lv:1}],
       '〈フルオート射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:3}]
     }
   };
   // 前提技能_データ_2026-11-01.json (2026-11-01b) の追加データ。
-  var SKILL_MAX_LEVEL={'〈フェンシング〉':1,'〈二刀流／双兵装〉':1,'〈精密射撃〉':1,'〈アキンボ〉':1};
+  var SKILL_MAX_LEVEL={'〈フェンシング〉':1,'〈二刀流／双兵装〉':1,'〈精密射撃〉':1};
   var SKILL_COST_MARK={'〈鑑識／フォレンジック〉':'無印','〈鑑定／目利き〉':'無印','〈密輸ルート把握／調達〉':'無印'};
   var SKILL_STAT_AXIS={'〈スリ〉':'Nerve','〈フルオート射撃〉':'Firearms','〈精密射撃〉':'Firearms','〈制圧射撃〉':'Firearms','〈アキンボ〉':'Firearms'};
   function skillCanonical(name){
@@ -2878,145 +2881,145 @@ var ROLE_SKILLS=[
   // VTT（_tools/VTT開発/template.html）の SKILL_DESC と skillDescOf の写し。キーは正式名だけで、別名は初回に足す。
   // 2か所持ちは R42 で正本を1つにするまでの仮。文を直すときは VTT 側と同時に直し、shots/S15/accept.mjs で一字一致を確かめる
   var SKILL_DESC={
-    "運動":"跳躍・登攀・全力疾走・受け身をまとめて扱う。遮蔽から遮蔽へ走り抜ける場面もこれで振る。",
-    "怪力":"鉄扉をこじ開け、バリケードをどかし、片腕で人を引き上げる。外から押される力に耐えるほうは〈踏ん張り／耐衝〉で振る。",
-    "水泳":"泳ぐ、潜る、浮きつづける。装備の重さと流れの速さで目標値が動く。",
-    "耐久力／忍耐":"飢え、酷暑と酷寒、寝不足、苦痛の下で動きつづける。折れずに保つ時間の長さを測る。",
-    "呼吸調節":"息を止めて照準を安定させる。煙の中を走り抜けるのも、潜水を延ばすのもここ。",
-    "軽業／パルクール":"壁を走り、段差を越え、着地で転がる。続けて起きる動きを、ひと続きで振る。",
-    "格闘":"素手と即席の武器で殴る、掴む、投げる。近接でいちばん幅の広い技能。",
-    "武術〈流派指定〉":"空手や柔道の型で、制御された動きと相手の攻めに合わせる反撃を扱う。流派ごとに別の技能として取る。",
-    "白兵戦〈近接武器〉":"刀・斧・棍棒・鎖などを振るう。受け流しと、装甲の継ぎ目を狙う技術を含む。",
-    "フェンシング":"レイピアや高周波ブレードを使い、速さと精密さで装甲の隙間を突く。",
-    "二刀流／双兵装":"左右の近接武器で、攻めと守りを同時にこなす。失敗すると体勢を崩す。",
-    "回避":"当たる間際に身をずらす訓練。このレベルか【Nerve】の一方を回避値にし、両方は足せない。",
-    "ガン＝カタ":"銃を武術の型として至近で振るい、刃にも盾にもして弾道を受け流す。効くのは2メートル以内だけ。",
-    "ハンドガン":"拳銃。抜き撃ちの速さと、至近での取り回しを扱う。片手でも撃てるのが強み。",
-    "ライフル":"ライフル系統。中距離から長距離の精密な射撃と、面制圧を担う。",
-    "ショットガン":"散弾銃。近距離で面を制圧し、扉を破り、当たった相手を後ろへ押し戻す。",
-    "重火器":"軽機関銃・擲弾筒・ロケット。広範囲の制圧と対物攻撃を担い、反動を技術で抑えて運用する。",
-    "弓術":"弓とクロスボウ。音を立てずに射て、用途に応じて特殊な矢を使い分ける。",
-    "フルオート射撃":"連射で相手を押さえ込む。反動の制御と、銃を体で支える据え方もこの技能の領分。",
-    "精密射撃":"頭部・関節・光学機器・携行品を狙って撃つ。部位を指定したときに上がる目標値を抑える。",
-    "制圧射撃":"弾幕を張って相手の動きを縛る。露出した部位のうち、最も装甲値の低いところを貫通値が超えれば成立する。",
-    "アキンボ":"種類の違う遠距離武器を二丁同時に扱う。弾数は合算でき、二丁拳銃もこの一種。",
-    "投擲":"手榴弾や焼夷弾を狙った場所へ落とす。信管の調整、転がし、山なりの盲投げを使い分ける。",
-    "早抜き／クイックドロー":"抜き撃ちを速くし、行動順と初撃の主導権を取る。納めた状態からの先制射も含む。",
-    "ガンファイト〈CQB〉":"至近と組み合いの中で銃を活かす。密着されても銃を奪われずに保つ技術を含む。",
-    "車両操縦":"自動車と装甲車。体当たりの制御と、車体を遮蔽として使う運転を含む。",
-    "バイク操縦":"二輪。狭い路地を抜け、渋滞を縫い、乗ったまま撃ち合う運転までを扱う。",
-    "重機操作":"クレーン・ブルドーザー・フォークリフト。作業アームを即席の武器にもする。",
-    "航空機操縦〈固定翼〉":"飛行機。離着陸、空中での機動、燃料の許すかぎりの長距離航行を扱う。",
-    "航空機操縦〈回転翼／ジャイロ〉":"ヘリとジャイロ。垂直の離着陸と、狭い屋上での空中静止を扱う。",
-    "エアロダイン操縦":"AVとベクタースラスト機。摩天楼の谷間を抜ける立体的な機動と急停止。",
-    "飛行船操縦":"飛行船とエアシップ。速くはないが、燃料を食わずに長く浮いていられる。",
-    "船舶操縦":"ボートと船舶。河川・港湾・沿岸を走り、荒れた海では速度と舵で波をいなす。",
-    "騎乗":"馬・改造獣・大型動物に乗って移動し、戦う。車両の通れない辺境の足になる。",
-    "知覚":"五感で危険・隠された物・尾行に気づく。撃ち手に狙いを渡す観測役も担う。",
-    "集中":"雑音と動揺を締め出して作業を続ける。狙撃の姿勢を保ち、妨害の下で解析する。",
-    "読唇術":"口の動きから会話を読む。ホロコール越しの相手や、口元の隠れた相手には効かない。",
-    "隠密":"気配と音を消して近づき、忍び込み、見つからずに動く。物陰と足音の技術。",
-    "尾行／追跡":"気づかれずに跡を追う。または残された痕跡から所在を割り出す。",
-    "隠蔽／発見":"物を隠す技術と、隠された物・罠・隠し扉を見つける目。隠す側でも探す側でも、振るのはこれ。",
-    "第六感／直感":"根拠のない予感をGMからの助言として受け取る。危ないときに体が先に構える土台にもなる。",
-    "芸能":"演技と歌唱で群衆を惹きつける。見張りの目を逸らさせる陽動にも、人を動かすきっかけにも使う。",
-    "楽器演奏":"伝統楽器からシンセまで。演奏で場の空気をこちらへ引き寄せ、客の足を止める。",
-    "絵画":"絵とデザイン。贋作を仕立てる腕と、見張りの前で壁に描く度胸を含む。",
-    "写真／映像":"撮影・収録・編集。証拠を押さえ、監視の記録を読み、必要なら作る。",
-    "演技":"別人になりすまし、感情を偽る。潜入にも諜報にも、まずこれが要る。",
-    "文筆":"文章・歌詞・脚本・宣伝文を書く。読んだ相手を思った向きへ動かす書き方。",
-    "舞踊":"踊り全般。表現力と、体を思いどおりに動かす制御がものを言う。",
-    "ファッション":"服装で見え方を操る。上の層の人間に見せる演出にも、潜入の偽装にも効く。",
-    "ブレインダンス使用":"BDの視聴と操作。他人の感覚の記録を読み解き、そこから情報を拾う。",
-    "ブレインダンス編集":"BD映像の加工と改竄。見た者の心が狙った向きへ動くように作り替える。",
-    "身繕い":"髪・肌・化粧・爪・匂いを整える。持って生まれた顔をいちばん良く見せる手入れの技術。",
-    "応急手当":"止血・固定・気道確保・蘇生処置。その場で戦闘を続けられるところまで戻す。",
-    "救急医療":"現場で致命傷を負った者を救い、容態を安定させる。設備の整った場所なら、同じ処置でも目標値が下がる。",
-    "外科医術":"設備の整ったラボでの計画的な外科。後遺症を残さない摘出と、臓器の移植・再建を受け持つ。",
-    "診断":"症状とサイバーサイコの兆候を見分ける。処置はこの見立てから始まる。",
-    "薬学":"薬の調合と分析。毒、解毒剤、戦闘ドラッグの調整と、その副作用の見極め。",
-    "精神分析／メンタルケア":"相手のショックとパニック、軽度の暴走を対話と薬物で鎮める。仲間の【Edge】の暴走を防ぐ。",
-    "教育／一般知識":"読み書き計算と、歴史や科学の常識。学校で習う範囲を身につけているかどうか。",
-    "歴史":"過去の出来事と経緯についての専門教養。旧世界の遺物の由来や、街の因縁の出どころを読み解く。",
-    "会計":"帳簿と収支についての専門教養。数字の辻褄が合わない箇所から金の流れを追う。",
-    "株式市場":"株式と相場についての専門教養。企業の浮き沈みを、表に出るより先に数字から読む。",
-    "人類学":"人間集団と文化についての専門教養。見慣れない共同体の掟や序列を推し量る。",
-    "生物学":"生命現象についての専門教養。培養体や生物由来の毒の素性に見当をつける。",
-    "動物学":"動物についての専門教養。生態と習性から、改造獣の由来や弱点に見当をつける。",
-    "植物学":"植物についての専門教養。薬にも毒にもなる草木を見分け、育った土地を言い当てる。",
-    "地質学":"地層と地形についての専門教養。地下の構造と、掘れる場所・崩れる場所を判断する。",
-    "化学":"物質と反応についての専門教養。試薬から中身を割り出し、混ぜてはならない組み合わせを見抜く。",
-    "物理学":"物理現象についての専門教養。装置がなぜそう動くのかを筋道立てて説明できる。",
-    "数学":"数理と計算についての専門教養。統計と確率から、目に見えない偏りを引き出す。",
-    "暗号学":"暗号の理論と解読についての専門教養。鍵のかかった通信を読み解く糸口をつかむ。",
-    "推理／プロファイリング":"痕跡と心理から、行動のパターンと潜伏先を筋道立てて絞り込む。",
-    "鑑識／フォレンジック":"弾道・指紋・薬莢・遺留品・監視記録を科学的に解析し、犯行を組み立て直す。",
-    "戦術指揮":"複数人の行動を俯瞰し、配置・進路・伏撃点を読んで分隊を動かす。連携と囮の指揮を担う。",
-    "土地鑑〈地域指定〉":"指定した地区の地理・抜け道・有力者・危険地帯・触れてはならない決まりを知っている。地区ごとに別の技能として取る。",
-    "言語〈指定〉":"指定した言語の読み書きと会話。言語ごとに別の技能として取る。",
-    "情報収集／検索":"NETとデータベースの記録からも、雑踏や闇市の聞き込みからも、目的の情報を引き出す。",
-    "システム知識":"NETの構造とセキュリティを理解する。ネットランナーの土台になる教養。",
-    "専門知識〈指定〉":"指定した分野を深く理解している。分野ごとに別の技能として取る。",
-    "野外生存術":"水と食料を確保し、天候に備え、野営を張る。街の外で生き延びる技術。",
-    "ビジネス":"企業活動と経営の理屈。コーポで育った人間なら、基礎の素養として持っている。",
-    "鑑定／目利き":"物品の価値・真贋・由来を見抜く。闇市の取引と戦利品の選別に効く。",
-    "動物使い／調教":"番犬・闘技獣・運搬獣・義体化動物を手懐け、訓練し、使役する。生きた動物を扱う実技。",
-    "ベーシック・テク":"一般の機械と電子機器を修理し、改造する。技術系すべての基盤になる技能。",
-    "サイバー技術":"サイバーウェアの修理・改造・調整・移植。恒久的な修理と移植は、この技能でしかできない。",
-    "義体応急整備":"現場で義体を一時的に動かし直す。関節の嵌め直し、断線の仮結線、駆動系の熱抜きを扱う。",
-    "武器製作":"銃器と近接武器の整備・改造・製造。近接武器が壊れたときの修復もここで扱う。",
-    "車両整備":"車両の整備と改造。壊れた足回りを直し、走りに合わせて組み替える。",
-    "航空機整備":"航空機の整備と改造。機体を点検し、飛べる状態まで自分の手で直す。",
-    "エアロダイン整備":"エアロダインの整備と改造。ベクタースラストの調整と、熱の逃がし方を扱う。",
-    "ジャイロ整備":"ジャイロの整備と改造。回転翼と駆動系を点検し、飛べる状態に戻す。",
-    "船舶整備":"船舶の整備と改造。機関と船体を点検し、海へ出せる状態に戻す。",
-    "メカニック":"ドローン・ロボット・汎用機械を現場で整備する。専門の機体は各整備技能が受け持つ。",
-    "爆破工作":"爆薬の設置・解除・起爆。ガス管やドラム缶を即席で誘爆させるのもここ。",
-    "偽造":"書類・ID・貨幣を偽造する。腕が上がればコーポ認証の一時突破まで届く。",
-    "変装":"外見の偽装。メイク、小道具、フェイスの換装で別人として通す。",
-    "鍵開け":"物理錠と電子ロックを開ける。錠の構造を読み、痕跡を残さずに通り抜ける。",
-    "スリ":"気づかれずに物理的に盗る。相手の懐から抜き、抜いたことも気取らせない。",
-    "エレクトロニクス":"電子機器の設計と修理。通信・制御・センサーを組み、直し、繋ぎ変える。",
-    "電子・保安技術":"監視カメラ・センサー・警報・自動砲台・電子ロックを、外側から設置し、解析し、無力化する。",
-    "プログラミング":"ソフト・ICE・デーモン・マルウェアを組み上げ、他人の書いたものを読んで書き換える。",
-    "ブリーチ・プロトコル":"現地で触れられる機器・錠・端末の認証を突破し、侵入するか、無力化する。",
-    "電子戦〈ジャミング〉":"通信を妨げ、電波を撹乱し、ドローンや誘導兵器の信号を乗っ取る。戦場でこれを持つ側が主導権を握る。",
-    "ドローン操作〈リギング〉":"偵察機・戦闘ドローン・ロボットを制御リンクで遠隔操縦する。操り手は離れた場所から支える。",
-    "密造／ジャンク加工":"廃材と規格外の素材から、合成酒・薬・食い物を即席で作る。失敗すると有毒物になる。",
-    "エチケット":"礼儀作法・ビジネスマナー・社交。上流の場で不審がられずに立つ。",
-    "裏社会":"ストリートと犯罪社会の常識。闇市、ギャング、袖の下の相場を知っている。",
-    "取引":"売買・価格交渉・契約。相手の足元を見て、値も条件もこちらの得になるよう詰める。",
-    "会話術":"誠実な会話で信頼を築く。その場の得より、長く続く関係を取る。",
-    "弁舌／説得":"筋道と熱で相手の考えを動かし、こちらの望む行動を選ばせる。群衆を前にしても使える。",
-    "袖の下／買収":"金で話をつける。いくら出すか、誰なら受け取るか、どう渡せば痕跡が残らないかを見極める。",
-    "真意看破":"言葉と態度から本心と嘘を見抜く。話の筋ではなく、話し手の側を読む。",
-    "信望":"身分と功績を持ち出して相手を動かす。名前ひとつで戦闘が終わることもある。",
-    "官僚術":"規則と手続きを逆手に取り、行政や企業の機構を自分のために動かす。",
-    "商才":"取引の機会を活かし、利益を引き出す直感。同じ品をより高く売る道を見つける。",
-    "企業方針":"社内規約と政治動向を把握する。どの部署が今どう動くかを読む。",
-    "文化知識〈指定〉":"指定した地域や文化を深く理解している。地域や文化ごとに別の技能として取る。",
-    "詐欺":"信用を装って騙す。他の社会技能の代わりに振れるが、ばれたときの跳ね返りは大きい。",
-    "ギャンブル":"ポーカー・賭け試合・運試し。場の流れを読み、いかさまを見抜き、あるいは仕込む。",
-    "威圧":"銃口と気迫で戦意を挫き、降伏・後退・自白を迫る。怯ませられるのは一人までで、その先は職業スキルの領分。",
-    "尋問":"捕虜や容疑者から、脅迫・揺さぶり・取引で情報を引き出す。守る側は〈拷問／薬物抵抗〉で抗う。",
-    "誘惑／魅了":"色香と距離の詰め方で警戒を解き、好意や油断を引き出す。ハニートラップの芯になる。",
-    "等級査定":"ホロコールの表示・身なり・作法から、相手の顧客等級と立入の資格を読む。外すと礼儀違反になる。",
-    "縄張りの掟":"ギャングの縄張りで、落書き・印・上納と礼節の作法を読み、無用の衝突を避ける。",
-    "密輸ルート把握／調達":"封鎖された物資を、移動市場や密輸網から最短の経路と相場で割り出す。",
-    "拷問／薬物抵抗":"尋問されても吐かず、意志で情報を守る。自白剤の効きも意志で押し返す。",
-    "耐痛":"痛みの中でも意識を失わずに動きつづける。戦闘不能になるのを遅らせる。",
-    "精神集中":"恐怖・幻覚・心理干渉を振り払い、冷静を保つ。制圧射撃の釘付けに抗うときもこれで振る。",
-    "環境耐性":"酷暑酷寒・放射線・有毒ガスの下で活動する。体そのものが持ちこたえる力。",
-    "出血管理":"血管の収縮とナノ制御で出血を自分で止める。重傷のときの延命に使う。",
-    "ショック耐性":"爆音と閃光による麻痺に抵抗し、すぐ動けるところまで戻る。立ち直りの速さ。",
-    "毒／薬物抵抗":"神経毒・睡眠ガス・戦闘ドラッグの副作用に、身体そのもので抗う。",
-    "電磁耐性":"EMPと電撃によるサイバーウェアの不調や麻痺に抵抗し、再起動の時間を縮める。",
-    "恐慌抵抗〈クー・ド・グラ〉":"仲間の死や絶望的な戦力差で生じるパニックと逃走に抗い、その場に踏み止まる。",
-    "拘束離脱":"手錠・網・組み付きから脱出する。関節の着脱と瞬間的な筋力を使う。",
-    "踏ん張り／耐衝":"ノックバック・吹き飛ばし・爆風の押しに抗い、後退も転倒もせず踏み止まる。",
-    "コンバージョン順応":"義体を新しく入れた直後、感覚のずれとコンバージョン酔いに抗って動く。失敗すると一時の感覚混乱が残る。",
-    "義体過負荷制御":"サイバーウェアを連続して酷使した局面で、過熱と神経の過負荷を押し止める。その場の踏ん張りに限る。",
-    "BD離脱制御":"違法・拷問・記憶のBDを常用した後、フラッシュバックと依存の引きに抗って任務を続ける。"
+    "運動":"体を使う技能の基本。跳ぶ、よじ登る、全力で走る、受け身を取る、軽い物を投げる。遮蔽から遮蔽へ走る場面もこれで振る。",
+    "怪力":"力仕事の技能。鉄扉をこじ開け、バリケードをどかし、片腕で人を引き上げる。",
+    "水泳":"泳ぎの技能。泳ぐ、潜る、浮き続ける。装備の重さと流れの速さで目標値が変わる。",
+    "耐久力／忍耐":"長い時間を我慢する技能。寝ない、食べない、歩き続ける。飢えや寝不足や苦痛の中でも、活動をやめない。",
+    "呼吸調節":"息を操る技能。息を止めて照準を落ち着かせ、煙の中で短いあいだ動き、潜水の時間を延ばす。",
+    "軽業／パルクール":"跳び回る技能。壁を走り、段差を越え、転がって着地する動きを続けてこなす。前提：〈運動〉Lv2。",
+    "格闘":"素手で戦う技能。殴る、掴む、投げる。即席の武器もこれで振る。いちばん広く使える近接技能だ。",
+    "武術〈流派指定〉":"体系立てて鍛えた格闘術。空手や柔道のように、制御された動きと返し技を使う。流派と技は別の提案書にまとめてあり、承認待ちだ。",
+    "白兵戦〈近接武器〉":"得物で戦う技能。刀、斧、棍棒、チェーンを振るい、受け流し、装甲の継ぎ目を狙う。",
+    "フェンシング":"刺突の剣技。レイピアや高周波ブレードを速さと正確さで操り、装甲の隙間を突く。前提：〈白兵戦〉Lv3。Lv1まで。",
+    "二刀流／双兵装":"左右に近接武器を持つ技能。攻めと守りを同時にこなす。失敗するとバランスを崩す。前提：〈白兵戦〉Lv5。Lv1まで。",
+    "回避":"撃たれる瞬間に射線から外れる技能。撃ち手の構えと銃口の向きを読んで体をずらす。**射撃の回避判定にだけ使い、近接では使わない。**",
+    "ガン＝カタ":"銃を型として振るう至近の武術。銃を刃にも盾にも使い、弾道を受け流し、撃ち返す。前提：〈ハンドガン〉Lv5と〈アキンボ〉Lv5と〈格闘〉Lv5。",
+    "ハンドガン":"拳銃の技能。すばやく抜いて撃ち、至近で取り回す。SMG（短機関銃）もこの技能で撃ち、目標値はSMGの行を読む。",
+    "ライフル":"ライフルの技能。中距離から長距離を正確に撃ち、弾幕で相手を抑える。狙撃銃と対物銃もこの技能で撃ち、目標値は狙撃・対物の行を読む。",
+    "ショットガン":"散弾銃の技能。近距離を面で撃ち払い、扉を破り、相手を押し戻す。",
+    "重火器":"重い火器の技能。軽機関銃、グレネードランチャー、ロケットで、広い範囲を撃ち、物を壊す。移動の不利と反動を技術で抑える腕もここに含む。",
+    "弓術":"弓とクロスボウの技能。音を立てずに射ち、特殊な矢を使い分ける。目標値は弓/クロスボウの行を読む。",
+    "フルオート射撃":"連射の技能。反動を抑え、銃を据えて撃つのもこの技能の領分だ。連射モードを選べる武器でだけ使える。前提：銃技能のどれか1つLv3。",
+    "精密射撃":"狙い撃ちの技能。頭、関節、光学機器、携行品を指定して狙い、距離も測る。部位を指定したときに上がる目標値を**2軽くする**。頭部は＋5が＋3に、頭部以外は＋3が＋1になる。別のロールは増えない。命中は撃つ武器の射撃技能（弓なら〈弓術〉）で振り、この技能のレベルは足さない。スマート機構とは一緒に使えない。前提：〈ハンドガン〉〈ライフル〉〈ショットガン〉〈弓術〉のどれか1つLv3。Lv1まで。",
+    "制圧射撃":"弾幕で相手を動けなくする技能。前提：〈フルオート射撃〉Lv1。",
+    "アキンボ":"複数の銃を同時に撃つ技能。カテゴリの異なる遠距離武器を同時に使い、弾数を合わせて数えられる。二丁拳銃もこの一種だ。撃つ武器の数だけ標的を選べる（両手に2丁、内蔵兵器1つなら3体まで）。標的は制圧射撃の範囲の内側に限る。前提：〈ハンドガン〉Lv5。",
+    "投擲":"重い物を投げる技能。グレネードや焼夷弾を狙った場所に落とし、信管の調整、転がし、山なりの盲投げを投げ分ける。〈運動〉の「軽い物を投げる」より先の領分だ。グレネードは25mまで届き、目標値はグレネード/ロケットの行を読む。",
+    "早抜き／クイックドロー":"抜き撃ちの技能。銃を速く抜き、イニシアチブと初撃の主導権を取る。",
+    "ガンファイト〈CQB〉":"至近で銃を使う技能。組み合った間合いでも銃を活かし、奪われないように握り続ける。前提：〈ハンドガン〉〈ライフル〉〈ショットガン〉のどれか1つLv3と、〈格闘〉Lv2。",
+    "車両操縦":"車の運転技能。自動車と装甲車を走らせる。体当たりを制御し、車体を遮蔽にする運転もこれで振る。",
+    "バイク操縦":"二輪の運転技能。狭い路地を抜け、渋滞をすり抜け、乗ったまま戦う。",
+    "重機操作":"重機を動かす技能。クレーン、ブルドーザー、フォークリフトを扱い、作業アームを即席の武器にもする。",
+    "航空機操縦〈固定翼〉":"飛行機の操縦技能。離着陸、空中機動、長距離の航行をこなす。",
+    "航空機操縦〈回転翼／ジャイロ〉":"ヘリとジャイロの操縦技能。垂直に離着陸し、空中で止まる。",
+    "エアロダイン操縦":"AV（空飛ぶ車両）とベクタースラスト機の操縦技能。ビルの谷間を上下左右に飛び回り、急停止する。",
+    "飛行船操縦":"飛行船とエアシップの操縦技能。ほとんど趣味の領分だ。",
+    "船舶操縦":"船の操縦技能。ボートや船で、川、港、沿岸を走る。",
+    "騎乗":"動物に乗る技能。馬、改造獣、大型動物に乗って移動し、戦う。車の通れない辺境では、これが足になる。",
+    "知覚":"生身の五感で気づく技能。危険、隠された物、尾行を察する。観測役（スポッター）も務める。",
+    "集中":"自分で始めた作業を最後まで続ける技能。雑音や動揺に乱されず、狙撃の姿勢を保ち、妨害の中でも解析を続け、長い張り込みに耐える。",
+    "読唇術":"唇を読む技能。口の動きから会話を読み取る。ホロコールには効かない。",
+    "隠密":"気配を消す技能。音を立てずに近づき、忍び込み、移動する。",
+    "尾行／追跡":"跡を追う技能。気づかれずに相手をつけるか、痕跡から居場所を割り出す。血の跡、足跡、タイヤの跡をたどるのもこれで振る。",
+    "隠蔽／発見":"隠すことと見つけることの技能。物を隠し、隠された物、罠、隠し扉を見つける。仕事のあとに血、薬莢、指紋、監視映像を消して現場を片づけるのもこの技能だ。",
+    "第六感／直感":"勘の技能。根拠のない予感をGMからのヒントとして受け取り、危ない場面で反射的に身構える土台になる。前提はない。",
+    "芸能":"人前で見せる技能。演技と歌で群衆を沸かせる。陽動にも、人を動かす力にもなる。",
+    "楽器演奏":"楽器の技能。伝統楽器からシンセまでを弾き、場の空気をつかむ。",
+    "絵画":"描く技能。絵とデザインのほか、贋作やグラフィティも手がける。",
+    "写真／映像":"撮る技能。撮影、収録、編集をこなし、証拠を集め、監視データを作る。",
+    "演技":"振る舞いと感情を偽る技能。別人になりすまし、潜入やスパイの場で疑われずにいる。",
+    "文筆":"書く技能。文章、歌詞、脚本、プロパガンダを書く。",
+    "舞踊":"踊る技能。ダンス全般を受け持ち、表現力と体の制御を扱う。",
+    "ファッション":"装う技能。服と持ち物で見た目を作り、地位を演出し、その場に合う立場を装う。",
+    "ブレインダンス使用":"ブレインダンス（BD）を見る技能。BDを視聴し、操作して、記録を解析し、情報を集める。",
+    "ブレインダンス編集":"BDを作り替える技能。BD映像を加工し、改竄し、見る者の心理を操る。",
+    "身繕い":"素の見た目を整える技能。髪、肌、化粧、爪、匂いを手入れして、持って生まれた顔をいちばん良く見せる。舞台に上がる前、上層の店に入る前、相手の懐へ入り込む前に効く。",
+    "応急手当":"傷の手当ての技能。止血、固定、気道の確保と、息や脈が止まった直後に呼び戻す心肺蘇生までを受け持ち、戦闘を続けられる状態に保つ。重い負傷も手当てはできるが、目標値は〈救急医療〉より2高い。設備のない下層での無菌もどきの処置もここに入り、感染のリスクが上乗せされる。",
+    "救急医療":"現場で命を拾う技能。命に関わる負傷（重傷と貫通の帯）を現場で食い止め、搬送できる容態まで落ち着かせる。同じ負傷を、〈応急手当〉より目標値2低く手当てできる。心肺蘇生もできるが、蘇生だけなら〈応急手当〉で足りる。設備があれば、判定がぐっと楽になる。前提：〈応急手当〉Lv2。",
+    "外科医術":"手術の技能。設備の整ったラボで、計画を立てて手術する。弾を摘出し、臓器を移し、後遺症を残さずに治す。「後遺症を残さない摘出」と「臓器の移植・再建」は、この技能にしかできない。前提：〈応急手当〉Lv2と〈診断〉Lv2。",
+    "診断":"見立ての技能。症状、兆候、サイバーサイコの徴候を突き止める。処置はここから始まる。",
+    "薬学":"薬の技能。薬を調合し、分析する。毒も解毒剤も扱い、戦闘ドラッグを調整する。",
+    "精神分析／メンタルケア":"心を鎮める技能。他人のショック、パニック、軽いサイバーサイコの暴走を、対話と薬で落ち着かせる。仲間の【Edge】暴走を防ぐ。効果の大きさは、相手の状態と場面を見てGMがその都度決める。前提：〈会話術〉Lv2。",
+    "教育／一般知識":"基礎の教養。読み書きと計算、歴史や科学の常識を身につけている。",
+    "歴史":"過去の出来事と、そこに至った経緯を知っている。",
+    "会計":"帳簿を読み、金の出入りを追える。",
+    "株式市場":"株と相場の動きに通じている。",
+    "人類学":"人の集団と文化の成り立ちを知っている。",
+    "生物学":"生き物の体と、命の仕組みを知っている。",
+    "動物学":"動物の種類と生態に詳しい。",
+    "植物学":"植物の種類と性質に詳しい。",
+    "地質学":"地層と地形の成り立ちを読める。",
+    "化学":"物質と、その反応の仕組みを知っている。",
+    "物理学":"物の動きと、物理現象の法則を知っている。",
+    "数学":"数理に通じ、込み入った計算をこなす。",
+    "暗号学":"暗号の理論を知り、解読の糸口を探せる。",
+    "推理／プロファイリング":"筋道を立てて読む技能。痕跡と心理から、相手の動き方と潜伏先を割り出す。前提：〈知覚〉か〈情報収集／検索〉のどちらかLv2。",
+    "鑑識／フォレンジック":"物証を調べる技能。弾道、指紋、薬莢、遺留品、監視ログ、BD記録を科学的に解析し、何が起きたかを組み立て直す。〈推理〉が直感の飛躍なら、こちらは物証を積み上げる科学だ。",
+    "戦術指揮":"仲間を動かす技能。複数人の動きを見渡し、配置、進路、待ち伏せの場所を読んで分隊を動かす。連携や囮の指示もこれで出す。",
+    "土地鑑〈地域指定〉":"ひとつの地区に詳しい技能。その地区の地理、抜け道、有力者、危ない場所、触れてはいけないことを知っている。",
+    "言語〈指定〉":"外国語の技能。決めた外国語を読み書きし、話す。",
+    "情報収集／検索":"調べる技能。NET、データベース、記録を当たり、雑踏や闇市で聞き込んで、目当ての情報を引き出す。",
+    "システム知識":"ネットの仕組みを知る技能。ネットの構造とセキュリティを理解している。ネットランナーの基本の教養だ（潜行そのものは職業特権）。",
+    "専門知識〈指定〉":"決めた分野に詳しい技能。その分野の来歴や事情を深く知っている。",
+    "野外生存術":"野外で生き延びる技能。水と食料を手に入れ、天候に備え、野営する。",
+    "ビジネス":"商売の技能。企業の動きと経営に通じている。コーポには欠かせない素養だ。",
+    "鑑定／目利き":"値打ちを見る技能。物の価値、真贋、出どころを見抜く。闇市の取引や戦利品の選り分けに効く。贋作を見抜くときは、〈偽造〉か〈絵画〉で作った側との対抗になる（目標値は6＋作り手の【Craft】＋作り手のその技能）。",
+    "動物使い／調教":"動物を扱う技能。番犬、闘技獣、運搬獣、義体化した動物を手なずけ、仕込み、働かせる。〈動物学〉が知識なら、こちらは生きた動物を扱う実技だ。",
+    "ベーシック・テク":"修理の基本技能。ふつうの機械と電子機器を直し、手を加える。負傷表で「防具を1つ破損」となった防具を直すのもこの技能だ。ほかの技術系技能の土台になる。",
+    "サイバー技術":"サイバーウェアを扱う技能。修理、改造、調整、移植をこなす。リパードクの資格が要る。「恒久修理」「改造」「移植」は、この技能にしかできない。前提：〈ベーシック・テク〉Lv2と〈応急手当〉Lv2。",
+    "義体応急整備":"現場で義体を一時的に直す技能。負傷表の「義体不調」「義体停止」をその場で押さえ込み、動かす。外れた関節をはめ直し、切れた線を仮につなぎ、駆動系の熱を抜き、いざとなれば切り離す。リパードクでなくても使え、前提技能もない。",
+    "武器製作":"武器を扱う職人の技能。銃と近接武器を整備し、改造し、作る。近接武器が耐久値チェックで壊れたあとの復帰判定もこれで振る。",
+    "車両整備":"車両を整備し、改造する。",
+    "航空機整備":"航空機を整備し、改造する。",
+    "エアロダイン整備":"エアロダインを整備し、改造する。",
+    "ジャイロ整備":"ジャイロを整備し、改造する。",
+    "船舶整備":"船舶を整備し、改造する。",
+    "メカニック":"機械全般の現場整備の技能。ドローン、ロボット、汎用機械をその場で整備する。車両や航空機は上の専門整備が受け持ち、この技能はそれ以外を埋める。",
+    "爆破工作":"爆薬の技能。爆薬を仕掛け、解除し、起爆する。建物を壊し、罠を作る。ガス管やドラム缶のように、その場にある物を即席で誘爆させるのもこの技能だ。",
+    "偽造":"偽物を作る技能。書類、ID、貨幣を偽造する。腕が上がれば、コーポの認証を一時的に破ることもできる。",
+    "変装":"顔と体を別人にする技能。メイク、小道具、顔の換装で外見を偽る。服で立場を装うのは〈ファッション〉、振る舞いは〈演技〉で振る。",
+    "鍵開け":"錠を開ける技能。物理錠も電子ロックも開ける。",
+    "スリ":"盗む技能。気づかれずに、手で物を盗る。気づかれるかどうかは対抗で、目標値は〔6＋相手の【Intelligence】＋相手の〈知覚〉〕になる。",
+    "エレクトロニクス":"回路を組む技能。通信機器、制御装置、センサーを設計して自作し、通信機器を扱う。盗聴器を組み、無線を傍受し、壊れた端末からデータを抜く。",
+    "電子・保安技術":"警備装置の技能。監視カメラ、センサー、警報、自動砲台、電子ロックを、外側から設置し、解析し、無力化する。NETには潜らない。",
+    "プログラミング":"プログラムを書く技能。ソフト、ICE、デーモン、クイックハック用のプログラム、マルウェアを作り、改造する。",
+    "ブリーチ・プロトコル":"その場で機器に侵入する技能。手で触れられる機器、錠、端末の認証を破り、侵入するか無力化する。NET深層、即時戦闘ハック、魂の奪取はネットランナーの専管だ。",
+    "電子戦〈ジャミング〉":"電波を乱す技能。通信を妨害し、ドローンや誘導兵器の信号を乗っ取り、電波を撹乱する。戦場を電子的に押さえる技能で、NET潜行とは系統が違う。前提：〈エレクトロニクス〉Lv2。",
+    "ドローン操作〈リギング〉":"機械を遠隔で動かす技能。偵察機、戦闘ドローン、ロボットを制御リンクで操縦し、本人は安全な場所から支援する。",
+    "密造／ジャンク加工":"ありあわせで作る技能。廃材や規格外の素材から、合成酒、薬、ストリートドラッグ、\"コルパス・チキン\"などを即席で作る。失敗すると毒になり、口にした者の体を壊す。",
+    "エチケット":"礼儀の技能。作法、ビジネスマナー、社交を心得ていて、上流の場で怪しまれずにいられる。",
+    "裏社会":"ストリートの常識の技能。闇市、ギャング、賄賂の流儀を知っている。",
+    "取引":"商談の技能。売り買いし、値を交渉し、契約を結ぶ。",
+    "会話術":"信頼を築く技能。誠実に話して、長く続く関係を作り、話を聞き出す。",
+    "弁舌／説得":"相手を納得させて動かす技能。筋道と熱で考えを変えさせ、こちらの望む行動を選ばせる。一対一でも、群衆を前にしても使える。",
+    "袖の下／買収":"金で話をつける技能。いくら出すか、いつ切り出すか、誰なら受け取るか、どう渡せば痕跡が残らないかを見極める。区警の巡回を一晩ずらし、目撃者を黙らせ、荷の検査を素通りさせる。",
+    "真意看破":"嘘を見抜く技能。言葉と態度から、本心と嘘を見分ける。",
+    "信望":"名前で動かす技能。身分や功績を明かして、相手を動かす。それだけで戦闘が終わることもある。旧名は〈信用〉。",
+    "官僚術":"手続きの技能。規則と手続きを逆手に取り、役所や企業の仕組みを利用する。",
+    "商才":"儲けを嗅ぎ取る技能。何をいつ、どこへ持っていけば儲かるかを読む。売り時と買い時、相場の歪み、儲け話の真贋が見える。",
+    "企業方針":"企業の内側を知る技能。社内の規約と、社内政治の動きをつかんでいる。",
+    "文化知識〈指定〉":"ひとつの文化に詳しい技能。決めた地域や文化を深く理解している。",
+    "詐欺":"騙す技能。信用できる相手を装って騙す。ほかの【社会】技能の代わりに振れるが、失敗したときの損が大きい。",
+    "ギャンブル":"賭けの技能。ポーカー、賭け試合、運試しで場の流れを読み、いかさまを見抜き、ときには仕込む。",
+    "威圧":"脅す技能。銃口と気迫で戦意をくじき、降伏、後退、自白を迫る。戦闘では雑魚1体を怯ませ、交渉では脅して譲歩を引き出す。範囲の士気崩壊や一騎討ちの強制は職業特権で、技能でできるのは1体を怯ませるところまでだ。",
+    "尋問":"口を割らせる技能。捕虜や容疑者から、脅し、揺さぶり、取引で情報を引き出す。相手の口の堅さは〈拷問／薬物抵抗〉で決まる。",
+    "誘惑／魅了":"惹きつける技能。色香と距離の詰め方で警戒を解き、好意や油断を引き出す。ハニートラップの芯になる。",
+    "等級査定":"相手の格を読む技能。ホロコールの表示、身なり、作法から、顧客等級（第I〜IV種／ノン・レジスター）と、その場に立ち入る資格があるかを一目で見分ける。格上か格下かも分かる。読み違えると礼儀を欠いたことになり、ヒートが上がる。",
+    "縄張りの掟":"縄張りの掟を読む技能。ギャングの縄張りで、グラフィティ、マーキング、上納と礼儀の作法を読み、無用な衝突を避ける。失敗すると侵入者として扱われ、敵に回る。",
+    "密輸ルート把握／調達":"手に入らない物を探す技能。水、弾、薬、本物の食材のような封鎖物資を、ザ・パイプのような移動市場や密輸網から、最短の経路と相場で割り出す。目標値は品物の手に入りにくさで決まり、街で普通に出回る品が13、封鎖物資が15、企業の管理品が17。失敗すると空振りするか、足がつく。〈取引〉が値段の交渉なら、こちらは仕入れ先を突き止める技能だ。",
+    "拷問／薬物抵抗":"口を割らない技能。尋問を受けても吐かず、意志で情報を守る。",
+    "耐痛":"痛みに耐える技能。痛みの中でも意識を保って動き続け、戦闘不能を遅らせる。判定の不利、怯み、棒立ち、ショックのように、痛みから来る妨害に対抗する。体の欠損、起立不能、昏倒、即死には対抗できない。",
+    "精神集中":"心を保つ技能。恐怖、幻覚、心理干渉を振り払い、冷静さを保つ。制圧射撃の\"釘付け\"への備えもこの技能で、撃ち手が届かせる値は〔6＋【Ego】＋〈精神集中〉〕になる。",
+    "環境耐性":"その場のきつさに耐える技能。酷暑や酷寒、放射線、有毒ガスの中で活動する。長い時間の我慢は【運動】の〈耐久力／忍耐〉で振る。",
+    "出血管理":"血を止める技能。血管を縮め、ナノマシンを制御して、自分の出血を抑える。重傷を負ったときに命をつなぐ。",
+    "ショック耐性":"爆音と閃光に耐える技能。スタンに抵抗し、すぐに立ち直る。",
+    "毒／薬物抵抗":"毒に耐える技能。神経毒、睡眠ガス、戦闘ドラッグの副作用に、体で抵抗する。〈拷問／薬物抵抗〉が意志の抵抗なら、こちらは体の耐性だ。",
+    "電磁耐性":"電気に耐える技能。EMPや電撃でサイバーウェアが止まったり体が痺れたりするのに抵抗し、再起動までの時間を縮める。",
+    "恐慌抵抗〈クー・ド・グラ〉":"逃げ出さない技能。仲間の死や絶望的な戦力差から来るパニックと逃走に抗う。〈精神集中〉が干渉を振り払う技能なら、こちらは戦意が崩れるのを防ぐ技能だ。",
+    "拘束離脱":"抜け出す技能。手錠、ネット、組み付きから脱出する。関節を外し、一瞬の筋力で振りほどく。",
+    "踏ん張り／耐衝":"踏みとどまる技能。ノックバック、吹き飛ばし、爆風の押しに抗い、下がりも倒れもしない。",
+    "コンバージョン順応":"新しい体に慣れる技能。義体を入れた直後や換えた直後に、感覚のずれや\"コンバージョン酔い\"に負けずにすぐ動けるかを見る。",
+    "義体過負荷制御":"義体の無理を抑える技能。サイバーウェアを酷使した場面で、過熱と神経にかかる過負荷を押しとどめ、正気と稼働を保つ。長くは保たず、その場の踏ん張りにしか使えない。",
+    "BD離脱制御":"BDの引きに抗う技能。違法なBD、拷問のBD、記憶のBDを常用したあと、フラッシュバックと依存に負けずに任務をこなせるかを見る。"
   };
   var _skDesc=null,_skDescKeys=null;
   function skillDescOf(name){
@@ -4408,7 +4411,7 @@ var ROLE_SKILLS=[
   window.addEventListener('resize',growAll);
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(growAll);
   recalc();
-  var PUB_PAGE_CSS=":root{\n  --bg:#0b1020;--panel:#151d32;--panel-deep:#0d1426;--frame:#3ee8ff;--frame-soft:#294b64;\n  --heading:#3ee8ff;--accent:#3ee8ff;--ink:#e8eef9;--ink-2:#c0cde0;--ink-3:#a9b8cf;\n  --meter-start:#3ee8ff;--meter-end:#9b7bff;--node-fill:#18233a;\n  --f-jp:\"BIZ UDPGothic\",\"Yu Gothic UI\",\"Meiryo\",sans-serif;\n  --f-mono:\"Cascadia Mono\",\"Consolas\",monospace;\n  --f-disp:\"Bahnschrift\",\"Segoe UI\",sans-serif;\n  --cut:16px;\n}\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}\nhtml{min-width:0;background:var(--bg);}\nbody[data-palette=\"2077\"]{\n  --bg:#10090c;--panel:#1d1015;--panel-deep:#140c10;--frame:#c4434e;--frame-soft:#633039;\n  --heading:#ff6b72;--accent:#f4e76b;--ink:#f3eceb;--ink-2:#d4bdc1;--ink-3:#c59da6;\n  --meter-start:#b89136;--meter-end:#f4e76b;--node-fill:#24141a;\n}\nbody{width:100%;min-width:0;max-width:1920px;margin:auto;min-height:100vh;padding:28px;background:var(--bg);color:var(--ink);font:400 15px/1.65 var(--f-jp);}\n.pf{position:relative;width:100%;min-width:0;max-width:100%;margin:0 auto;padding:16px;border:1px solid var(--frame);overflow-wrap:anywhere;\n  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));\n  background:linear-gradient(155deg,var(--panel-deep),var(--bg) 50%);}\n.glass{position:relative;min-width:0;border:1px solid var(--frame-soft);\n  background:linear-gradient(165deg,var(--panel),var(--panel-deep));\n  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));}\n.glass::before,.pf::before{content:\"\";position:absolute;inset:0;pointer-events:none;\n  background:linear-gradient(45deg,transparent 10px,var(--frame) 10px,var(--frame) 11px,transparent 11px) bottom left/16px 16px no-repeat,\n    linear-gradient(45deg,transparent 10px,var(--frame) 10px,var(--frame) 11px,transparent 11px) top right/16px 16px no-repeat;}\n/* Bound intrinsic sizing at each details/flex/grid boundary, not by clipping. */\n.pf-tools,.pf-hero,.pf-grid,.pf-col,.pf-b,.pf-content,.pf-bottom{min-width:0;max-width:100%;}\n.pf-tools,.pf-hero,.pf-grid,.pf-b,.pf-content{width:100%;}\n.pf-hero>*,.pf-content>*,.pf-chips li>*{min-width:0;max-width:100%;}\n.pf-hero{display:grid;grid-template-columns:144px minmax(0,1fr) 144px;gap:16px 24px;align-items:center;padding:22px 24px;margin-bottom:20px;border-color:var(--frame);}\n.pf-roles{grid-column:1/3;grid-row:1;display:flex;flex-wrap:wrap;align-items:start;gap:12px 28px;list-style:none;padding-right:20px;}\n.pf-roles li{min-width:0;max-width:100%;}\n.pf-roles b{display:block;font-size:14px;color:var(--ink-3);}\n.pf-roles span{display:block;font:700 25px/1.4 var(--f-jp);}\n.pf-brand{grid-column:3;grid-row:1;justify-self:end;color:var(--ink-2);font:700 14px/1.3 var(--f-disp);letter-spacing:.05em;text-align:right;}\n.pf-icon{grid-column:1;grid-row:2;width:128px;height:128px;object-fit:cover;border:1px solid var(--frame);}\n.pf-id{grid-column:2;grid-row:2;text-align:center;min-width:0;}\n.pf-sys{display:flex;align-items:center;justify-content:center;gap:18px;color:var(--accent);font:700 26px/1.3 var(--f-disp);letter-spacing:.15em;}\n.pf-sys span{font-size:22px;letter-spacing:0;}\n.pf-hero h1{margin-top:8px;color:var(--heading);font:700 58px/1.2 var(--f-disp);letter-spacing:.04em;text-transform:uppercase;word-break:break-word;}\n.pf-sub{margin-top:6px;font-size:16px;color:var(--ink-2);}\n.pf-chips{grid-column:1/-1;display:flex;justify-content:center;flex-wrap:wrap;gap:8px;list-style:none;padding-top:14px;border-top:1px solid var(--frame-soft);}\n.pf-chips li{max-width:100%;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;padding:4px 12px;border:1px solid var(--frame-soft);}\n.pf-chips b{color:var(--ink-3);font-size:14px;}\n.pf-chips span{color:var(--ink);}\n.pf-grid{display:flex;gap:18px;align-items:start;}\n.pf-col{display:flex;flex-direction:column;gap:16px;min-width:0;}\n.pf-col{flex:1;}\n.pf-col-1{flex:1.15;}\n.pf-b{padding:18px;break-inside:avoid;}\n.pf-b h2{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-bottom:14px;color:var(--heading);font:700 18px/1.5 var(--f-jp);}\n.pf-b h2 span{font:700 14px/1.5 var(--f-mono);letter-spacing:.08em;}\n.pf-b h2::after{content:\"\";flex:1;align-self:center;min-width:12px;height:1px;background:var(--frame-soft);}\n.pf-b h3{margin:14px 0 10px;color:var(--heading);font:700 14px/1.5 var(--f-mono);letter-spacing:.05em;}\n.pf-txt{white-space:pre-wrap;word-break:break-word;color:var(--ink);}\n.pf-lbl{margin-bottom:6px;color:var(--ink-2);font-size:14px;}\n.pf-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}\n.pf-kv>div{min-width:0;padding:10px;background:var(--panel-deep);border:1px solid var(--frame-soft);}\n.pf-kv dt{margin-bottom:6px;color:var(--ink-3);font-size:14px;font-weight:700;}\n.pf-kv dd{white-space:pre-wrap;word-break:break-word;}\n[data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;align-items:start;}\n[data-block=\"LOADOUT\"] .pf-kv>div{min-width:0;min-height:0;padding:8px;border-color:var(--frame);}\n[data-block=\"LOADOUT\"] .pf-kv dd{font-size:14px;line-height:1.6;}\n[data-block=\"WALLET\"] .pf-kv{grid-template-columns:minmax(0,1fr);}\n[data-block=\"WALLET\"] dd{color:var(--accent);font:700 clamp(14px,1.6vw,24px)/1.4 var(--f-mono);white-space:nowrap;word-break:normal;}\n[data-block=\"WALLET\"] .pf-prose{white-space:nowrap;overflow-wrap:normal;}\n.pf-list{display:flex;flex-direction:column;gap:8px;list-style:none;}\n.pf-list li{min-width:0;padding:10px 12px;background:var(--panel-deep);border:1px solid var(--frame-soft);break-inside:avoid;}\n.pf-list .nm{font-weight:700;}\n.pf-list .mt{display:inline-block;max-width:100%;margin:2px 0 2px 8px;padding:1px 6px;border:1px solid var(--frame-soft);color:var(--accent);font-size:14px;font-weight:700;}\n.pf-list p,.pf-description{margin-top:5px;color:var(--ink-2);font-size:15px;white-space:pre-wrap;word-break:break-word;}\n.pf-list.pf-cards{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;}\n[data-block=\"ITEMS\"] .pf-list li{padding:16px;border-color:var(--frame);}\n.pf-nums{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}\n.pf-nums>div{flex:1;min-width:110px;padding:10px 12px;border-radius:12px;border:1px solid var(--frame-soft);background:var(--panel-deep);}\n.pf-nums span{display:block;font-size:14px;color:var(--ink-2);}\n.pf-nums b{color:var(--ink);font:700 30px/1.2 var(--f-mono);}\n.pf-st{display:grid;grid-template-columns:110px minmax(0,1fr) 40px 30px;gap:8px;align-items:center;padding:5px 0;}\n.pf-st+.pf-st{border-top:1px solid var(--frame-soft);}\n.pf-st .k{font:700 14px var(--f-mono);color:var(--ink);}\n.pf-st .j{font-size:14px;color:var(--ink-2);}\n.pf-st .m{height:6px;border-radius:999px;background:var(--frame-soft);overflow:hidden;}\n.pf-st .m i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--meter-start),var(--meter-end));}\n.pf-st b{font:700 20px var(--f-mono);color:var(--accent);text-align:right;}\n.pf-st.ex .m i{background:linear-gradient(90deg,var(--heading),var(--meter-end));}\n.pf-st.ex b{color:var(--heading);}\n.pf-skill-tree{position:relative;padding-left:24px;}\n.pf-skill-tree::before{content:\"\";position:absolute;left:8px;top:14px;bottom:14px;width:1px;background:var(--accent);}\n.pf-skill-tree li{position:relative;}\n.pf-skill-tree li::before{content:\"\";position:absolute;left:-24px;top:14px;width:15px;height:15px;background:var(--accent);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);}\n.pf-skill>summary,.pf-skill-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0;list-style:none;}\n.pf-skill>summary{cursor:pointer;}\n.pf-skill>summary::-webkit-details-marker{display:none;}\n.pf-skill>summary .nm,.pf-skill-row .nm{flex:1;min-width:0;}\n.pf-skill-tree .mt{margin:0;}\n.pf-skill-stat{color:var(--ink-2);font-size:14px;}\n.pf-skill>summary::after{content:\"\";flex:none;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid var(--accent);}\n.pf-skill[open]>summary::after{transform:rotate(90deg);}\n.pf-skill>.pf-description{margin-top:10px;padding-top:10px;border-top:1px solid var(--frame-soft);}\n.pf-tags{display:flex;flex-wrap:wrap;gap:8px;list-style:none;}\n.pf-tags li{max-width:100%;padding:5px 10px;border:1px solid var(--frame);background:var(--panel-deep);color:var(--ink);font-size:15px;}\n.pf-stand{padding:20px 16px 70px;break-inside:avoid;}\n.pf-stand img{position:relative;z-index:1;display:block;width:100%;height:auto;max-height:var(--pf-portrait-max,80vh);object-fit:contain;object-position:center bottom;}\n.pf-floor{position:absolute;bottom:8px;left:4%;width:92%;height:80px;pointer-events:none;}\n.pf-floor path{fill:none;stroke:var(--frame);stroke-width:1;}\n.pf-gal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}\n.pf-gal figure{min-width:0;padding:6px;background:var(--panel-deep);border:1px solid var(--frame-soft);}\n.pf-gal img{display:block;width:100%;height:130px;object-fit:contain;}\n.pf-gal figcaption{margin-top:6px;text-align:center;font-size:14px;color:var(--ink-2);}\n/* Radios stay keyboard-focusable; all slides share a fixed portrait frame. */\n.pf-portrait{position:relative;min-width:0;max-width:100%;padding:0 0 70px;}\n.pf-portrait-radio{position:absolute;top:0;left:0;width:1px;height:1px;margin:0;clip-path:inset(50%);overflow:hidden;white-space:nowrap;}\n.pf-portrait-stage{position:relative;z-index:1;height:min(var(--pf-portrait-max,80vh),60vh,640px);min-width:0;}\n.pf-portrait-slide{position:relative;display:none;grid-template-rows:minmax(0,1fr) 3.3em;width:100%;height:100%;min-width:0;}\n.pf-portrait-slide>img{width:100%;height:100%;min-height:0;max-height:none;object-fit:contain;object-position:center bottom;}\n.pf-portrait-caption{display:flex;justify-content:center;align-items:start;gap:8px;min-width:0;padding:6px 40px;overflow:auto;color:var(--ink-2);font-size:14px;text-align:center;}\n.pf-portrait-caption>span{min-width:0;overflow-wrap:anywhere;}\n.pf-portrait-count{flex:none;white-space:nowrap;font-family:var(--f-mono);}\n.pf-portrait-arrow{position:absolute;z-index:2;top:calc((100% - 3.3em)/2);transform:translateY(-50%);display:grid;place-items:center;width:36px;height:44px;border:1px solid var(--frame);background:var(--panel-deep);cursor:pointer;}\n.pf-portrait-prev{left:4px;}\n.pf-portrait-next{right:4px;}\n.pf-portrait-arrow::before{content:\"\";width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;}\n.pf-portrait-prev::before{border-right:10px solid var(--accent);}\n.pf-portrait-next::before{border-left:10px solid var(--accent);}\n.pf-portrait-arrow:hover{background:var(--node-fill);}\n.pf-portrait-radio:focus-visible~.pf-portrait-stage .pf-portrait-arrow{outline:2px solid var(--accent);outline-offset:2px;}\n.pf-portrait-radio:focus-visible~.pf-portrait-stage{outline:2px solid var(--accent);outline-offset:-2px;}\n.pf-portrait-dots{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-width:0;padding:4px;}\n.pf-portrait-dots label{display:grid;place-items:center;width:24px;height:24px;border:1px solid var(--frame-soft);border-radius:50%;background:var(--panel-deep);cursor:pointer;}\n.pf-portrait-dots label::after{content:\"\";width:6px;height:6px;border-radius:50%;background:var(--ink);}\n.pf-portrait-print{min-width:0;max-width:100%;}\n.pf-portrait-print .pf-stand{position:relative;margin:0;border:1px solid var(--frame-soft);}\n.pf-portrait-thumbs{gap:0;}\n.pf-portrait-thumbs figure{border-top:0;}\n.pf-bottom{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px;align-items:start;}\n.pf-empty{padding:40px 24px;text-align:center;color:var(--ink-2);}\n.pf-foot{display:flex;align-items:center;gap:12px;margin-top:20px;color:var(--ink-3);font:700 14px/1.5 var(--f-mono);letter-spacing:.12em;}\n.pf-foot::before{content:\"\";flex:1;height:1px;background:var(--frame-soft);}\n.pf-card{width:1600px;min-height:1000px;padding:24px;}\n.pf-card .pf-grid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.1fr) minmax(0,1fr);}\n.pf-card .pf-hero{padding:18px 20px;grid-template-columns:112px minmax(0,1fr) 112px;gap:12px 20px;}\n.pf-card .pf-icon{width:100px;height:100px;}\n.pf-card .pf-hero h1{font-size:50px;}\n.pf-card .pf-stand img{height:650px;max-height:none;}\n\n/* Native controls keep exported pages entirely script-free. */\n.pf-tools{padding:14px 18px;margin-bottom:18px;font-size:14px;}\n.pf-tools fieldset{border:0;display:flex;flex-wrap:wrap;gap:4px 14px;width:100%;min-width:0;max-width:100%;}\n.pf-tools legend{max-width:100%;font-weight:700;color:var(--heading);margin-bottom:4px;}\n.pf-tools label{display:inline-flex;align-items:center;gap:7px;min-width:0;min-height:36px;max-width:100%;cursor:pointer;}\n.pf-tools label span{min-width:0;overflow-wrap:anywhere;}\n.pf-tools input{flex:none;width:18px;height:18px;accent-color:var(--accent);}\n.pf-tools .pf-tools-toggle,.pf-tools .pf-tools-heading{display:none;}\n.pf-toc{display:flex;flex-wrap:wrap;gap:6px 14px;min-width:0;max-width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--frame-soft);}\n.pf-toc a{color:var(--accent);text-underline-offset:3px;min-width:0;min-height:32px;max-width:100%;}\n.pf-toc b{color:var(--ink-2);}\n.pf-section{scroll-margin-top:16px;min-width:0;}\n.pf-section>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;min-height:40px;}\n.pf-section>summary::-webkit-details-marker{display:none;}\n.pf-section>summary::before{content:\"+\";flex:none;color:var(--accent);font:700 18px var(--f-mono);}\n.pf-section[open]>summary::before{content:\"−\";}\n.pf-section>summary h2{flex:1;min-width:0;margin:0;}\n.pf-section>summary h2 span{overflow-wrap:anywhere;}\n.pf-section[open]>.pf-content{padding-top:14px;}\n.pf-section>.pf-content{max-height:min(60vh,640px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) var(--panel-deep);}\n.pf-section[data-block=\"STATUS\"]>.pf-content{max-height:none;}\n/* PNG measures the entire expanded section in its off-screen layout frame. */\n.pf-png .pf-section>.pf-content{max-height:none;overflow:visible;}\n.pf-stand{padding-top:0;border:0;}\n.pf-card .pf-stand{padding-top:20px;border:1px solid var(--frame-soft);}\nsummary:focus-visible,a:focus-visible,input:focus-visible,.pf-content:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}\n.pf-section:target{outline:2px solid var(--accent);outline-offset:-2px;}\n\n.pf-prose{display:block;white-space:pre-wrap;overflow-wrap:anywhere;}\n\n@media(max-width:1100px){\n  body:not(.pf-card){padding:14px;}\n  .pf-grid{flex-wrap:wrap;}\n  .pf-col{flex-basis:calc(50% - 18px);}\n  .pf-col-1{flex:1 1 calc(50% - 18px);}\n  .pf-hero{grid-template-columns:100px minmax(0,1fr) 100px;padding:16px;gap:12px;}\n  .pf-icon{width:88px;height:88px;}\n  .pf-hero h1{font-size:40px;}\n  .pf-sys{font-size:18px;gap:8px;}\n  [data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:repeat(2,minmax(0,1fr));}\n}\n@media(max-width:600px){\n  body:not(.pf-card){padding:8px;font-size:15px;}\n  .pf{padding:8px;}\n  /* Small padding cannot clear 16px cut corners. Never mask mobile overflow. */\n  body:not(.pf-card) .pf,body:not(.pf-card) .glass{clip-path:none;}\n  .pf-grid{display:flex;flex-direction:column;align-items:stretch;gap:12px;}\n  .pf-col,.pf-col-1{width:100%;flex:auto;gap:12px;}\n  .pf-b{padding:12px;}\n  .pf-tools{padding:12px;}\n  .pf-hero{grid-template-columns:64px minmax(0,1fr);padding:12px;}\n  .pf-brand{grid-column:1/-1;grid-row:1;justify-self:start;text-align:left;}\n  .pf-roles{grid-column:1/-1;grid-row:2;padding:0;}\n  .pf-roles span{font-size:20px;}\n  .pf-icon{grid-column:1;grid-row:3;width:56px;height:56px;}\n  .pf-id{grid-column:2;grid-row:3;}\n  .pf-hero h1{font-size:28px;}\n  .pf-sys{font-size:14px;letter-spacing:0;gap:4px;flex-wrap:wrap;}\n  .pf-sys span{font-size:14px;}\n  .pf-kv{grid-template-columns:minmax(0,1fr);}\n  .pf-gal{grid-template-columns:repeat(2,minmax(0,1fr));}\n  .pf-stand img{max-height:70vh;}\n  .pf-nums>div{min-width:0;flex-basis:100%;}\n}\n@media(max-width:360px){\n  [data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:minmax(0,1fr);}\n}\n@media(width \u003c 600px){\n  .pf-tools .pf-tools-toggle{display:block;position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;}\n  .pf-tools .pf-tools-heading{display:flex;font-weight:700;color:var(--heading);}\n  .pf-tools-heading::before{content:\"+\";font:700 18px var(--f-mono);}\n  .pf-tools-toggle:checked+.pf-tools-heading::before{content:\"−\";}\n  .pf-tools-toggle:focus-visible+.pf-tools-heading{outline:2px solid var(--accent);outline-offset:2px;}\n  .pf-tools .pf-tools-options{display:none;}\n  .pf-tools-toggle:checked~.pf-tools-options{display:flex;}\n  .pf-tools-options legend{display:none;}\n  .pf-toc{gap:2px 4px;margin-top:6px;padding-top:6px;font-size:12px;line-height:1.4;letter-spacing:0;}\n  .pf-toc a{min-height:0;}\n}\n";
+  var PUB_PAGE_CSS=":root{\n  --bg:#0b1020;--panel:#151d32;--panel-deep:#0d1426;--frame:#3ee8ff;--frame-soft:#294b64;\n  --heading:#3ee8ff;--accent:#3ee8ff;--ink:#e8eef9;--ink-2:#c0cde0;--ink-3:#a9b8cf;\n  --meter-start:#3ee8ff;--meter-end:#9b7bff;--node-fill:#18233a;\n  --f-jp:\"BIZ UDPGothic\",\"Yu Gothic UI\",\"Meiryo\",sans-serif;\n  --f-mono:\"Cascadia Mono\",\"Consolas\",monospace;\n  --f-disp:\"Bahnschrift\",\"Segoe UI\",sans-serif;\n  --cut:16px;\n}\n*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}\nhtml{min-width:0;background:var(--bg);}\nbody[data-palette=\"2077\"]{\n  --bg:#10090c;--panel:#1d1015;--panel-deep:#140c10;--frame:#c4434e;--frame-soft:#633039;\n  --heading:#ff6b72;--accent:#f4e76b;--ink:#f3eceb;--ink-2:#d4bdc1;--ink-3:#c59da6;\n  --meter-start:#b89136;--meter-end:#f4e76b;--node-fill:#24141a;\n}\nbody{width:100%;min-width:0;max-width:1920px;margin:auto;min-height:100vh;padding:28px;background:var(--bg);color:var(--ink);font:400 15px/1.65 var(--f-jp);}\n.pf{position:relative;width:100%;min-width:0;max-width:100%;margin:0 auto;padding:16px;border:1px solid var(--frame);overflow-wrap:anywhere;\n  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));\n  background:linear-gradient(155deg,var(--panel-deep),var(--bg) 50%);}\n.glass{position:relative;min-width:0;border:1px solid var(--frame-soft);\n  background:linear-gradient(165deg,var(--panel),var(--panel-deep));\n  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));}\n.glass::before,.pf::before{content:\"\";position:absolute;inset:0;pointer-events:none;\n  background:linear-gradient(45deg,transparent 10px,var(--frame) 10px,var(--frame) 11px,transparent 11px) bottom left/16px 16px no-repeat,\n    linear-gradient(45deg,transparent 10px,var(--frame) 10px,var(--frame) 11px,transparent 11px) top right/16px 16px no-repeat;}\n/* Bound intrinsic sizing at each details/flex/grid boundary, not by clipping. */\n.pf-tools,.pf-hero,.pf-grid,.pf-col,.pf-b,.pf-content,.pf-bottom{min-width:0;max-width:100%;}\n.pf-tools,.pf-hero,.pf-grid,.pf-b,.pf-content{width:100%;}\n.pf-hero>*,.pf-content>*,.pf-chips li>*{min-width:0;max-width:100%;}\n.pf-hero{display:grid;grid-template-columns:144px minmax(0,1fr) 144px;gap:16px 24px;align-items:center;padding:22px 24px;margin-bottom:20px;border-color:var(--frame);}\n.pf-roles{grid-column:1/3;grid-row:1;display:flex;flex-wrap:wrap;align-items:start;gap:12px 28px;list-style:none;padding-right:20px;}\n.pf-roles li{min-width:0;max-width:100%;}\n.pf-roles b{display:block;font-size:14px;color:var(--ink-3);}\n.pf-roles span{display:block;font:700 25px/1.4 var(--f-jp);}\n.pf-brand{grid-column:3;grid-row:1;justify-self:end;color:var(--ink-2);font:700 14px/1.3 var(--f-disp);letter-spacing:.05em;text-align:right;}\n.pf-icon{grid-column:1;grid-row:2;width:128px;height:128px;object-fit:cover;border:1px solid var(--frame);}\n.pf-id{grid-column:2;grid-row:2;text-align:center;min-width:0;}\n.pf-sys{display:flex;align-items:center;justify-content:center;gap:18px;color:var(--accent);font:700 26px/1.3 var(--f-disp);letter-spacing:.15em;}\n.pf-sys span{font-size:22px;letter-spacing:0;}\n.pf-hero h1{margin-top:8px;color:var(--heading);font:700 58px/1.2 var(--f-disp);letter-spacing:.04em;text-transform:uppercase;word-break:break-word;}\n.pf-sub{margin-top:6px;font-size:16px;color:var(--ink-2);}\n.pf-chips{grid-column:1/-1;display:flex;justify-content:center;flex-wrap:wrap;gap:8px;list-style:none;padding-top:14px;border-top:1px solid var(--frame-soft);}\n.pf-chips li{max-width:100%;display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;padding:4px 12px;border:1px solid var(--frame-soft);}\n.pf-chips b{color:var(--ink-3);font-size:14px;}\n.pf-chips span{color:var(--ink);}\n.pf-grid{display:flex;gap:18px;align-items:start;}\n.pf-col{display:flex;flex-direction:column;gap:16px;min-width:0;}\n.pf-col{flex:1;}\n.pf-col-1{flex:1.15;}\n.pf-b{padding:18px;break-inside:avoid;}\n.pf-b h2{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;margin-bottom:14px;color:var(--heading);font:700 18px/1.5 var(--f-jp);}\n.pf-b h2 span{font:700 14px/1.5 var(--f-mono);letter-spacing:.08em;}\n.pf-b h2::after{content:\"\";flex:1;align-self:center;min-width:12px;height:1px;background:var(--frame-soft);}\n.pf-b h3{margin:14px 0 10px;color:var(--heading);font:700 14px/1.5 var(--f-mono);letter-spacing:.05em;}\n.pf-txt{white-space:pre-wrap;word-break:break-word;color:var(--ink);}\n.pf-lbl{margin-bottom:6px;color:var(--ink-2);font-size:14px;}\n.pf-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}\n.pf-kv>div{min-width:0;padding:10px;background:var(--panel-deep);border:1px solid var(--frame-soft);}\n.pf-kv dt{margin-bottom:6px;color:var(--ink-3);font-size:14px;font-weight:700;}\n.pf-kv dd{white-space:pre-wrap;word-break:break-word;}\n[data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;align-items:start;}\n[data-block=\"LOADOUT\"] .pf-kv>div{min-width:0;min-height:0;padding:8px;border-color:var(--frame);}\n[data-block=\"LOADOUT\"] .pf-kv dd{font-size:14px;line-height:1.6;}\n[data-block=\"WALLET\"] .pf-kv{grid-template-columns:minmax(0,1fr);}\n[data-block=\"WALLET\"] dd{color:var(--accent);font:700 clamp(14px,1.6vw,24px)/1.4 var(--f-mono);white-space:nowrap;word-break:normal;}\n[data-block=\"WALLET\"] .pf-prose{white-space:nowrap;overflow-wrap:normal;}\n.pf-list{display:flex;flex-direction:column;gap:8px;list-style:none;}\n.pf-list li{min-width:0;padding:10px 12px;background:var(--panel-deep);border:1px solid var(--frame-soft);break-inside:avoid;}\n.pf-list .nm{font-weight:700;}\n.pf-list .mt{display:inline-block;max-width:100%;margin:2px 0 2px 8px;padding:1px 6px;border:1px solid var(--frame-soft);color:var(--accent);font-size:14px;font-weight:700;}\n.pf-list p,.pf-description{margin-top:5px;color:var(--ink-2);font-size:15px;white-space:pre-wrap;word-break:break-word;}\n.pf-list.pf-cards{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;}\n[data-block=\"ITEMS\"] .pf-list li{padding:16px;border-color:var(--frame);}\n.pf-nums{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;}\n.pf-nums>div{flex:1;min-width:110px;padding:10px 12px;border-radius:12px;border:1px solid var(--frame-soft);background:var(--panel-deep);}\n.pf-nums span{display:block;font-size:14px;color:var(--ink-2);}\n.pf-nums b{color:var(--ink);font:700 30px/1.2 var(--f-mono);}\n/* 実績（C2）。数字の札と引用 */\n.pf-rec{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}\n.pf-rec>div{min-width:0;padding:10px 12px;border-radius:12px;border:1px solid var(--frame-soft);background:var(--panel-deep);}\n.pf-rec span{display:block;font-size:14px;color:var(--ink-2);}\n.pf-rec b{display:block;color:var(--accent);font:700 26px/1.25 var(--f-mono);word-break:break-word;}\n.pf-rec small{display:block;margin-top:4px;color:var(--ink-3);font-size:13px;line-height:1.5;word-break:break-word;}\n.pf-rec-q{margin:12px 0 0;padding:12px 14px;border-left:3px solid var(--accent);background:var(--panel-deep);}\n.pf-rec-q span{display:block;color:var(--ink-3);font-size:13px;}\n.pf-rec-q p{margin:6px 0;color:var(--ink);font-size:16px;line-height:1.7;word-break:break-word;}\n.pf-rec-q cite{color:var(--accent);font-style:normal;font-size:13px;font-weight:700;}\n.pf-st{display:grid;grid-template-columns:110px minmax(0,1fr) 40px 30px;gap:8px;align-items:center;padding:5px 0;}\n.pf-st+.pf-st{border-top:1px solid var(--frame-soft);}\n.pf-st .k{font:700 14px var(--f-mono);color:var(--ink);}\n.pf-st .j{font-size:14px;color:var(--ink-2);}\n.pf-st .m{height:6px;border-radius:999px;background:var(--frame-soft);overflow:hidden;}\n.pf-st .m i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--meter-start),var(--meter-end));}\n.pf-st b{font:700 20px var(--f-mono);color:var(--accent);text-align:right;}\n.pf-st.ex .m i{background:linear-gradient(90deg,var(--heading),var(--meter-end));}\n.pf-st.ex b{color:var(--heading);}\n.pf-skill-tree{position:relative;padding-left:24px;}\n.pf-skill-tree::before{content:\"\";position:absolute;left:8px;top:14px;bottom:14px;width:1px;background:var(--accent);}\n.pf-skill-tree li{position:relative;}\n.pf-skill-tree li::before{content:\"\";position:absolute;left:-24px;top:14px;width:15px;height:15px;background:var(--accent);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);}\n.pf-skill>summary,.pf-skill-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0;list-style:none;}\n.pf-skill>summary{cursor:pointer;}\n.pf-skill>summary::-webkit-details-marker{display:none;}\n.pf-skill>summary .nm,.pf-skill-row .nm{flex:1;min-width:0;}\n.pf-skill-tree .mt{margin:0;}\n.pf-skill-stat{color:var(--ink-2);font-size:14px;}\n.pf-skill>summary::after{content:\"\";flex:none;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid var(--accent);}\n.pf-skill[open]>summary::after{transform:rotate(90deg);}\n.pf-skill>.pf-description{margin-top:10px;padding-top:10px;border-top:1px solid var(--frame-soft);}\n.pf-tags{display:flex;flex-wrap:wrap;gap:8px;list-style:none;}\n.pf-tags li{max-width:100%;padding:5px 10px;border:1px solid var(--frame);background:var(--panel-deep);color:var(--ink);font-size:15px;}\n.pf-stand{padding:20px 16px 70px;break-inside:avoid;}\n.pf-stand img{position:relative;z-index:1;display:block;width:100%;height:auto;max-height:var(--pf-portrait-max,80vh);object-fit:contain;object-position:center bottom;}\n.pf-floor{position:absolute;bottom:8px;left:4%;width:92%;height:80px;pointer-events:none;}\n.pf-floor path{fill:none;stroke:var(--frame);stroke-width:1;}\n.pf-gal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}\n.pf-gal figure{min-width:0;padding:6px;background:var(--panel-deep);border:1px solid var(--frame-soft);}\n.pf-gal img{display:block;width:100%;height:130px;object-fit:contain;}\n.pf-gal figcaption{margin-top:6px;text-align:center;font-size:14px;color:var(--ink-2);}\n/* Radios stay keyboard-focusable; all slides share a fixed portrait frame. */\n.pf-portrait{position:relative;min-width:0;max-width:100%;padding:0 0 70px;}\n.pf-portrait-radio{position:absolute;top:0;left:0;width:1px;height:1px;margin:0;clip-path:inset(50%);overflow:hidden;white-space:nowrap;}\n.pf-portrait-stage{position:relative;z-index:1;height:min(var(--pf-portrait-max,80vh),60vh,640px);min-width:0;}\n.pf-portrait-slide{position:relative;display:none;grid-template-rows:minmax(0,1fr) 3.3em;width:100%;height:100%;min-width:0;}\n.pf-portrait-slide>img{width:100%;height:100%;min-height:0;max-height:none;object-fit:contain;object-position:center bottom;}\n.pf-portrait-caption{display:flex;justify-content:center;align-items:start;gap:8px;min-width:0;padding:6px 40px;overflow:auto;color:var(--ink-2);font-size:14px;text-align:center;}\n.pf-portrait-caption>span{min-width:0;overflow-wrap:anywhere;}\n.pf-portrait-count{flex:none;white-space:nowrap;font-family:var(--f-mono);}\n.pf-portrait-arrow{position:absolute;z-index:2;top:calc((100% - 3.3em)/2);transform:translateY(-50%);display:grid;place-items:center;width:36px;height:44px;border:1px solid var(--frame);background:var(--panel-deep);cursor:pointer;}\n.pf-portrait-prev{left:4px;}\n.pf-portrait-next{right:4px;}\n.pf-portrait-arrow::before{content:\"\";width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;}\n.pf-portrait-prev::before{border-right:10px solid var(--accent);}\n.pf-portrait-next::before{border-left:10px solid var(--accent);}\n.pf-portrait-arrow:hover{background:var(--node-fill);}\n.pf-portrait-radio:focus-visible~.pf-portrait-stage .pf-portrait-arrow{outline:2px solid var(--accent);outline-offset:2px;}\n.pf-portrait-radio:focus-visible~.pf-portrait-stage{outline:2px solid var(--accent);outline-offset:-2px;}\n.pf-portrait-dots{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-width:0;padding:4px;}\n.pf-portrait-dots label{display:grid;place-items:center;width:24px;height:24px;border:1px solid var(--frame-soft);border-radius:50%;background:var(--panel-deep);cursor:pointer;}\n.pf-portrait-dots label::after{content:\"\";width:6px;height:6px;border-radius:50%;background:var(--ink);}\n.pf-portrait-print{min-width:0;max-width:100%;}\n.pf-portrait-print .pf-stand{position:relative;margin:0;border:1px solid var(--frame-soft);}\n.pf-portrait-thumbs{gap:0;}\n.pf-portrait-thumbs figure{border-top:0;}\n.pf-bottom{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px;align-items:start;}\n.pf-empty{padding:40px 24px;text-align:center;color:var(--ink-2);}\n.pf-foot{display:flex;align-items:center;gap:12px;margin-top:20px;color:var(--ink-3);font:700 14px/1.5 var(--f-mono);letter-spacing:.12em;}\n.pf-foot::before{content:\"\";flex:1;height:1px;background:var(--frame-soft);}\n.pf-card{width:1600px;min-height:1000px;padding:24px;}\n.pf-card .pf-grid{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.1fr) minmax(0,1fr);}\n.pf-card .pf-hero{padding:18px 20px;grid-template-columns:112px minmax(0,1fr) 112px;gap:12px 20px;}\n.pf-card .pf-icon{width:100px;height:100px;}\n.pf-card .pf-hero h1{font-size:50px;}\n.pf-card .pf-stand img{height:650px;max-height:none;}\n\n/* Native controls keep exported pages entirely script-free. */\n.pf-tools{padding:14px 18px;margin-bottom:18px;font-size:14px;}\n.pf-tools fieldset{border:0;display:flex;flex-wrap:wrap;gap:4px 14px;width:100%;min-width:0;max-width:100%;}\n.pf-tools legend{max-width:100%;font-weight:700;color:var(--heading);margin-bottom:4px;}\n.pf-tools label{display:inline-flex;align-items:center;gap:7px;min-width:0;min-height:36px;max-width:100%;cursor:pointer;}\n.pf-tools label span{min-width:0;overflow-wrap:anywhere;}\n.pf-tools input{flex:none;width:18px;height:18px;accent-color:var(--accent);}\n.pf-tools .pf-tools-toggle,.pf-tools .pf-tools-heading{display:none;}\n.pf-toc{display:flex;flex-wrap:wrap;gap:6px 14px;min-width:0;max-width:100%;margin-top:10px;padding-top:10px;border-top:1px solid var(--frame-soft);}\n.pf-toc a{color:var(--accent);text-underline-offset:3px;min-width:0;min-height:32px;max-width:100%;}\n.pf-toc b{color:var(--ink-2);}\n.pf-section{scroll-margin-top:16px;min-width:0;}\n.pf-section>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;min-height:40px;}\n.pf-section>summary::-webkit-details-marker{display:none;}\n.pf-section>summary::before{content:\"+\";flex:none;color:var(--accent);font:700 18px var(--f-mono);}\n.pf-section[open]>summary::before{content:\"−\";}\n.pf-section>summary h2{flex:1;min-width:0;margin:0;}\n.pf-section>summary h2 span{overflow-wrap:anywhere;}\n.pf-section[open]>.pf-content{padding-top:14px;}\n.pf-section>.pf-content{max-height:min(60vh,640px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--accent) var(--panel-deep);}\n.pf-section[data-block=\"STATUS\"]>.pf-content{max-height:none;}\n/* PNG measures the entire expanded section in its off-screen layout frame. */\n.pf-png .pf-section>.pf-content{max-height:none;overflow:visible;}\n.pf-stand{padding-top:0;border:0;}\n.pf-card .pf-stand{padding-top:20px;border:1px solid var(--frame-soft);}\nsummary:focus-visible,a:focus-visible,input:focus-visible,.pf-content:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}\n.pf-section:target{outline:2px solid var(--accent);outline-offset:-2px;}\n\n.pf-prose{display:block;white-space:pre-wrap;overflow-wrap:anywhere;}\n\n@media(max-width:1100px){\n  body:not(.pf-card){padding:14px;}\n  .pf-grid{flex-wrap:wrap;}\n  .pf-col{flex-basis:calc(50% - 18px);}\n  .pf-col-1{flex:1 1 calc(50% - 18px);}\n  .pf-hero{grid-template-columns:100px minmax(0,1fr) 100px;padding:16px;gap:12px;}\n  .pf-icon{width:88px;height:88px;}\n  .pf-hero h1{font-size:40px;}\n  .pf-sys{font-size:18px;gap:8px;}\n  [data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:repeat(2,minmax(0,1fr));}\n}\n@media(max-width:600px){\n  body:not(.pf-card){padding:8px;font-size:15px;}\n  .pf{padding:8px;}\n  /* Small padding cannot clear 16px cut corners. Never mask mobile overflow. */\n  body:not(.pf-card) .pf,body:not(.pf-card) .glass{clip-path:none;}\n  .pf-grid{display:flex;flex-direction:column;align-items:stretch;gap:12px;}\n  .pf-col,.pf-col-1{width:100%;flex:auto;gap:12px;}\n  .pf-b{padding:12px;}\n  .pf-tools{padding:12px;}\n  .pf-hero{grid-template-columns:64px minmax(0,1fr);padding:12px;}\n  .pf-brand{grid-column:1/-1;grid-row:1;justify-self:start;text-align:left;}\n  .pf-roles{grid-column:1/-1;grid-row:2;padding:0;}\n  .pf-roles span{font-size:20px;}\n  .pf-icon{grid-column:1;grid-row:3;width:56px;height:56px;}\n  .pf-id{grid-column:2;grid-row:3;}\n  .pf-hero h1{font-size:28px;}\n  .pf-sys{font-size:14px;letter-spacing:0;gap:4px;flex-wrap:wrap;}\n  .pf-sys span{font-size:14px;}\n  .pf-kv{grid-template-columns:minmax(0,1fr);}\n  .pf-gal{grid-template-columns:repeat(2,minmax(0,1fr));}\n  .pf-stand img{max-height:70vh;}\n  .pf-nums>div{min-width:0;flex-basis:100%;}\n}\n@media(max-width:360px){\n  [data-block=\"LOADOUT\"] .pf-kv{grid-template-columns:minmax(0,1fr);}\n}\n@media(width \u003c 600px){\n  .pf-tools .pf-tools-toggle{display:block;position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;}\n  .pf-tools .pf-tools-heading{display:flex;font-weight:700;color:var(--heading);}\n  .pf-tools-heading::before{content:\"+\";font:700 18px var(--f-mono);}\n  .pf-tools-toggle:checked+.pf-tools-heading::before{content:\"−\";}\n  .pf-tools-toggle:focus-visible+.pf-tools-heading{outline:2px solid var(--accent);outline-offset:2px;}\n  .pf-tools .pf-tools-options{display:none;}\n  .pf-tools-toggle:checked~.pf-tools-options{display:flex;}\n  .pf-tools-options legend{display:none;}\n  .pf-toc{gap:2px 4px;margin-top:6px;padding-top:6px;font-size:12px;line-height:1.4;letter-spacing:0;}\n  .pf-toc a{min-height:0;}\n}\n";
 function PubRender(PUB_PAGE_CSS){
   function pubEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
@@ -4517,11 +4520,16 @@ function PubRender(PUB_PAGE_CSS){
         if(b.edge.length)h+='<h3>EDGEWARE</h3>'+list(b.edge,'ex');
       }
       else if(b.t==='bg')h+=b.rows.map(function(r){return r.sub?('<h3>'+E(r.sub)+'</h3>'+kvs(r.rows)):kvs([r]);}).join('');
+      // 実績（C2）。数字の札と、いちばん燃えた一言の引用
+      else if(b.t==='rec'){
+        if(b.rows.length)h+='<div class="pf-rec">'+b.rows.map(function(r){return '<div data-i="'+E(r.i)+'"><span>'+E(r.l)+'</span><b>'+E(r.v)+'</b>'+(r.s?'<small>'+E(r.s)+'</small>':'')+'</div>';}).join('')+'</div>';
+        if(b.q)h+='<blockquote class="pf-rec-q" data-i="rec-best"><span>いちばん燃えた一言</span><p>「'+E(b.q.t)+'」</p><cite>'+E(b.q.n)+'</cite></blockquote>';
+      }
       var col=/^(LOADOUT|ITEMS|WALLET)$/.test(b.en)?0:(/^(INTRODUCTION|APPEARANCE)$/.test(b.en)?1:2);
       if(interactive){
         // Keep equipment/items, portrait/introduction and status/skills grouped;
         // place supplementary sections in the least occupied column.
-        if(/^(BACKGROUND|NOTE|WANTED|TRAITS|UNIQUE)$/.test(b.en))col=weights.indexOf(Math.min.apply(Math,weights));
+        if(/^(BACKGROUND|NOTE|WANTED|TRAITS|UNIQUE|RECORD)$/.test(b.en))col=weights.indexOf(Math.min.apply(Math,weights));
         var lines=Math.ceil(JSON.stringify(b).replace(/data:image\/[^;]+;base64,[A-Za-z0-9+/=]+/g,'').length/28), rows=(b.rows||b.kv||[]).length;
         weights[col]+=fold.indexOf(b.en)>=0?64:(b.t==='stats'?740:Math.min(1100,100+lines*16+rows*28));
         cols[col].push(h+end());
@@ -4548,7 +4556,7 @@ function PubRender(PUB_PAGE_CSS){
       '<meta name="robots" content="noindex">\n<meta name="color-scheme" content="dark">\n<title>'+E(t?t+'の公開プロフィール':'公開プロフィール')+'</title>\n<style>\n'+PUB_PAGE_CSS+portraitCSS.join('')+rules+'</style>\n</head>\n<body data-palette="'+(opt.palette||M.palette||'current')+'"'+(M.card?' class="pf-card"':(png?' class="pf-png"':''))+'>\n<main class="pf">\n'+tools+body+
       '\n<footer class="pf-foot">ROLLPLAYING OF SCIENCE FICTION</footer>\n</main>\n</body>\n</html>\n';
   }
-  var ENS='IDENTITY INTRODUCTION APPEARANCE STATUS SKILLS ABILITIES LOADOUT ITEMS WALLET BACKGROUND TRAITS UNIQUE NOTE WANTED STAND EXPRESSIONS'.split(' ');
+  var ENS='IDENTITY INTRODUCTION APPEARANCE STATUS SKILLS ABILITIES LOADOUT ITEMS WALLET RECORD BACKGROUND TRAITS UNIQUE NOTE WANTED STAND EXPRESSIONS'.split(' ');
   function check(M){
     try{
       var fail=function(s){throw new Error(s);};
@@ -4570,9 +4578,9 @@ function PubRender(PUB_PAGE_CSS){
       if(!['current','2077'].includes(M.palette))fail('palette');
       arr(M.chips,function(c){obj(c,['i','l','v']);if(!'title role role_sub affil age gender height body'.split(' ').includes(c.i))fail('chip');str(c.l,200);str(c.v,200);},20);
       arr(M.blocks,function(b){
-        var types={text:['INTRODUCTION','APPEARANCE','NOTE','WANTED'],stats:['STATUS'],list:['SKILLS','ABILITIES','ITEMS','TRAITS','UNIQUE'],kv:['WALLET'],gear:['LOADOUT'],bg:['BACKGROUND'],gal:['EXPRESSIONS']};
+        var types={text:['INTRODUCTION','APPEARANCE','NOTE','WANTED'],stats:['STATUS'],list:['SKILLS','ABILITIES','ITEMS','TRAITS','UNIQUE'],kv:['WALLET'],gear:['LOADOUT'],bg:['BACKGROUND'],gal:['EXPRESSIONS'],rec:['RECORD']};
         if(!b||!Object.hasOwn(types,b.t)||!types[b.t].includes(b.en))fail('節の種類');
-        var extra={text:['id','rows'],stats:['sci','fic','nums'],list:['rows','ri'],kv:['rows'],gear:['eq','kv','edge'],bg:['rows'],gal:['rows']}[b.t];
+        var extra={text:['id','rows'],stats:['sci','fic','nums'],list:['rows','ri'],kv:['rows'],gear:['eq','kv','edge'],bg:['rows'],gal:['rows'],rec:['rows','q']}[b.t];
         obj(b,['t','en','h'].concat(extra),b.t==='list'?['ri']:[]);str(b.h,100);
         if(b.t==='text'){
           if(b.id!==({INTRODUCTION:'intro',APPEARANCE:'appear',NOTE:'memo',WANTED:'wanted'})[b.en])fail('節ID');
@@ -4586,6 +4594,8 @@ function PubRender(PUB_PAGE_CSS){
         }else if(b.t==='kv')arr(b.rows,kv);
         else if(b.t==='gear'){str(b.eq);arr(b.kv,kv);arr(b.edge,function(r){row(r,false);});}
         else if(b.t==='bg')arr(b.rows,function(r){if(r&&'sub'in r){obj(r,['sub','rows']);str(r.sub);arr(r.rows,kv);}else kv(r);});
+        else if(b.t==='rec'){arr(b.rows,function(r){obj(r,['i','l','v','s']);ident(r.i);if(!/^rec-[a-z]+$/.test(r.i))fail('実績ID');str(r.l,100);str(r.v,200);str(r.s,400);},20);
+          if(b.q!==null){obj(b.q,['t','n']);str(b.q.t,200);str(b.q.n,100);}}
         else arr(b.rows,function(r){obj(r,['n','img']);str(r.n);img(r.img);});
       },40);
       return {ok:true};
@@ -4604,7 +4614,7 @@ function PubRender(PUB_PAGE_CSS){
       else if('v'in r)out.push((r.l?r.l+'：':'')+r.v);
       else out.push([r.n,r.m,r.p,r.d].filter(Boolean).join('：'));
     });};
-    M.blocks.forEach(function(b){out.push('\n'+b.h);if(b.eq)out.push(b.eq);['rows','sci','fic','nums','kv','edge'].forEach(function(k){rows(b[k]);});});
+    M.blocks.forEach(function(b){out.push('\n'+b.h);if(b.eq)out.push(b.eq);['rows','sci','fic','nums','kv','edge'].forEach(function(k){rows(b[k]);});if(b.q)out.push('いちばん燃えた一言：「'+b.q.t+'」'+b.q.n);});
     return out.join('\n');
   }
   return {VERSION:1,esc:pubEsc,title:pubTitle,viewId:pubViewId,prose:pubProse,portrait:pubPortrait,html:pubHTML,webHTML:pubWebHTML,check:check,text:text,webURL:pubWebURL,
@@ -4711,6 +4721,8 @@ function PubRender(PUB_PAGE_CSS){
     {id:'loadout',h:'装備・サイバーウェア',items:[pF('equip','装備')].concat(PUB_CW.map(function(c){return pF(c[0],c[1]);})),dyn:'edge'},
     {id:'items',h:'所持品（アイテム）',items:[],dyn:'item'},
     {id:'wallet',h:'所持クレジット',items:[pF('zc','ジリコ'),pF('rusuru','ルスル')]},
+    // 実績（2026-11-02 居座れる UI の C2）。VTT が数えた記録（コードの record）。record のあるコードだけ行が出る。既定は全部非公開
+    {id:'record',h:'実績',items:[],dyn:'rec'},
     {id:'background',h:'経歴',items:[pF('origin','出身地')]},
     {id:'past',h:'パスト',flag:'has_past',items:[pF('past_event','出来事'),pF('past_effect','影響'),pF('past_rel','関連 PC / NPC / 組織')]},
     {id:'belief',h:'ビリーフ',flag:'has_belief',items:[pF('bel_belief','信念'),pF('bel_goal','目標'),pF('bel_conflict','葛藤')]},
@@ -4748,7 +4760,34 @@ function PubRender(PUB_PAGE_CSS){
       push({k:k,l:pubStr(x.name)||'名前なし',v:pubStr(x.text),x:{name:pubStr(x.name),text:pubStr(x.text)}});});
     if(kind==='expr')((d.images&&d.images.exprs)||[]).forEach(function(x){var im=pubOkImg(x&&x.img);if(!im)return;var n=pubStr(x.name);
       push({k:'expr:'+(n||('#'+pubHash(im))),l:n||'名前なし',v:'',img:im,x:{name:n,img:im}});});
+    if(kind==='rec')pubRec(d).forEach(function(x){push({k:x.k,l:x.l,v:x.q?('「'+x.q.t+'」'+x.q.n):(x.v+(x.s?'　'+x.s:'')),x:x});});
     return out;
+  }
+  // 実績の項目（C2）。VTT の record を数字の札にする。偽装（pub.lie）の対象にはしない（見せるか隠すかの二択）
+  function pubRec(d){
+    var r=d&&d.record;if(!r||typeof r!=='object'||Array.isArray(r))return [];
+    var n=function(v){v=Number(v);return isFinite(v)&&v>0?Math.floor(v):0;};
+    var obj=function(v){return v&&typeof v==='object'&&!Array.isArray(v)?v:{};};
+    var st=[0,0,0],sr=obj(r.sr);
+    Object.keys(sr).forEach(function(k){var a=Array.isArray(sr[k])?sr[k]:Object.keys(obj(sr[k])).map(function(i){return sr[k][i];});for(var i=0;i<3;i++)st[i]+=n(a[i]);});
+    var wb=obj(r.wb),rooms=Object.keys(obj(r.rooms)).length,say=n(r.say),nar=n(r.nar),min=n(r.min),last=n(r.lastT);
+    var pct=function(a,b){return b>0?Math.round(a/b*100)+'%':'――';};
+    var b=obj(r.best),best=n(b.n)>0?{t:Array.from(pubStr(b.t)).slice(0,60).join(''),n:'スタンプ '+n(b.n)+' 件'}:null;
+    var lt=Array.from(pubStr(r.longT)).slice(0,40).join('');
+    var day='';if(last){var dt=new Date(last);day=dt.getFullYear()+'/'+(dt.getMonth()+1)+'/'+dt.getDate();}
+    var rows=[
+      {k:'rec:say',l:'発言',v:String(say+nar),s:'セリフ '+say+'・描写 '+nar},
+      {k:'rec:avg',l:'描写の長さ',v:nar?'平均 '+Math.round(n(r.narCh)/nar)+' 字':'――',s:say?'セリフは平均 '+Math.round(n(r.sayCh)/say)+' 字':''},
+      {k:'rec:long',l:'最長の描写',v:n(r.longN)?n(r.longN)+' 字':'――',s:lt?'「'+lt+(n(r.longN)>40?'……':'')+'」':''},
+      {k:'rec:stamp',l:'もらったスタンプ',v:String(st[0]+st[1]+st[2]),s:'燃える '+st[0]+'・エモい '+st[1]+'・最高 '+st[2]},
+      {k:'rec:best',l:'いちばん燃えた一言',q:best},
+      {k:'rec:dice',l:'判定',v:n(r.dice)+' 回',s:'成功率 '+pct(n(r.diceOk),n(r.diceKn))+'・クリティカル '+n(r.crit)+'・ファンブル '+n(r.fum)},
+      {k:'rec:combat',l:'戦闘',v:'発砲 '+n(r.shot)+' 回',s:'命中率 '+pct(n(r.hit),n(r.shotKn))+'・受けた負傷 軽傷 '+n(wb.light)+'・中傷 '+n(wb.mid)+'・重傷 '+n(wb.heavy)+'・過貫通 '+n(wb.over)+'・気絶 '+n(r.ko)+' 回'},
+      {k:'rec:table',l:'卓',v:rooms+' 卓',s:'通算 '+(min>=60?Math.floor(min/60)+'時間':'')+(min%60)+'分'+(day?'・最後に動いた日 '+day:'')},
+      {k:'rec:wallet',l:'財布',v:'最高残高 '+moneyFmt(String(n(r.maxZ)))+' ZC',s:'通算の収入 '+moneyFmt(String(n(r.inZ)))+' ZC・支出 '+moneyFmt(String(n(r.outZ)))+' ZC'}
+    ];
+    // いちばん燃えた一言は、スタンプが1件も無ければ出さない
+    return rows.filter(function(x){return x.k!=='rec:best'||!!x.q;});
   }
   // 項目の今の値（引き出しの見本と、空かどうかの判定に使う）
   function pubPeek(it,d){
@@ -4832,6 +4871,10 @@ function PubRender(PUB_PAGE_CSS){
     if(it.length)M.blocks.push({t:'list',en:'ITEMS',h:'所持品',rows:it});
     var w=[]; if(P('zc'))w.push({i:'zc',l:'ジリコ（ZC）',v:moneyFmt(g('zc')||'0')}); if(P('rusuru'))w.push({i:'rusuru',l:'ルスル',v:moneyFmt(g('rusuru')||'0')});
     if(w.length)M.blocks.push({t:'kv',en:'WALLET',h:'所持クレジット',rows:w});
+    // 実績（C2）。公開の札（rec:〜）を付けた項目だけ。偽装の値は使わない
+    var rc=rowsOf('rec'),rcRows=[],rcQ=null;
+    rc.forEach(function(r){if(r.x.q)rcQ={t:r.x.q.t,n:r.x.q.n};else rcRows.push({i:r.k.replace(':','-'),l:r.x.l,v:r.x.v,s:r.x.s||''});});
+    if(rcRows.length||rcQ)M.blocks.push({t:'rec',en:'RECORD',h:'実績',rows:rcRows,q:rcQ});
     // 経歴。「あり」の欄と、明示的に公開値を指定した欄だけを出す。
     var bg=[]; if(g('origin'))bg.push({i:'origin',l:'出身地',v:g('origin')});
     PUB_SECS.forEach(function(s){
@@ -5143,7 +5186,7 @@ function PubRender(PUB_PAGE_CSS){
   function pubFoldOptions(id){
     return ({identity:[['APPEARANCE','容姿']],intro:[['INTRODUCTION','自己紹介']],status:[['STATUS','ステータス']],
       skills:[['SKILLS','取得技能']],role:[['ABILITIES','職業スキル']],loadout:[['LOADOUT','装備・サイバーウェア']],items:[['ITEMS','所持品']],
-      wallet:[['WALLET','所持クレジット']],background:[['BACKGROUND','経歴']],traits:[['TRAITS','選択式固有']],memo:[['NOTE','備考']],
+      wallet:[['WALLET','所持クレジット']],record:[['RECORD','実績']],background:[['BACKGROUND','経歴']],traits:[['TRAITS','選択式固有']],memo:[['NOTE','備考']],
       wanted:[['WANTED','関係の募集']],visual:[['STAND','立ち絵']],unique:[['UNIQUE','固有ステータス']]})[id]||[];
   }
   function pubDrawer(d){
@@ -5152,6 +5195,8 @@ function PubRender(PUB_PAGE_CSS){
     var foldOption=function(option){h.push('<label class="pd-fold" title="公開ページの初期表示。公開範囲は変わりません"><input type="checkbox" data-fold="'+option[0]+'"'+(pubFold().indexOf(option[0])>=0?' checked':'')+'>'+E(option[1])+'：最初は畳んでおく</label>');};
     var active=box.contains(document.activeElement)?document.activeElement:null,focusFold=active&&active.getAttribute('data-fold');
     PUB_SECS.forEach(function(s){
+      // 実績の節は、記録（record）のあるコードのときだけ出す
+      if(s.dyn==='rec'&&!pubRec(d).length)return;
       var off=s.flag&&pubStr((d.fields||{})[s.flag])!=='有';
       h.push('<div class="pd-sec'+(off?' off':'')+'"><div class="pd-sh"><b>'+E(s.h)+'</b>'+(off?'<span class="pd-flag">なし</span>':'')+'<span class="pd-slot" data-sec="'+s.id+'"></span></div>');
       if(s.id!=='identity')pubFoldOptions(s.id).forEach(foldOption);
