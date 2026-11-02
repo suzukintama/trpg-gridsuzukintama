@@ -31,7 +31,11 @@ BED_LUFS = -22.0     # LUFS integrated, loops (they sit under voice chat)
 RADIO_LUFS = -20.0   # LUFS integrated, radio shows (meant to be listened to)
 CEIL = -1.0          # dBTP
 # per-file integrated targets that override BED_LUFS (2026-11-02 GM: the bar was too loud)
-OVERRIDE = {'下層のバー': -25.0, '下層のバー_曲だけ': -25.0}
+OVERRIDE = {'下層のバー': -25.0, '下層のバー_曲だけ': -25.0,
+            # the live-house crowds: a wall of noise, kept a little under the other loops
+            'ライブハウス_開演前のざわめき': -24.0, 'ライブハウス_演奏中の歓声': -24.0,
+            'ライブハウス_小さなハコの熱気': -24.0, 'ライブハウス_アンコールの手拍子': -24.0,
+            'ライブハウス_ブーイングが続く': -24.0, 'ライブハウス_終演後のざわめき': -25.0}
 
 
 def decode(path):
