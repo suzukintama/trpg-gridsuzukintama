@@ -486,6 +486,12 @@
   .skill-name{display:flex;align-items:center;gap:6px;min-width:0;}
   .skill-name .dyn-name{min-width:0;flex:1;}
   .skill-tier{white-space:nowrap;font-size:10px;color:var(--tx-3,#8a929b);}
+  /* 万能技能の3行（2026-11-03）。最初から Lv1 で入っていて、名前は変えられず、削除のボタンは出さない（場所は残して列をそろえる） */
+  .skill-univ{white-space:nowrap;font:700 10px var(--f-jp);color:#bfeef2;border:1px solid rgba(var(--accent-rgb),0.35);border-radius:3px;padding:1px 6px;background:rgba(var(--accent-rgb),0.06);}
+  .skill-univ:empty{display:none;}
+  .dyn-row.skill.univ .skill-name{flex-wrap:wrap;}
+  .dyn-row.skill.univ .skill-name .dyn-name{min-width:8em;}
+  .dyn-row.skill.univ .del-btn{visibility:hidden;}
   .skill-tier-note,.skill-prereq{grid-column:1/-1;font-size:12px;color:var(--tx-3,#8a929b);}
   .skill-tier-note:empty,.skill-prereq:empty{display:none;}
   .skill-prereq.invalid{color:var(--warn,#ffd27d);}
@@ -628,6 +634,15 @@
   .step{padding:3px 8px;border-radius:3px;cursor:pointer;background:rgba(var(--accent-rgb),0.05);border:1px solid rgba(95,184,196,0.28);color:#bfeef2;font:700 12px/1.5 var(--f-jp);}
   .step:hover{background:rgba(var(--accent-rgb),0.14);border-color:var(--cyan);}
   .step-ar{color:#5f7a8a;}
+  /* おすすめの型（2026-11-03）。作る順の案内のすぐ下に置く */
+  .types{margin:0 0 18px;padding:12px 14px;border:1px solid rgba(var(--accent-rgb),0.3);border-radius:4px;background:rgba(var(--accent-rgb),0.03);}
+  .types-ttl{font:700 13px var(--f-jp);color:#bfeef2;margin-bottom:8px;}
+  .types-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .type-btn{flex:1 1 180px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 12px;cursor:pointer;text-align:left;background:rgba(var(--accent-rgb),0.06);border:1px solid rgba(95,184,196,0.35);border-radius:4px;color:#e6eef8;}
+  .type-btn b{font:700 14px var(--f-jp);color:#cdfaff;}
+  .type-btn span{font:400 11.5px/1.5 var(--f-jp);color:#9fb6c4;}
+  .type-btn:hover,.type-btn:focus-visible{background:rgba(var(--accent-rgb),0.14);border-color:var(--cyan);}
+  .types-note{margin-top:8px;font:400 11.5px/1.6 var(--f-jp);color:#8aa0b2;}
   /* 足りない物の一覧（S8）。GOV.UK の誤りの一覧の形 */
   .todo-box{margin:0 0 18px;padding:12px 14px;border:2px solid rgba(var(--alert-rgb),0.6);border-radius:4px;background:rgba(var(--alert-rgb),0.05);}
   .todo-box[hidden]{display:none;}
@@ -740,6 +755,7 @@
     color:var(--ink-3);background:rgba(var(--priv-rgb),0.08);border:1px solid rgba(var(--priv-rgb),0.38);
     transition:background .15s,border-color .15s,color .15s,box-shadow .15s;}
   .pv svg{width:13px;height:13px;flex:none;}
+  .pv .pv-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;}
   .pv .pv-on{display:none;}
   .pv .pv-lie{display:none;}
   .pv[aria-pressed="true"],.pv.all{color:#e2fbff;background:rgba(var(--pub-rgb),0.14);border-color:rgba(var(--pub-rgb),0.62);box-shadow:0 0 12px rgba(var(--pub-rgb),0.22);}
@@ -866,7 +882,7 @@
 <body>
 <div class="wrap">
 
-  <div class="bar">
+  <div class="bar" role="region" aria-label="保存とキャラの切り替え">
     <span class="save-tag" title="別の PC で続けるときは『ファイルへ書き出す』で保存する"><span class="dot" id="save-dot"></span><span id="save-state">このブラウザに自動保存</span></span>
     <!-- 節と同じ語の札。押すとその節へ飛ぶ。値が埋まるまで桃色、埋まったら水色（R19） -->
     <nav class="navchips" id="navchips">
@@ -916,9 +932,15 @@
     <button type="button" class="step" data-sec="画像（駒・立ち絵）">画像</button><span class="step-ar">→</span>
     <button type="button" class="step" data-out="1">『保存と読み込み ▼』の『コードをコピー』で VTT へ</button>
   </nav>
+  <!-- おすすめの型（2026-11-03・企画の案の3位）。押すと能力値・技能・メインロールを型の値で埋める。ボタンは TYPES から作る。仕様は _drafts/企画_おすすめの型_仕様_2026-11-03.md -->
+  <div class="types" id="types" role="region" aria-labelledby="types-ttl">
+    <div class="types-ttl" id="types-ttl">おすすめの型から始める（あとで直せる）</div>
+    <div class="types-list" id="types-list"></div>
+    <p class="types-note">能力値・技能・メインロールが埋まる。名前・身長・職業スキルは自分で決める。所要時間の目安は10分。</p>
+  </div>
   <!-- 足りない物の一覧（S8）。各行を押すとその欄へ移る。足りない物がなければ出さない -->
   <div class="todo-box" id="todo-box" role="region" aria-labelledby="todo-ttl" hidden>
-    <div class="todo-ttl" id="todo-ttl">足りない物</div>
+    <div class="todo-ttl" id="todo-ttl">未完了の項目</div>
     <ul class="todo-list" id="todo-list"></ul>
   </div>
 
@@ -1000,7 +1022,7 @@
   <!-- SKILLS -->
   <section>
     <div class="shd"><span class="tag">// SKILLS</span><h2>取得技能一覧</h2><span class="ln"></span></div>
-    <p class="note">無印の技能はレベル1につき1点、<b style="color:#ffd27d;">★上級は2点</b>、<b style="color:#ff9d7d;">★★特級は3点</b>を消費。「一覧から技能を選ぶ」を押すと、カテゴリごとに分けた技能一覧が開く。選んだ技能は対応ステータスと倍率つきで行に入り、消費ポイントも合計へ足される。〈専門知識〈指定〉〉のように「指定」を含む技能は、選んだあとに具体名を書き入れて〈専門知識〈経済〉〉の形で登録すること。一覧に無い技能は「自作技能を追加」から自分で作れる。初期技能ポイントは80点（テスト仮）。</p>
+    <p class="note">無印の技能はレベル1につき1点、<b style="color:#ffd27d;">★上級は2点</b>、<b style="color:#ff9d7d;">★★特級は3点</b>を消費。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 の分は消費しない。「一覧から技能を選ぶ」を押すと、カテゴリごとに分けた技能一覧が開く。選んだ技能は対応ステータスと倍率つきで行に入り、消費ポイントも合計へ足される。〈専門知識〈指定〉〉のように「指定」を含む技能は、選んだあとに具体名を書き入れて〈専門知識〈経済〉〉の形で登録すること。一覧に無い技能は「自作技能を追加」から自分で作れる。初期技能ポイントは80点（テスト仮）。</p>
     <p class="note" id="skill-tier-note">腕前は【対応ステータス】＋〈技能レベル〉＋5。技能判定には難易度の補正を足す。目標値が腕前と同じ段なら＋2、1段易しいごとに＋1、1段難しいごとに−1。段は 簡単9・普通13・難しい15・とても難しい17・至難21・不可能に近い24・伝説29。腕前も目標値も、その値を超えない一番高い段に入る（14は普通、8以下は簡単）。補正は技能判定だけで、射撃・近接・武術の技には付かない。補正を足しても、腕前の数値と段の札（見習い・一人前・熟練など）は変わらない。</p>
     <input type="hidden" data-f="skill_own" id="skill-own-field" value="">
     <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px;"><label class="fld" for="f-sp" style="margin:0;"><b>技能ポイント</b><span>SKILL POINTS</span></label><input id="f-sp" class="inp" data-f="sp" type="number" min="0" step="1" value="80" style="width:64px;flex:none;text-align:center;font:700 15px var(--f-mono);color:var(--cyan);"><span id="sp-remain" style="font:700 11px var(--f-mono);letter-spacing:.06em;color:#7a8fa0;white-space:nowrap;"></span><span class="sp-hint" id="sp-hint">GM の指示がなければ 80 のまま</span></div>
@@ -1015,7 +1037,7 @@
   <!-- ABILITIES -->
   <section>
     <div class="shd"><span class="tag">// ABILITIES</span><h2>職業スキル</h2><span class="ln"></span></div>
-    <p class="note">メインロールを選ぶとスキル・パッシブ・専門ボーナスが、サブロールを選ぶとパッシブだけが出る。サブロールを取ると、専門ボーナスは取れない。チェックで取得。いくつ取るかは、作る前に GM に聞く。</p>
+    <p class="note">メインロールを選ぶとスキル・パッシブ・専門ボーナスが、サブロールを選ぶとパッシブだけが出る。サブロールを取ると、専門ボーナスは取れない。チェックを入れると取得する。いくつ取るかは、作る前に GM に聞く。</p>
     <div class="grid" id="role-select-grid">
       <div><label class="fld" for="rolepick-main"><b>メインロール</b><span>MAIN ROLE</span></label>
         <div class="sel-wrap"><select class="inp" id="rolepick-main" data-f="rolepick_main"><option value="">（未選択）</option></select><span class="arr">▼</span></div>
@@ -1249,7 +1271,7 @@
 <div class="modal wide" id="skmodal">
   <div class="box">
     <div class="sk-head"><h3 id="sk-ttl">技能を選ぶ</h3><span class="sk-rest" id="sk-rest"></span></div>
-    <p id="sk-sub">カテゴリで絞り込むか、名前を打ち込んで探す。行を押すと説明が出て、「追加する」で行に入る。選んだ技能はレベル1で行に入る。前提が足りない技能は、レベル0で入れて前提の案内を出す。取得済みの技能は選べない。</p>
+    <p id="sk-sub">カテゴリで絞り込むか、名前を打ち込んで探す。行を押すと説明が出て、「追加する」で行に入る。選んだ技能はレベル1で行に入る。前提が足りない技能は、レベル0で入れて前提の案内を出す。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 には点を使わない。取得済みの技能は選べない。</p>
     <div class="pk-seg">
       <button type="button" class="on" id="sk-tab-list">一覧から選ぶ</button>
       <button type="button" id="sk-tab-own">自作して追加</button>
@@ -1337,7 +1359,7 @@
 <div class="toast" id="toast"></div>
 <div class="undoband" id="undoband" role="status"><i class="ub-line"></i><span id="pub-undo-message"></span><span class="ub-msg" id="undo-msg"></span><button type="button" class="mbtn go" id="b-undo">元に戻す</button></div>
 <!-- 下端の予算の帯。値はステータスの欄と同じ計算から出す（R19）。表示だけなので押せない -->
-<div class="budgetband" id="budgetband"><span class="bb-i" id="bb-s-i">S <b id="bb-s">--</b></span>　<span class="bb-i" id="bb-f-i">F <b id="bb-f">--</b></span>　<span class="bb-i" id="bb-k-i">技能 <b id="bb-k">--</b></span>　<span class="bb-i">HP <b id="bb-hp">--</b></span></div>
+<div class="budgetband" id="budgetband" role="region" aria-label="ポイントの残りと HP"><span class="bb-i" id="bb-s-i">S <b id="bb-s">--</b></span>　<span class="bb-i" id="bb-f-i">F <b id="bb-f">--</b></span>　<span class="bb-i" id="bb-k-i">技能 <b id="bb-k">--</b></span>　<span class="bb-i">HP <b id="bb-hp">--</b></span></div>
 
 <script>
 (function(){
@@ -2655,7 +2677,7 @@ var ROLE_SKILLS=[
     // 行の中の知らない鍵（VTT が足した物など）は行に持たせ、collectList で同じ値のまま返す（S17・R42）
     var rx=pickExtra(data,['name','text'].concat(item?['cat']:skill?['own']:[])); if(Object.keys(rx).length)row._x=rx;
     var del=document.createElement('button'); del.type='button'; del.className='del-btn'; del.textContent='✕';
-    del.addEventListener('click',function(){row.parentNode.removeChild(row);if(skill){skillAutoForget();clampSkills();}if(id==='edge-list')recalc();persist();});
+    del.addEventListener('click',function(){if(row.dataset.univ==='1')return;row.parentNode.removeChild(row);if(skill){skillAutoForget();clampSkills();}if(id==='edge-list')recalc();persist();});
     var mult=null,ab=null;
     if(skill){
       // 自作技能は行そのものに控えを持たせる。名前を書き換えても対応ステータスと倍率が離れない
@@ -2671,7 +2693,9 @@ var ROLE_SKILLS=[
       chk.querySelector('.skill-roll').addEventListener('click',function(){skillRoll(row);});
     }
     var nameBox=name;
-    if(skill){nameBox=document.createElement('span');nameBox.className='skill-name';nameBox.appendChild(name);var tier=document.createElement('span');tier.className='skill-tier';nameBox.appendChild(tier);}
+    if(skill){nameBox=document.createElement('span');nameBox.className='skill-name';nameBox.appendChild(name);var tier=document.createElement('span');tier.className='skill-tier';nameBox.appendChild(tier);
+      // 万能技能の札（2026-11-03）。文は univSet が入れる。空のあいだは場所を取らない
+      var univ=document.createElement('span');univ.className='skill-univ';nameBox.appendChild(univ);}
     row.appendChild(nameBox); if(cat)row.appendChild(cat); if(ab)row.appendChild(ab); if(mult)row.appendChild(mult); row.appendChild(skill?numWrap(text):text); if(chk)row.appendChild(chk); row.appendChild(del);
     if(skill){
       var tierNote=document.createElement('div');tierNote.className='skill-tier-note';row.appendChild(tierNote);
@@ -2836,6 +2860,61 @@ var ROLE_SKILLS=[
   // 前提技能_データ_2026-11-01.json (2026-11-01b) の追加データ。
   // 〈精密射撃〉の上限1は2026-11-02に外した（『技能のレベル効果とガン＝カタの技』4-1）
   var SKILL_MAX_LEVEL={'〈フェンシング〉':1,'〈二刀流／双兵装〉':1};
+  // 万能技能の3つは、キャラクターを作ったときから Lv1 で持っている（2026-11-03 先生の裁定）。
+  // この Lv1 には技能ポイントを使わない。Lv2 からは★の費用どおりに払う（消費＝（レベル−1）×倍率）。
+  // 行は消せず、名前も変えられず、Lv1 より下げられない。古いコードで行が無ければ頭に Lv1 で足す（univEnsure）
+  var UNIV_FREE=['〈知覚〉','〈精神集中〉','〈第六感／直感〉'];
+  var UNIV_TAG='最初から Lv1（点は要らない）';
+  function univKeyOf(name){
+    var n=normSkill(skillCanonical(name));
+    if(!n)return '';
+    for(var i=0;i<UNIV_FREE.length;i++)if(normSkill(UNIV_FREE[i])===n)return UNIV_FREE[i];
+    return '';
+  }
+  // 技能の行（{name,text} の配列）に、行の無い万能技能を Lv1 で頭に足す。行があればレベルはそのまま（0か空欄だけ1にする）
+  function univFill(list){
+    var out=(list||[]).slice(),have={};
+    out.forEach(function(x,i){
+      var k=x&&univKeyOf(x.name); if(!k||have[k])return; have[k]=1;
+      if(!((parseInt(x.text,10)||0)>=1))out[i]=Object.assign({},x,{text:'1'});
+    });
+    return UNIV_FREE.filter(function(k){return !have[k];}).map(function(k){return {name:k,text:'1'};}).concat(out);
+  }
+  // 行に万能技能の印を付ける・外す。印のある行は、名前を変えられず、削除できず、Lv1 より下げられない
+  function univSet(row,on){
+    var nm=row.querySelector('.dyn-name'),lv=row.querySelector('.skill-lvl'),del=row.querySelector('.del-btn'),tag=row.querySelector('.skill-univ');
+    if(on===(row.dataset.univ==='1'))return;
+    if(on){row.dataset.univ='1';row.classList.add('univ');}else{delete row.dataset.univ;row.classList.remove('univ');}
+    if(nm){nm.readOnly=on;if(on)nm.setAttribute('aria-readonly','true');else nm.removeAttribute('aria-readonly');}
+    if(lv)lv.min=on?'1':'0';
+    if(del){del.disabled=on;if(on){del.setAttribute('aria-hidden','true');del.tabIndex=-1;}else{del.removeAttribute('aria-hidden');del.removeAttribute('tabindex');}}
+    if(tag)tag.textContent=on?UNIV_TAG:'';
+  }
+  // 各万能技能の最初の行にだけ印を付ける（同じ技能の2行目は、ふつうの行として数える）
+  function univMark(){
+    var have={};
+    Array.prototype.forEach.call(document.querySelectorAll('#skill-list .dyn-row'),function(r){
+      var nm=r.querySelector('.dyn-name'),k=nm?univKeyOf(nm.value):'';
+      var on=!!k&&!have[k]; if(on)have[k]=r;
+      univSet(r,on);
+    });
+    return have;
+  }
+  // 行の無い万能技能を頭に Lv1 で足し、0か空欄の行を1へ戻す（打っている最中の欄は書き換えない）
+  function univEnsure(){
+    var have=univMark(),list=el('skill-list'); if(!list)return;
+    var anchor=list.firstElementChild,added=false;
+    UNIV_FREE.forEach(function(k){
+      if(have[k])return;
+      addRow('skill-list',{name:k,text:'1'},PH.skill);
+      list.insertBefore(list.lastElementChild,anchor); added=true;
+    });
+    if(added)have=univMark();
+    UNIV_FREE.forEach(function(k){
+      var lv=have[k]&&have[k].querySelector('.skill-lvl');
+      if(lv&&lv!==document.activeElement&&!((parseInt(lv.value,10)||0)>=1)){lv.value='1';lv.dataset.accepted='1';}
+    });
+  }
   var SKILL_COST_MARK={'〈鑑識／フォレンジック〉':'無印','〈鑑定／目利き〉':'無印','〈密輸ルート把握／調達〉':'無印'};
   var SKILL_STAT_AXIS={'〈スリ〉':'Nerve','〈フルオート射撃〉':'Firearms','〈精密射撃〉':'Firearms','〈制圧射撃〉':'Firearms','〈アキンボ〉':'Firearms'};
   function skillCanonical(name){
@@ -3116,14 +3195,14 @@ var ROLE_SKILLS=[
     "飛行船操縦":"飛行船とエアシップの操縦技能。ほとんど趣味の領分だ。",
     "船舶操縦":"船の操縦技能。ボートや船で、川、港、沿岸を走る。",
     "騎乗":"動物に乗る技能。馬、改造獣、大型動物に乗って移動し、戦う。車の通れない辺境では、これが足になる。",
-    "知覚":"生身の五感で気づく技能。そこにある物、人、痕跡、危険に気づき、尾行を察する。観測役（スポッター）も務める。万能技能の一つだ。隠された物を探し出すのは〈隠蔽／発見〉、痕跡をたどるのは〈尾行／追跡〉で振る。",
+    "知覚":"生身の五感で気づく技能。そこにある物、人、痕跡、危険に気づき、尾行を察する。観測役（スポッター）も務める。万能技能の一つだ。隠された物を探し出すのは〈隠蔽／発見〉、痕跡をたどるのは〈尾行／追跡〉で振る。作ったときから Lv1 で持っている。点は要らない。",
     "拡張知覚":"義体の感覚を読む技能。義眼のズームと熱源表示、義耳の集音、皮下の走査装置が拾った情報を読み分ける。暗闇で熱源を数え、壁越しの足音を人数ごとに分け、録画から顔を割り出す。万能技能ではなく、読めるのは入れた義体が拾えるものだけだ。",
     "集中":"自分で始めた作業を最後まで続ける技能。雑音や動揺に乱されず、狙撃の姿勢を保ち、妨害の中でも解析を続け、長い張り込みに耐える。",
     "読唇術":"唇を読む技能。口の動きから会話を読み取る。ホロコールには効かない。",
     "隠密":"気配を消す技能。音を立てずに近づき、忍び込み、移動する。",
     "尾行／追跡":"跡を追う技能。気づかれずに相手をつけるか、痕跡から居場所を割り出す。血の跡、足跡、タイヤの跡をたどるのもこれで振る。",
     "隠蔽／発見":"隠すことと見つけることの技能。物を隠し、隠された物、罠、隠し扉を見つける。仕事のあとに血、薬莢、指紋、監視映像を消して現場を片づけるのもこの技能だ。ふと気づくのは〈知覚〉、腰を据えて探すのはこの技能になる。",
-    "第六感／直感":"勘の技能。見えないものとこの先について、根拠のない予感をGMから受け取る。危ない場面で反射的に身構える土台にもなる。万能技能で、続けて振ると目標値が大きく上がる。前提はない。",
+    "第六感／直感":"勘の技能。見えないものとこの先について、根拠のない予感をGMから受け取る。危ない場面で反射的に身構える土台にもなる。万能技能で、続けて振ると目標値が大きく上がる。前提はない。作ったときから Lv1 で持っている。点は要らない。",
     "芸能":"人前で見せる技能。演技と歌で群衆を沸かせる。陽動にも、人を動かす力にもなる。",
     "楽器演奏":"楽器の技能。伝統楽器からシンセまでを弾き、場の空気をつかむ。",
     "絵画":"描く技能。絵とデザインのほか、贋作やグラフィティも手がける。",
@@ -3211,7 +3290,7 @@ var ROLE_SKILLS=[
     "密輸ルート把握／調達":"手に入らない物を探す技能。水、弾、薬、本物の食材のような封鎖物資を、ザ・パイプのような移動市場や密輸網から、最短の経路と相場で割り出す。目標値は品物の手に入りにくさで決まり、街で普通に出回る品が13、封鎖物資が15、企業の管理品が17。失敗すると空振りするか、足がつく。〈取引〉が値段の交渉なら、こちらは仕入れ先を突き止める技能だ。",
     "拷問／薬物抵抗":"口を割らない技能。尋問を受けても吐かず、意志で情報を守る。尋問への抵抗はこの技能の受け持ちで、〈精神集中〉では代わりに振れない。",
     "耐痛":"痛みに耐える技能。痛みの中でも意識を保って動き続け、戦闘不能を遅らせる。判定の不利、痛みから来る怯み、棒立ち、ショックのように、痛みから来る妨害に対抗する。体の欠損、起立不能、昏倒、即死には対抗できない。",
-    "精神集中":"自分を保つ技能。興奮から戻り、苛立ちを抑え、恐怖、幻覚、心理干渉、脅しから来る怯みを振り払う。表情と真意を顔に出さない。成功しても、情報や行動の成果は生まない。万能技能の一つだ。制圧射撃の\"釘付け\"への備えもこの技能で、撃ち手が届かせる値は〔6＋【Ego】＋〈精神集中〉〕になる。",
+    "精神集中":"自分を保つ技能。興奮から戻り、苛立ちを抑え、恐怖、幻覚、心理干渉、脅しから来る怯みを振り払う。表情と真意を顔に出さない。成功しても、情報や行動の成果は生まない。万能技能の一つだ。制圧射撃の\"釘付け\"への備えもこの技能で、撃ち手が届かせる値は〔6＋【Ego】＋〈精神集中〉〕になる。作ったときから Lv1 で持っている。点は要らない。",
     "環境耐性":"その場のきつさに耐える技能。酷暑や酷寒、放射線、有毒ガスの中で活動する。長い時間の我慢は【運動】の〈耐久力／忍耐〉で振る。",
     "出血管理":"血を止める技能。血管を縮め、ナノマシンを制御して、自分の出血を抑える。重傷を負ったときに命をつなぐ。",
     "ショック耐性":"爆音と閃光に耐える技能。スタンに抵抗し、すぐに立ち直る。",
@@ -3366,19 +3445,20 @@ var ROLE_SKILLS=[
   // 空なら0、読めない値（古いコードの負の数など）も0。見せ方は moneyShow がそろえる
   function fillWallet(){moneyFields().forEach(function(e){e.dataset.good='0';moneyShow(e);});}
   function spBudget(){var e=spField();var v=e?parseInt(e.value,10):NaN;return isNaN(v)?SP_DEFAULT:v;}
-  // 技能の行の倍率と消費（消費＝レベル×倍率）
+  // 技能の行の倍率と消費（消費＝レベル×倍率）。万能技能の印がある行は最初の1レベルを数えない（消費＝（レベル−1）×倍率）
   function skillRowInfo(r){
     var nm=r.querySelector('.dyn-name'), lv=r.querySelector('.skill-lvl');
     var si=skillInfoOf(nm?nm.value:'',r), mult=si.mult;
-    var v=lv?parseInt(lv.value,10):NaN;
-    return {lvl:lv,mult:mult,ab:si.ab,own:si.own,lvlVal:isNaN(v)?0:v,cost:isNaN(v)?0:v*mult,
+    var v=lv?parseInt(lv.value,10):NaN, free=r.dataset.univ==='1'?1:0;
+    return {lvl:lv,mult:mult,ab:si.ab,own:si.own,lvlVal:isNaN(v)?0:v,free:free,cost:isNaN(v)?0:Math.max(0,v-free)*mult,
             badge:r.querySelector('.skill-mult'),abEl:r.querySelector('.skill-ab')};
   }
   // 技能の消費の合計。画面の残りと、書き出しの【予算超過】の両方がこれを使う（P093）
-  function skillSpUsed(){var t=0;Array.prototype.forEach.call(document.querySelectorAll('#skill-list .dyn-row'),function(r){t+=skillRowInfo(r).cost;});return t;}
+  function skillSpUsed(){univMark();var t=0;Array.prototype.forEach.call(document.querySelectorAll('#skill-list .dyn-row'),function(r){t+=skillRowInfo(r).cost;});return t;}
   function clampSkills(active){
     var sp=spBudget(),autoTarget=null;
     if(active&&active.closest&&active.closest('#skill-list'))skillAutoForget();
+    univEnsure();
     var rows=document.querySelectorAll('#skill-list .dyn-row');
     // 行のバッジ表示もここで揃える
     var rowInfo=skillRowInfo, sum=skillSpUsed;
@@ -3391,6 +3471,8 @@ var ROLE_SKILLS=[
       var cv=parseInt(active.value,10);
       if(isNaN(cv)||cv<0){active.value=0;cv=0;}
       var activeRow=active.closest('.dyn-row'),previous=active.dataset.accepted||'';
+      // 万能技能の行は Lv1 より下げない（2026-11-03）
+      if(activeRow.dataset.univ==='1'&&cv<1){active.value='1';cv=1;}
       var missingPrereq=skillPrereqMissing(activeRow.querySelector('.dyn-name').value).length>0;
       var existingMissing=missingPrereq&&(parseInt(previous,10)||0)>=1;
       var limit=SKILL_MAX_LEVEL[skillCanonical(activeRow.querySelector('.dyn-name').value)];
@@ -3398,9 +3480,10 @@ var ROLE_SKILLS=[
       if(limit&&cv>limit&&!existingMissing){active.value=String(limit);cv=limit;active.dataset.limitBlocked='1';}
       if(cv>=1&&(parseInt(previous,10)||0)<1&&missingPrereq){active.value=previous;cv=parseInt(previous,10)||0;autoTarget=activeRow;}
       if(sp>0){
-        var actMult=1;
-        var others=0;Array.prototype.forEach.call(rows,function(r){var inf=rowInfo(r);if(inf.lvl!==active)others+=inf.cost;else actMult=inf.mult;});
-        var mx=Math.floor((sp-others)/actMult); if(mx<0)mx=0;
+        var actMult=1,actFree=0;
+        var others=0;Array.prototype.forEach.call(rows,function(r){var inf=rowInfo(r);if(inf.lvl!==active)others+=inf.cost;else{actMult=inf.mult;actFree=inf.free;}});
+        // 万能技能は最初の1レベルが無料なので、上げられる上限も1つ上になる。予算を超えていても Lv1 は残す
+        var mx=Math.floor((sp-others)/actMult)+actFree; if(mx<actFree)mx=actFree;
         if(cv>mx)active.value=mx;
       }
     }
@@ -3635,7 +3718,7 @@ var ROLE_SKILLS=[
     el('sk-ttl').textContent=(m==='own')?'自作技能を追加':'技能を選ぶ';
     el('sk-sub').textContent=(m==='own')
       ?'一覧に無い技能を自分で決めて登録する。名前・対応ステータス・取得コストの3つを埋めると、〔自作〕の印つきで行に入る。ポイントは選んだ取得コストで数える。'
-      :'カテゴリで絞り込むか、名前を打ち込んで探す。行を押すと説明が出て、「追加する」で行に入る。選んだ技能はレベル1で行に入る。前提が足りない技能は、レベル0で入れて前提の案内を出す。取得済みの技能は選べない。';
+      :'カテゴリで絞り込むか、名前を打ち込んで探す。行を押すと説明が出て、「追加する」で行に入る。選んだ技能はレベル1で行に入る。前提が足りない技能は、レベル0で入れて前提の案内を出す。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 には点を使わない。取得済みの技能は選べない。';
     if(m==='own'){hideSpec();el('sk-go').style.display='';updOwnPrev();}
     else{el('sk-go').style.display=PK.sel?'':'none';renderPkList();}
   }
@@ -3679,9 +3762,11 @@ var ROLE_SKILLS=[
   el('sk-go').addEventListener('click',pkGo);
   // 名前を打ったら、選んでいたカテゴリを外して全部から探す（S15）
   el('sk-find').addEventListener('input',function(){PK.find=this.value;if(normSkill(PK.find)&&PK.cat){PK.cat='';renderPkCats();}renderPkList();});
+  // 日本語入力の変換中のキーかどうか（2026-11-03）。Safari では確定の Enter が isComposing:false・keyCode 229 で届くことがあるので、両方とキー名 Process を見る
+  function imeBusy(e){return !!e&&(e.isComposing===true||e.keyCode===229||e.key==='Process');}
   // 候補が1件なら Enter で選べる（S42）。変換中の Enter は何もしない
   el('sk-find').addEventListener('keydown',function(e){
-    if(e.key!=='Enter'||e.isComposing||e.keyCode===229)return;
+    if(e.key!=='Enter'||imeBusy(e))return;
     e.preventDefault();
     if(PK.hits&&PK.hits.length===1)pkChoose(PK.hits[0]);
   });
@@ -3689,7 +3774,7 @@ var ROLE_SKILLS=[
   el('sk-spec-in').addEventListener('input',function(e){el('sk-spec-warn').textContent='';updSpecPrev();if(!e.isComposing)updSpecWarn(true);});
   el('sk-spec-in').addEventListener('compositionend',function(){updSpecPrev();updSpecWarn(true);});
   el('sk-spec-in').addEventListener('change',function(){updSpecWarn(false);});
-  el('sk-spec-in').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();pkGo();}});
+  el('sk-spec-in').addEventListener('keydown',function(e){if(e.key==='Enter'&&!imeBusy(e)){e.preventDefault();pkGo();}});
   el('sk-own-nm').addEventListener('input',function(e){el('sk-own-warn').textContent='';updOwnPrev(e.isComposing?'compose':'typing');});
   el('sk-own-nm').addEventListener('compositionend',function(){updOwnPrev('typing');});
   el('sk-own-nm').addEventListener('change',function(){updOwnPrev();});
@@ -3865,8 +3950,8 @@ var ROLE_SKILLS=[
     persistFailed=on;
     var b=el('savewarn'); if(b)b.classList.toggle('on',on);
     var d=el('save-dot'); if(d)d.classList.toggle('off',on);
-    // 札は等幅12字のまま入れ替える（字数が変わるとボタンが1行ぶん折り返す）
-    var st=el('save-state'); if(st)st.textContent=on?'SAVE STOPPED':'AUTO-SAVE ON';
+    // 札は同じ11字のまま入れ替える（字数が変わるとボタンが1行ぶん折り返す）。戻ったときは最初の札に戻す（S28）
+    var st=el('save-state'); if(st)st.textContent=on?'自動保存が止まっている':'このブラウザに自動保存';
   }
   function cancelPersist(){if(persistT){clearTimeout(persistT);persistT=null;}}
   // ── 保存したキャラ（R43） ──
@@ -4276,6 +4361,9 @@ var ROLE_SKILLS=[
   // 能力値欄は、欄を離れたときに整数の範囲へ直す（P043）
   function settleStat(e){var t=e.target;if(!(t&&t.hasAttribute&&t.hasAttribute('data-stat')))return false;if(fixStat(t)){recalc();persist();}return true;}
   el('sheet').addEventListener('focusout',function(e){if(settleStat(e))return;var k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-f');
+    // 万能技能のレベルを空欄のまま離れたら Lv1 へ戻す（2026-11-03。打っている最中は戻さない）
+    var ur=e.target&&e.target.classList&&e.target.classList.contains('skill-lvl')&&e.target.closest('.dyn-row');
+    if(ur&&ur.dataset.univ==='1'&&!((parseInt(e.target.value,10)||0)>=1)){e.target.value='1';clampSkills();persist();}
     if(isMoney(e.target)){moneySettle(e.target);persist();}});
   el('sheet').addEventListener('change',function(e){
     if(settleStat(e))return;
@@ -4396,7 +4484,7 @@ var ROLE_SKILLS=[
       if(it.val&&it.val.textContent!==v)it.val.textContent=v;
       it.a.setAttribute('data-k',s.k);
       // マウスを載せたら足りない物を出す（S8）
-      if(s.tip)it.tag.title='足りない物：'+s.tip;else it.tag.removeAttribute('title');
+      if(s.tip)it.tag.title='未完了の項目：'+s.tip;else it.tag.removeAttribute('title');
       it.a.setAttribute('aria-label',it.label+' '+s.t+(s.tip?'（'+s.tip+'）':''));
       it.a.hidden=(it.box.style.display==='none');
     });
@@ -4589,7 +4677,8 @@ var ROLE_SKILLS=[
       var a=cur.stats[k], b=statNorm(e,raw); nv[k]=parseInt(b,10)||0;
       if(a!==b)out.push(k+' '+a+'→'+b);
     });
-    var A=lvMap(cur.lists.skill), B=lvMap(d.lists&&d.lists.skill);
+    // 読み込むと万能技能の行は Lv1 で足されるので、比べる前に同じように足しておく（2026-11-03）
+    var A=lvMap(cur.lists.skill), B=lvMap(univFill(d.lists&&d.lists.skill));
     A.o.concat(B.o.filter(function(n){return !(n in A.m);})).forEach(function(n){
       var a=(n in A.m)?(A.m[n]||'—'):'なし', b=(n in B.m)?(B.m[n]||'—'):'なし';
       if(a!==b)out.push(n+a+'→'+b);
@@ -4777,6 +4866,7 @@ var ROLE_SKILLS=[
   renderPickDescs();
   renderRoleSkills();
   ['unique','edge','skill','item'].forEach(function(k){if(document.getElementById(k+'-list').children.length===0)addRow(k+'-list',{},PH[k]);});
+  clampSkills();   // 初めて開いたときも、万能技能の3行を Lv1 で入れる（2026-11-03）
   wireImgs();
   var eu=document.getElementById('edge-unlock');
   // 一度ロックを外したら、次から開いたままにする。記憶はこのブラウザに保存（S39）
@@ -4794,6 +4884,58 @@ var ROLE_SKILLS=[
       for(var i=0;i<hs.length;i++)if(hs[i].textContent===b.getAttribute('data-sec')){var s=hs[i].parentNode.parentNode;s.scrollIntoView({block:'start'});try{hs[i].focus({preventScroll:true});}catch(x){}break;}
     });
   });
+  // おすすめの型（2026-11-03）。能力値14値・技能の一覧・メインロールを型の値に置き換える。名前・身長・画像・固有・所持品・技能ポイントの欄は触らない。
+  // 職業スキルは数が裁定待ちなので選ばない（ネットランナーの接続特権はロールの決まりで自動で付く）。数値の出どころと検算は仕様の md
+  var TYPES={
+    gun:{name:'銃で戦う',role:'ソロ',line:'ソロ・撃ち合いと身のこなし',
+      stats:{Strength:4,Constitution:7,Intelligence:4,Ego:4,Nerve:8,Chance:3,Edge:0,Firearms:10,Interface:2,Craft:3,Techmed:2,Influence:3,Operations:5,Neural:5},
+      skills:[['〈ハンドガン〉',7],['〈ライフル〉',5],['〈ショットガン〉',3],['〈フルオート射撃〉',3],['〈回避〉',5],['〈クイックドロー〉',2],['〈格闘〉',4],['〈白兵戦〈近接武器〉〉',3],
+        ['〈知覚〉',5],['〈隠密〉',4],['〈運動〉',4],['〈耐痛〉',4],['〈精神集中〉',4],['〈ショック耐性〉',3],['〈応急手当〉',3],['〈投擲〉',3],['〈威圧〉',3],['〈裏社会〉',3],['〈車両操縦〉',2]]},
+    net:{name:'電脳で侵入する',role:'ネットランナー',line:'ネットランナー・ハックと機械',
+      stats:{Strength:3,Constitution:4,Intelligence:9,Ego:6,Nerve:3,Chance:4,Edge:1,Firearms:1,Interface:10,Craft:4,Techmed:2,Influence:3,Operations:3,Neural:7},
+      skills:[['〈システム知識〉',6],['〈プログラミング〉',5],['〈エレクトロニクス〉',4],['〈ブリーチ・プロトコル〉',5],['〈電子戦〈ジャミング〉〉',3],['〈電子・保安技術〉',4],['〈情報収集／検索〉',6],['〈ベーシック・テク〉',4],
+        ['〈知覚〉',4],['〈拡張知覚〉',3],['〈集中〉',3],['〈精神集中〉',3],['〈電磁耐性〉',3],['〈隠密〉',4],['〈ハンドガン〉',2],['〈回避〉',2],['〈暗号学〉',3],['〈教育／一般知識〉',3],['〈会話術〉',3]]},
+    talk:{name:'口で切り抜ける',role:'フィクサー',line:'フィクサー・交渉と取引',
+      stats:{Strength:4,Constitution:5,Intelligence:5,Ego:5,Nerve:5,Chance:4,Edge:2,Firearms:2,Interface:4,Craft:3,Techmed:2,Influence:10,Operations:5,Neural:4},
+      skills:[['〈会話術〉',7],['〈弁舌／説得〉',6],['〈取引〉',6],['〈真意看破〉',6],['〈裏社会〉',5],['〈袖の下／買収〉',4],['〈エチケット〉',4],['〈演技〉',4],['〈威圧〉',3],['〈誘惑／魅了〉',3],
+        ['〈縄張りの掟〉',3],['〈等級査定〉',3],['〈情報収集／検索〉',4],['〈知覚〉',4],['〈密輸ルート把握／調達〉',3],['〈回避〉',3],['〈ハンドガン〉',3],['〈精神集中〉',3],['〈隠密〉',3]]}
+  };
+  // 置き換わる所（能力値・技能・ロール）がどれも初期のままなら、確かめずに入れる
+  function typeBlank(){
+    var q=function(f){var e=document.querySelector('[data-f="'+f+'"]');return e?String(e.value||'').trim():'';};
+    var st=Array.prototype.every.call(statInputs(),function(e){return statNorm(e)===(e.getAttribute('data-stat')==='Edge'?'0':'1');});
+    var sk=collectList('skill-list').every(function(r){return !String(r.name||'').trim()&&!String(r.text||'').trim();});
+    return st&&sk&&!q('rolepick_main')&&!q('rolepick_sub');
+  }
+  function typeApply(t){
+    takeUndo(); skillAutoClose(); skillAutoForget();
+    statInputs().forEach(function(e){var k=e.getAttribute('data-stat');if(k in t.stats)e.value=String(t.stats[k]);});
+    var list=el('skill-list'); list.innerHTML='';
+    t.skills.forEach(function(s){addRow('skill-list',{name:s[0],text:String(s[1])},PH.skill);});
+    // メインロールを替えたときと同じく、メインの職業スキルの印を外す。サブは新しいメインと同じときだけ外す
+    var ms=document.querySelector('[data-f="rolepick_main"]'), ss=document.querySelector('[data-f="rolepick_sub"]'), drop=['main_'], checks=readRoleChecks();
+    if(ms)ms.value=t.role;
+    if(ss&&ss.value===t.role){ss.value='';drop.push('sub_');}
+    Object.keys(checks).forEach(function(k){drop.forEach(function(p){if(k.indexOf(p)===0)delete checks[k];});});
+    writeRoleChecks(checks);
+    var rc=confirmField('role_confirmed'); if(rc)rc.value='';
+    renderRoleSkills(); recalc(); clampSkills(); growAll(); persistNow();
+    toast('型の入力完了（'+t.name+'）');
+    showUndo('型を入れる前の中身');
+  }
+  (function(){
+    var host=el('types-list'); if(!host)return;
+    Object.keys(TYPES).forEach(function(k){
+      var t=TYPES[k], b=document.createElement('button');
+      b.type='button'; b.className='type-btn'; b.setAttribute('data-type',k);
+      b.innerHTML='<b></b><span></span>'; b.querySelector('b').textContent=t.name; b.querySelector('span').textContent=t.line;
+      b.addEventListener('click',function(){
+        if(typeBlank()){typeApply(t);return;}
+        askConfirm('いまの入力を型の値で置き換えます。よろしいですか？','置き換える','やめる').then(function(ok){if(ok)typeApply(t);});
+      });
+      host.appendChild(b);
+    });
+  })();
   // 選んだ数の帯（S36）。その節が画面の真ん中に掛かっているあいだだけ出す
   (function(){
     var bars=['role-modebar','pick-modebar'].map(el).filter(Boolean);
@@ -5501,16 +5643,24 @@ function PubRender(PUB_PAGE_CSS){
   // ── 画面の札 ──
   var PUB_EYE='<svg viewBox="0 0 16 16" aria-hidden="true"><path class="pv-on" fill="none" stroke="currentColor" stroke-width="1.4" d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8z"/><circle class="pv-on" cx="8" cy="8" r="2" fill="currentColor"/>'+
     '<path class="pv-off" fill="none" stroke="currentColor" stroke-width="1.4" d="M2 8s2.3-3.6 6-3.6c1.1 0 2.1.3 3 .8M14 8s-2.3 3.6-6 3.6c-1.1 0-2.1-.3-3-.8M2.5 13.5l11-11"/></svg>';
+  // 読み上げの名前は「（欄の名前）の公開範囲：」＋画面に見えている字（公開・非公開・偽装、節なら度合いと件数）。
+  // aria-label で名前を決めると見えている字が名前から抜けるので、欄の名前は画面から隠した字として札の中に置く（2026-11-03 axe）
+  function pubSr(b,label){
+    var s=document.createElement('span'); s.className='pv-sr'; s.textContent=label+'の公開範囲：';
+    b.insertBefore(s,b.firstChild);
+  }
   function pubBtn(k,label,cls){
     var b=document.createElement('button'); b.type='button'; b.className='pv'+(cls?' '+cls:''); b.setAttribute('data-k',k);
-    b.setAttribute('aria-label',label+'の公開範囲'); b.innerHTML=PUB_EYE+'<span class="pv-on">公開</span><span class="pv-off">非公開</span><span class="pv-lie">偽装</span>';
+    b.innerHTML=PUB_EYE+'<span class="pv-on">公開</span><span class="pv-off">非公開</span><span class="pv-lie">偽装</span>';
+    pubSr(b,label);
     b.title=pubLieSpec(k)?'公開 → 非公開 → 偽装':'公開 → 非公開';
     pubPaintBtn(b,k);
     return b;
   }
   function pubSecBtn(id,label){
     var b=document.createElement('button'); b.type='button'; b.className='pv pv-sec'; b.setAttribute('data-sec',id);
-    b.setAttribute('aria-label',label+'の公開範囲'); b.innerHTML=PUB_EYE+'<span class="pv-t"></span><span class="pv-n"></span><small class="pv-ln"></small>';
+    b.innerHTML=PUB_EYE+'<span class="pv-t"></span><span class="pv-n"></span><small class="pv-ln"></small>';
+    pubSr(b,label);
     return b;
   }
   function pubSecOf(id){for(var i=0;i<PUB_SECS.length;i++)if(PUB_SECS[i].id===id)return PUB_SECS[i];return null;}
@@ -5788,7 +5938,7 @@ function PubRender(PUB_PAGE_CSS){
     el('pp-web').addEventListener('click',function(){pubExportPng('card',true);});
     // 外へ上げる前に確かめる（S6）
     el('pp-webpub').addEventListener('click',function(){
-      askConfirm('公開範囲で『公開』にした項目が、URL を知っている人なら誰でも見られる形で上がります。公開しますか？','公開する','やめる')
+      askConfirm('公開範囲で『公開』にした項目が、URL を知っている人なら誰でも見られる形で Web に上がります。公開しますか？','公開する','やめる')
         .then(function(ok){if(ok)pubWebPublish();else el('pp-webpub').focus();});
     });
     el('pp-web-copy').addEventListener('click',pubWebCopy);
