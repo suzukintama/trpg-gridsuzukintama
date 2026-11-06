@@ -222,12 +222,20 @@
   .hm-slot b{color:#ff5c8a;font-family:'Share Tech Mono',monospace;font-size:18px;}
   .hm-warn{display:none;margin-top:12px;padding:10px 13px;border:1px solid var(--mag);border-radius:3px;background:rgba(255,42,109,0.1);font:700 13px/1.6 'Noto Sans JP',sans-serif;color:#ff8fb0;}
   .humanity.invalid .hm-warn{display:block;}
+  /* いまの人間性（2026-11-05 先生の裁定 w06）。最大の人間性から義体の損失を引き、GM と決めた手直しを足す */
+  .hm-now{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 13px;background:rgba(0,0,0,0.22);border:1px solid rgba(255,42,109,0.3);border-radius:3px;}
+  .hm-now .hm-v{color:#ff5c8a;}
+  .hm-now .fld{margin:0;}
+  .hm-now .inp{width:64px;flex:none;text-align:center;}
+  .hm-now-f{flex-basis:100%;font:400 13px 'Share Tech Mono',monospace;letter-spacing:.04em;color:#c47a8f;}
+  .hm-now-note{flex-basis:100%;margin:0;font:400 12px/1.6 'Noto Sans JP',sans-serif;color:#9fb3c2;}
 
   /* HP（意識）— （Constitution＋Ego）×2、最低12 */
   .hpbox{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px 16px;background:rgba(5,217,232,0.04);border:1px solid rgba(5,217,232,0.22);border-left:2px solid var(--cyan);border-radius:4px;padding:11px 16px;margin:-12px 0 22px;}
   .hp-tag{font:700 13px 'Share Tech Mono',monospace;letter-spacing:.15em;color:var(--cyan);}
   .hp-v{font:700 26px 'Share Tech Mono',monospace;color:var(--cyan);text-shadow:0 0 10px rgba(5,217,232,0.35);}
   .hp-sub{font:400 12px/1.6 'Share Tech Mono',monospace;letter-spacing:.04em;color:#7fa9bb;}
+  .dgbox{margin:-10px 0 22px;}
   .hp-faint{font:400 13px 'Noto Sans JP',sans-serif;color:#b8c9d6;}
   .hp-faint b{font:700 20px 'Share Tech Mono',monospace;color:#ffb0c8;}
 
@@ -618,15 +626,6 @@
   .step{padding:3px 8px;border-radius:3px;cursor:pointer;background:rgba(5,217,232,0.05);border:1px solid rgba(95,184,196,0.28);color:#bfeef2;font:700 12px/1.5 'Noto Sans JP',sans-serif;}
   .step:hover{background:rgba(5,217,232,0.14);border-color:var(--cyan);}
   .step-ar{color:#5f7a8a;}
-  /* おすすめの型（2026-11-03）。作る順の案内のすぐ下に置く */
-  .types{margin:0 0 18px;padding:12px 14px;border:1px solid rgba(5,217,232,0.3);border-radius:4px;background:rgba(5,217,232,0.03);}
-  .types-ttl{font:700 13px 'Noto Sans JP',sans-serif;color:#bfeef2;margin-bottom:8px;}
-  .types-list{display:flex;flex-wrap:wrap;gap:8px;}
-  .type-btn{flex:1 1 180px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 12px;cursor:pointer;text-align:left;background:rgba(5,217,232,0.06);border:1px solid rgba(95,184,196,0.35);border-radius:4px;color:#e6eef8;}
-  .type-btn b{font:700 14px 'Noto Sans JP',sans-serif;color:#cdfaff;}
-  .type-btn span{font:400 11.5px/1.5 'Noto Sans JP',sans-serif;color:#9fb6c4;}
-  .type-btn:hover,.type-btn:focus-visible{background:rgba(5,217,232,0.14);border-color:var(--cyan);}
-  .types-note{margin-top:8px;font:400 11.5px/1.6 'Noto Sans JP',sans-serif;color:#8aa0b2;}
   /* 足りない物の一覧（S8）。GOV.UK の誤りの一覧の形 */
   .todo-box{margin:0 0 18px;padding:12px 14px;border:2px solid rgba(255,42,109,0.6);border-radius:4px;background:rgba(255,42,109,0.05);}
   .todo-box[hidden]{display:none;}
@@ -671,6 +670,32 @@
   #skmodal .pk-cat{flex:none;}
   #skmodal .pk-item{padding:4px 9px;line-height:1.4;}
   .pk-item.sel{background:rgba(5,217,232,0.16);border-color:var(--cyan);}
+  /* 技能の探しやすさ（2026-11-05）。検索欄の横の「やりたいことから引く」、職業の札（濃い・薄い）、前提の行 */
+  .pk-findrow{display:flex;gap:6px;align-items:stretch;flex:none;}
+  .pk-findrow .pk-find{flex:1;min-width:0;}
+  #skmodal .pk-findrow{margin-bottom:8px;}
+  #skmodal .pk-findrow .pk-find{margin-bottom:0;}
+  .pk-want-btn{flex:none;padding:0 10px;border-radius:3px;cursor:pointer;font:700 11px 'Noto Sans JP',sans-serif;white-space:nowrap;
+    background:rgba(255,210,125,0.06);border:1px solid rgba(255,210,125,0.4);color:#ffd27d;}
+  .pk-want-btn.on{background:rgba(255,210,125,0.18);border-color:#ffd27d;}
+  .pk-wants{flex:none;display:flex;flex-wrap:wrap;gap:5px;max-height:30vh;overflow-y:auto;margin-bottom:8px;padding:6px;
+    border:1px solid rgba(255,210,125,0.3);border-radius:4px;background:rgba(255,210,125,0.04);}
+  .pk-wants[hidden]{display:none;}
+  .pk-want{padding:4px 9px;border-radius:12px;cursor:pointer;font:400 11.5px 'Noto Sans JP',sans-serif;
+    background:transparent;border:1px solid rgba(255,210,125,0.35);color:#f3e2bd;}
+  .pk-want:hover{background:rgba(255,210,125,0.14);}
+  .pk-job{display:inline-block;margin-right:6px;padding:0 6px;border-radius:3px;font:700 10px/1.6 'Noto Sans JP',sans-serif;vertical-align:1px;}
+  .pk-job.j1{background:#ff2a6d;color:#fff;border:1px solid #ff2a6d;}
+  .pk-job.j2{background:rgba(255,42,109,0.12);color:#ff9dbb;border:1px solid rgba(255,42,109,0.45);}
+  .pk-item.job1{box-shadow:inset 3px 0 0 #ff2a6d;}
+  .pk-item.job2{box-shadow:inset 3px 0 0 rgba(255,42,109,0.4);}
+  .pk-item.pre-miss .pk-nm,.pk-item.pre-miss .pk-ab,.pk-item.pre-miss .pk-x{opacity:.5;}
+  .pk-item.flash{outline:2px solid #ffd27d;outline-offset:-2px;}
+  .pk-pre{margin:-2px 0 4px 18px;font:400 11px/1.6 'Noto Sans JP',sans-serif;color:#9fb3c4;}
+  .pk-pre.miss{color:#6f8494;cursor:pointer;}
+  .pk-pre-link{padding:0 2px;background:none;border:none;border-bottom:1px dotted currentColor;color:#bfeef2;font:inherit;cursor:pointer;}
+  .pk-pre.miss .pk-pre-link{color:#8aa0b6;}
+  .pk-grp-desc{color:#ffd27d;}
   .pk-x{width:auto;min-width:64px;}
   .pk-main{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;}
   .pk-main .pk-body{flex:1;min-height:120px;}
@@ -727,6 +752,8 @@
         <button class="btn" id="b-text">テキストで表示</button>
         <button class="btn" id="b-copy">コードをコピー</button>
         <small class="out-hint" id="copy-hint">VTT の『＋ コードから作成』か、入室画面の『キャラクターシートのコード』に貼る</small>
+        <!-- 家（家.html）の入口（2026-11-05・lane-hometool）。家と自販機と同じく、合図までは ?feat=homevend か himari_feat_homevend のときだけ出す -->
+        <button class="btn" id="b-home" hidden title="このキャラの家を別のタブで開く">このキャラの家を開く</button>
         <button class="btn" id="b-open-m">⤒ 読み込む</button>
       </div>
     </div>
@@ -745,18 +772,12 @@
   <nav class="steps" id="steps" aria-label="作る順">
     <button type="button" class="step" data-go="f-name">名前</button><span class="step-ar">→</span>
     <button type="button" class="step" data-sec="ステータス">能力値（30点と30点）</button><span class="step-ar">→</span>
-    <button type="button" class="step" data-sec="取得技能一覧">技能（80点）</button><span class="step-ar">→</span>
+    <button type="button" class="step" data-sec="取得技能一覧">技能（130点）</button><span class="step-ar">→</span>
     <button type="button" class="step" data-sec="職業スキル">ロール</button><span class="step-ar">→</span>
     <button type="button" class="step" data-sec="選択式固有">固有</button><span class="step-ar">→</span>
     <button type="button" class="step" data-sec="画像（駒・立ち絵）">画像</button><span class="step-ar">→</span>
     <button type="button" class="step" data-out="1">『保存と読み込み ▼』の『コードをコピー』で VTT へ</button>
   </nav>
-  <!-- おすすめの型（2026-11-03・企画の案の3位）。押すと能力値・技能・メインロールを型の値で埋める。ボタンは TYPES から作る。仕様は _drafts/企画_おすすめの型_仕様_2026-11-03.md -->
-  <div class="types" id="types" role="region" aria-labelledby="types-ttl">
-    <div class="types-ttl" id="types-ttl">おすすめの型から始める（あとで直せる）</div>
-    <div class="types-list" id="types-list"></div>
-    <p class="types-note">能力値・技能・メインロールが埋まる。名前・身長・職業スキルは自分で決める。所要時間の目安は10分。</p>
-  </div>
   <!-- 足りない物の一覧（S8）。各行を押すとその欄へ移る。足りない物がなければ出さない -->
   <div class="todo-box" id="todo-box" role="region" aria-labelledby="todo-ttl" hidden>
     <div class="todo-ttl" id="todo-ttl">未完了の項目</div>
@@ -767,6 +788,8 @@
   <section>
     <div class="shd"><span class="tag">// IDENTITY</span><h2>基本情報</h2><span class="ln"></span></div>
     <div class="grid">
+      <!-- PL名（2026-11-07 先生の指示）。GM が PL ごとのキャラを数え、VTT の入室で前のキャラを出すのに使う。コードの fields.player。キャラ公開シートには出さない（キャラ公開シート_開発/build.mjs が外す） -->
+      <div class="full"><label class="fld" for="f-player"><b>PL名</b><span>PLAYER</span></label><input id="f-player" class="inp" data-f="player" placeholder="VTT に入るときの名前" autocomplete="off"><div style="margin-top:6px;font:400 11px/1.55 'Noto Sans JP',sans-serif;color:#7a8fa0;">GM が、誰のキャラかを見分けるための名前。VTT の入室画面の「PL名」と同じ字で書く。公開シートには出ない。</div></div>
       <div><label class="fld" for="f-name"><b>名前（本名）</b><span>NAME</span></label><input id="f-name" class="inp" data-f="name"></div>
       <div><label class="fld" for="f-handle"><b>ハンドル / ニックネーム</b><span>HANDLE</span></label><input id="f-handle" class="inp" data-f="handle"></div>
       <div><label class="fld" for="height-in"><b>身長</b><span>HEIGHT cm</span></label><input class="inp" type="number" id="height-in" data-f="height" placeholder="cm を入力（例：172）"></div>
@@ -810,6 +833,14 @@
         <div class="hm-cell hm-eff"><span class="hm-k">計算後のEgo（実際の数値）</span><span class="hm-v" id="hm-effemp">--</span></div>
       </div>
       <div class="hm-slot" id="hm-slotline">エッジウェア枠：<b id="hm-slots">0</b></div>
+      <div class="hm-now" id="hm-nowline">
+        <span class="hm-k">いまの人間性</span><b class="hm-v" id="hm-now">--</b>
+        <label class="fld" for="f-hum-adj"><b>手直し（GM と決めた分）</b><span>ADJUST</span></label><input id="f-hum-adj" class="inp" data-f="hum_adj" type="number" step="1" placeholder="0">
+        <span class="hm-now-f" id="hm-now-formula">最大 0 − 義体の損失 0 ＋ 手直し 0 ＝ 0</span>
+        <p class="hm-now-note">装備・サイバーウェアの部位の欄に義体を書くと、その部位の人間性損失のぶん下がる。部位ごとの損失の値はまだ決まっていないので、いまはどの部位も0で数える。セラピーやトラウマで上下したぶんは、GM と決めた数を「手直し」の欄に足し引きする（下げるならマイナス）。</p>
+      </div>
+      <!-- いまの人間性。recalc が書き直すので手では触らない。コードに入り、VTT のステータスの「人間性」の行の値になる -->
+      <input type="hidden" data-f="hum_now" id="hum-now-field" value="">
       <div class="hm-warn" id="hm-warn">【注意】精算後Egoが1未満です。このビルドは書き出せません。Edgeを下げるか、Egoを上げてください。</div>
     </div>
     <!-- 精算後のEgo。技能判定はこの値で引く（HP は生まれの Ego で引く。先生の裁定待ち・PL導線 第4節の1）。recalc が書き直すので手では触らない -->
@@ -824,6 +855,21 @@
       <span class="hp-faint">気絶するHP（最大の4分の1以下）：<b id="hp-faint">--</b></span>
       <span class="hp-sub">不利は全判定の目標値＋2。HPが0以下で死亡。</span>
     </div>
+    <!-- 回避判定（2026-10-31 裁定）。命中のあとに守る側が振る。1d10 を含まない値を出し、横に「＋1d10」を添える。VTT は同じ式を自分で計算する -->
+    <div class="hpbox dgbox" id="dodge-box">
+      <span class="hp-tag">回避判定</span>
+      <span class="hp-faint">射撃の回避判定：<b id="dodge-gun">--</b> ＋1d10</span>
+      <span class="hp-faint">近接の回避判定：<b id="dodge-melee">--</b> ＋1d10</span>
+      <span class="hp-sub" id="dodge-formula">射撃＝【Nerve】＋〈回避〉／近接＝【Nerve】＋〈格闘〉と〈白兵戦〉の高いほうの2分の1＋〈武術〉の3分の1（端数切り捨て）</span>
+      <span class="hp-sub">命中したら守る側が振り、攻撃側の合計に届けば回避。</span>
+    </div>
+
+    <!-- 技能レベルの上限（2026-11-05 先生の裁定 r04）。作成時は Lv7 まで、成長で上げるときは Lv10 まで。コードの fields.grown に '1' で入る -->
+    <div class="hpbox" id="grown-box">
+      <label class="hp-tag" for="grown-chk" style="cursor:pointer;"><input type="checkbox" id="grown-chk" style="margin-right:6px;">成長後（GM の承認あり）</label>
+      <span class="hp-sub" id="grown-note">作成時は、どの技能も Lv7 までしか取れない。成長で上げるときだけ、GM の承認を受けてチェックを入れる（Lv10 まで）。</span>
+      <input type="hidden" data-f="grown" id="grown-field" value="">
+    </div>
 
     <div class="grp-ttl">S.C.I.E.N.C.E. — 生来的なもの</div>
     <div class="stats" id="sci-stats"></div>
@@ -835,10 +881,10 @@
   <!-- SKILLS -->
   <section>
     <div class="shd"><span class="tag">// SKILLS</span><h2>取得技能一覧</h2><span class="ln"></span></div>
-    <p class="note">無印の技能はレベル1につき1点、<b style="color:#ffd27d;">★上級は2点</b>、<b style="color:#ff9d7d;">★★特級は3点</b>を消費。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 の分は消費しない。「一覧から技能を選ぶ」を押すと、カテゴリごとに分けた技能一覧が開く。選んだ技能は対応ステータスと倍率つきで行に入り、消費ポイントも合計へ足される。〈専門知識〈指定〉〉のように「指定」を含む技能は、選んだあとに具体名を書き入れて〈専門知識〈経済〉〉の形で登録すること。一覧に無い技能は「自作技能を追加」から自分で作れる。初期技能ポイントは80点（テスト仮）。</p>
+    <p class="note">無印の技能はレベル1につき1点、<b style="color:#ffd27d;">★上級は2点</b>、<b style="color:#ff9d7d;">★★特級は3点</b>を消費。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 の分は消費しない。「一覧から技能を選ぶ」を押すと、カテゴリごとに分けた技能一覧が開く。選んだ技能は対応ステータスと倍率つきで行に入り、消費ポイントも合計へ足される。〈専門知識〈指定〉〉のように「指定」を含む技能は、選んだあとに具体名を書き入れて〈専門知識〈経済〉〉の形で登録すること。一覧に無い技能は「自作技能を追加」から自分で作れる。初期技能ポイントは130点。技能レベルの上限は、作成時は7、成長後（GM の承認あり）は10。</p>
     <p class="note" id="skill-tier-note">腕前は【対応ステータス】＋〈技能レベル〉＋5。技能判定には難易度の補正を足す。目標値が腕前と同じ段なら＋2、1段易しいごとに＋1、1段難しいごとに−1。段は 簡単9・普通13・難しい15・とても難しい17・至難21・不可能に近い24・伝説29。腕前も目標値も、その値を超えない一番高い段に入る（14は普通、8以下は簡単）。補正は技能判定だけで、射撃・近接・武術の技には付かない。補正を足しても、腕前の数値と段の札（見習い・一人前・熟練など）は変わらない。</p>
     <input type="hidden" data-f="skill_own" id="skill-own-field" value="">
-    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px;"><label class="fld" for="f-sp" style="margin:0;"><b>技能ポイント</b><span>SKILL POINTS</span></label><input id="f-sp" class="inp" data-f="sp" type="number" min="0" step="1" value="80" style="width:64px;flex:none;text-align:center;font:700 15px 'Share Tech Mono',monospace;color:var(--cyan);"><span id="sp-remain" style="font:700 11px 'Share Tech Mono',monospace;letter-spacing:.06em;color:#7a8fa0;white-space:nowrap;"></span><span class="sp-hint" id="sp-hint">GM の指示がなければ 80 のまま</span></div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px;"><label class="fld" for="f-sp" style="margin:0;"><b>技能ポイント</b><span>SKILL POINTS</span></label><input id="f-sp" class="inp" data-f="sp" type="number" min="0" step="1" value="130" style="width:64px;flex:none;text-align:center;font:700 15px 'Share Tech Mono',monospace;color:var(--cyan);"><span id="sp-remain" style="font:700 11px 'Share Tech Mono',monospace;letter-spacing:.06em;color:#7a8fa0;white-space:nowrap;"></span><span class="sp-hint" id="sp-hint">GM の指示がなければ 130 のまま</span></div>
     <div class="dyn-list" id="skill-list"></div>
     <div class="skill-adds">
       <button type="button" class="add-btn" id="skill-pick">＋ 一覧から技能を選ぶ</button>
@@ -882,7 +928,7 @@
     <div class="shd"><span class="tag">// LOADOUT</span><h2>装備・サイバーウェア</h2><span class="ln"></span></div>
     <div class="grid"><div class="full"><label class="fld" for="f-equip"><b>装備のメモ（VTT へは渡らない）</b><span>EQUIPMENT</span></label><div style="font-size:12px;line-height:1.7;color:#7a8fa0;margin-bottom:8px;">メモ欄。ここに書いた品はセッションツールへ渡らない。卓で使う銃や道具は「所持品」に書く。</div><textarea id="f-equip" class="inp" data-f="equip" style="min-height:180px;" placeholder="銃 / 刃物 / ガジェットなど"></textarea></div></div>
     <div class="grp-ttl" style="margin-top:18px;">サイバーウェア — 部位マップ</div>
-    <p class="note cw-hm-note">義体を入れると、部位ごとの人間性損失のぶん今の人間性が下がる。下がる量は GM と確かめる。</p>
+    <p class="note cw-hm-note">義体を入れると、部位ごとの人間性損失のぶん今の人間性が下がる。部位ごとの値はまだ決まっていない（いまはどの部位も0で数える）。下がる量は GM と確かめ、ステータスの「手直し」の欄で直す。</p>
     <div class="hm-slot" id="cw-slotline" title="義体を入れた部位の数。上限は【Neural】×2。エッジウェアは別枠">義体の枠　<b id="cw-slots">0／0</b></div>
     <div id="cw-slotwarn" style="display:none;color:var(--danger,#ff2a6d);font-size:12px;margin-top:6px;">枠を超えています。〈義体過負荷制御〉の判定が要ります</div>
     <div class="cw-map">
@@ -1024,7 +1070,7 @@
       <div>
         <span class="fld" id="lb-stand"><b>立ち絵</b><span>STANDEE</span></span>
         <div style="display:flex;align-items:center;gap:12px;">
-          <div id="img-stand-prev" style="width:56px;height:92px;border-radius:8px;border:1px solid rgba(95,184,196,.4);background:#0d1620 center/contain no-repeat;flex:none;"></div>
+          <div id="img-stand-prev" style="width:56px;height:85px;border-radius:8px;border:1px solid rgba(95,184,196,.4);background:#0d1620 center bottom/contain no-repeat;flex:none;"></div>
           <div style="display:flex;flex-direction:column;gap:6px;">
             <label class="filelbl" for="img-stand-file"><span id="img-stand-file-t">画像を選択</span><input type="file" id="img-stand-file" accept="image/*" aria-labelledby="lb-stand img-stand-file-t"></label>
             <button type="button" class="mbtn" id="img-stand-clear" style="font-size:11px;">クリア</button>
@@ -1084,14 +1130,18 @@
 <div class="modal wide" id="skmodal">
   <div class="box">
     <div class="sk-head"><h3 id="sk-ttl">技能を選ぶ</h3><span class="sk-rest" id="sk-rest"></span></div>
-    <p id="sk-sub">カテゴリで絞り込むか、名前を打ち込んで探す。行を押すと説明が出て、「追加する」で行に入る。選んだ技能はレベル1で行に入る。前提が足りない技能は、レベル0で入れて前提の案内を出す。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 には点を使わない。取得済みの技能は選べない。</p>
+    <p id="sk-sub">分類のタブで絞り込むか、名前や説明の言葉を打ち込んで探す。「やりたいことから引く」を押すと、場面の言葉から技能へ飛べる。メインロールを選んでいれば、その職業で「まず取る」技能に濃い印、「あると便利」な技能に薄い印が付く。行を押すと説明が出て、「追加する」で行に入る。選んだ技能はレベル1で行に入る。前提が足りない技能は、レベル0で入れて前提の案内を出す。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 には点を使わない。取得済みの技能は選べない。</p>
     <div class="pk-seg">
       <button type="button" class="on" id="sk-tab-list">一覧から選ぶ</button>
       <button type="button" id="sk-tab-own">自作して追加</button>
     </div>
     <div id="sk-pane-list">
-      <input class="pk-find" type="text" id="sk-find" placeholder="技能名で絞り込む（ひらがなでもよい）" aria-label="技能名で絞り込む" autocomplete="off">
-      <div class="pk-cats" id="sk-cats"></div>
+      <div class="pk-findrow">
+      <input class="pk-find" type="text" id="sk-find" placeholder="技能名や説明の言葉で探す（ひらがなでもよい）" aria-label="技能名や説明の言葉で探す" autocomplete="off">
+      <button type="button" class="pk-want-btn" id="sk-want-btn" aria-expanded="false" aria-controls="sk-wants" title="場面の言葉から、使う技能へ飛ぶ">やりたいことから引く</button>
+      </div>
+      <div class="pk-wants" id="sk-wants" hidden></div>
+      <div class="pk-cats" id="sk-cats" role="group" aria-label="技能の分類"></div>
       <div class="pk-main">
       <div class="pk-body" id="sk-body"></div>
       <div class="pk-side" id="sk-side">
@@ -1172,8 +1222,15 @@
   var SCI=[['Strength','筋力・体格','S','――「扉が開かないなら、「破壊すれば」いい。」<br><br>生まれ持った、純粋な腕力と体躯のサイズ。殴打の威力、扉を蹴破る脚力、重い荷を担ぐ力に直結する。セッション中、封鎖された通路を力ずくでこじ開けられるかはこの値で決まる。高ければ一人で鉄扉すら押し開けられるし、常人には扱えないバカでかいクロームも積める。低ければ、仲間を呼ぶか別の手を探すしかない――図体のデカさは、それ自体が力として勘定される。単純にデカければいいってわけでもないが、デカさは多くを解決するだろう。<br><br>Strength実効値＝（振り分けたポイント＋体格）÷2（端数切り捨て）。体格は身長から自動で決まる。振ったポイントが6で体格が6なら、（6＋6）÷2で6。図体のデカさってのは、それ自体がひとつの才能だってことさ。'],['Constitution','耐久・生命力','C','――「頑丈な奴は不死身なわけじゃない。死ぬ順番が遅れる。それだけの話だ」<br><br>病気や怪我に耐える頑丈さ。風邪をひきにくいって程度の話から始まって、果ては弾丸を食らっても――腕を一本吹き飛ばされてなお、汗ひとつかかず動き続けられるか、だ。高ければ「瀕死から立ち上がる」ような演出も効く。低けりゃ、かすり傷で泣き喚いて、戦闘不能もその分早い。<br><br>近接攻撃を受けたときは、衝撃値から耐衝値（Constitution÷3、端数切り捨て）を引く。耐衝値が小さいほど、殴られたときに怯んだり倒れたりしやすい。銃弾には効かない。詳しくは戦闘ルールで説明しよう。'],['Intelligence','知識・戦術','I','――「ペンは、銃よりも強し。」<br><br>状況分析と学習能力、要するに地頭の良さだ。高ければ暗号をあっさり解き、敵の布陣を一目で見抜き、何万もの部品でできた機械を分解して仕組みまで把握できる。頭脳派の生命線であり、低ければ策を弄する相手に常に後手を踏み、罠に嵌められて絶望的な状況から始まる…なんてこともある。もっとも、この街じゃ賢すぎる駒は"リスク"として別の顔も持つ。地頭は資産だが、同時に監視対象でもある――それだけは覚えとけ。あとは、孫子いわく……なんとかかんとか、ってのがすぐ口を突いて出るようになる……たぶんな。'],['Ego','自我・意志','E','――「お前がお前でいられるのは、お前がそう決めてる間だけだ」<br><br>自分を貫く力。意志の強さであり、芯の硬さ。逆境で信念を曲げないか、脅されて屈しないか、他人に安易に譲らないか、良心の呵責なく平然と嘘をつけるか――そして何より、サイバーウェアで肉体を機械に置き換えていってなお、どれだけ"自分"を保っていられるか。高ければ、拷問でも口を割らず、群衆の熱にも呑まれず、全身がクロームになろうと自我は揺らがない。低ければ、周りの空気に流され、強い言葉に押し切られ、積んだ機械に少しずつ"自分"を明け渡していく。<br><br>お前の"自分でいられる限界"――人間性の大きさは、この数字が土台になる。義体化に耐えるってのは、突き詰めりゃ「どれだけ自分を保てるか」の話だ。だから人間性を支えるのは、共感なんかじゃない。この、折れない芯のほうさ。詳しい話はEdgeの項でしよう。'],['Nerve','反射・敏捷','N','――「速い奴が勝つんじゃない。先に動いた奴が勝つんだ」<br><br>生まれ持った反応速度と瞬発力。「先に動けるか」と「避けられるか」は、この数字で決まる。敵が不意に銃を抜いた刹那、考えるより先に体が動くのはNerveの高い奴で、こればかりは脳みそをとっかえるか、”そういう”改造（クローム）を入れるしかない。極まれば「撃たれてから回避する」なんて芸当さえできる。低ければ逆に、「撃たれてから気づく」こともある。<br><br>ただし勘違いするな。抜いた銃が当たるかどうかは、Firearmsの仕事だ。Nerveが保証するのは速さだけ。誰より速く抜いて、誰より速く外す奴なんざ、この街にはいくらでもいる。'],['Chance','運','C','――「最後に立ってた奴に理由を聞いても、大抵本人も分からない」<br><br>サイコロの目を超える「偶然の強さ」。致命的な成功や失敗の確率を、その手でねじ曲げる特別な要素だ。運の高い奴は、不意の銃撃も弾がかすめる程度で済む。運のない奴は、同じ状況で額に一発、そのままおじゃん――運命だったと諦めるしかない。<br><br>TRPGプレイヤーの場合、この数字はセッションのたびに消費し、出目に加算できる。使った分はそのセッション中は戻らない。ここぞで惜しみなく切って、運命をたぐり寄せろ…とは言え、運はあくまで最後のひと押しで、土台がなければ、女神も押す場所に困る。']];
   var FIC=[['Firearms','銃火器技術','F','――「速く抜くのは才能が必要かもしれないが、当てるのは本人の腕次第だ。」<br><br>銃の扱い全般。握り方、呼吸の殺し方、早撃ちの間合い、弾道を読む眼――その反復だけが精度を生む。速く抜くのはNerveの領分、だが抜いた銃が当たるかはここからが本番だ。狙撃手が遠間から一撃で決着をつけるのも、弾倉（マガジン）を手際よく詰め替えるのもこの値。低けりゃ至近距離でも弾は暴れ、些細なミスが誤射を招く。'],['Interface','ネット・ハック技術','I','――「壁の向こうのデータは、鍵のかかってない金庫と同じだ」<br><br>回線とデータ、機械のスクリプトを読み解く力。ネットワーク侵入、遠隔義体制御、クイックハックの設計と実行。高ければ敵のカメラを一瞬で落とし、ドローンの視界を乗っ取る。低ければログに足跡を残し、挙句に警報まで鳴らすだろう。殆どの電子戦（ハック）は攻めも守りもこの数字だ。この数値が高い奴は、大抵サイバー攻撃を食らっても当たり前のような顔ですぐに立て直す。'],['Craft','技術・製作','C','――「直せる奴は、壊し方も知ってる」<br><br>工具の扱い、機械回路の読み替え、義体パーツの調整。銅線一本、半田ごての角度ひとつで機械は生き返り、逆にあっさり死んでしまう…戦闘中の応急修理、改造品の創作、自作の爆弾やガジェット作りもここに含まれる。高ければ即席で義肢を換装し、殺した敵の装備をばらして転用することだってできる。逆に低ければ、「直そうとして逆に壊した」なんて事故が起きるだろう。Craftが高けりゃ、探索でも日常でも自立度が段違いだ。'],['Techmed','医療・応急処置','T','――「死神と交渉できるのは、この街じゃ医者だけだ……莫大な金でな。」<br><br>止血、包帯、応急の鎮痛処置、義体の生体接続の知識。瀕死の仲間を助けるか見捨てるかの分岐をお前に握らせる。高ければ出血を止め、ショックから引き戻し、外科手術やサイバーウェアの埋め込みで生還率を大きく押し上げる。低ければ処置がかえって悪化を招き、顧客や仲間の信頼に直に響く。治療には物資と時間がいる――この数字の高い奴は、チームの長期的な生存率を左右する、文字通り”心臓部”だ。'],['Influence','交渉・共感・カリスマ','I','――「銃で奪えるのは財布までだが、言葉なら、街ごと」<br><br>他者の心を読む力、共感、話術、説得、嘘の紡ぎ方、群衆を扇動する力まで。かつて"人の心が読める""信じるに足る人間に見える"とされた社会的な力は、残らずここに集約されている。高ければ敵対者すら味方に転じさせ、NPCに信を置かれ、取引を有利に運ぶ。逆に低ければ相手の機微を読み損ね、どれだけ正論でも声は届かず、孤立を招く。この数値なしで、傲慢な貴族に懐柔は通じず、死地での皮肉は毒にしかならない。フリープレイ主体で遊ぶなら、とりわけ効いてくるだろう。<br><br>※Egoとの切り分け：嘘を「つける」胆力はEgoで、その嘘を「紡いで信じ込ませる」技術はInfluenceだ。詩的に言えば、心を守るのがEgoで、心を動かすのがInfluence。'],['Operations','行動・現場対応力','O','――「弾より先に、段取りが尽きた奴から死ぬ」<br><br>潜入計画の立案、現場での即断、仲間への指揮、状況に合わせた対応力。作戦の組み立てと実行の段で真価を発揮し、チーム全体に底上げを与える。高ければ緊迫した局面でも最小被害の経路を短時間で引き、脱出プランを瞬時に組み替える。低ければ混乱の火種となり、行き当たりばったりの出口で仲間を危険に晒す。連携を重んじる面子なら欠かせない数字で、特に集団をまとめるフィクサーには必要不可欠な要素だ。'],['Neural','機械化適合・処理速度','N','――「百万ジリコの義眼も、馴染まなけりゃただのガラス玉さ」<br><br>経験と手術で作り変えられていく、機械とお前の馴染みの深さだ。ぶち込んだクロームがカタログ通りの性能を叩き出すか、体の中で"他人"のままか。それを分けるのがこの数字。企業が売るのは部品だけで、"馴染み"までは売っちゃいない。高ければ、積んだサイバーウェアの性能を仕様書の限界まで引き出せるだろうが、低ければ、どんな高級なクロームも宝の持ち腐れ――反応は鈍り、感覚はズレ、性能の半分も出せずに終わる。<br><br>生身の反射はNerve、電子戦はInterface。Neuralが見ているのはただ一点――機械になった部分が、どれだけ"お前自身"になりきっているかだ。']];
   var SCI_MAX=30, FIC_MAX=30;
-  // 初期技能ポイント（裁定 B3-5 で80は仮のまま）。空欄はこの値として数える（P216）
-  var SP_DEFAULT=80;
+  // 初期技能ポイント（2026-11-05 先生の裁定で130に決めた。それまでは仮の80）。空欄はこの値として数える（P216）
+  var SP_DEFAULT=130;
+  // 技能レベルの上限（2026-11-05 先生の裁定 w03・r04）。成長で上げるときは10、キャラクターを作るときは7。
+  // 「成長後（GMの承認あり）」のチェック（fields.grown）が入っていれば10、なければ7。＋はここで止まり、読み込んだ値が10を超えていれば10に直して知らせる
+  var SKILL_LV_CAP=10, SKILL_LV_CREATE=7;
+  function grownField(){return document.getElementById('grown-field');}
+  function isGrown(){var e=grownField();return !!(e&&e.value==='1');}
+  function skillCap(){return isGrown()?SKILL_LV_CAP:SKILL_LV_CREATE;}
+  function setGrown(on){var e=grownField(),c=document.getElementById('grown-chk');if(e)e.value=on?'1':'';if(c)c.checked=!!on;}
 
   // 選択式固有（2026-07-09/10 正典・2026-08-06全文収録）
   // 形式: [名称, ルビ, 効果（／区切り）, 冒頭の引用, 本文, 締めの一文]
@@ -1239,7 +1296,17 @@
        '"あいつ"の存在が、極限の場面で力を与え、死を恐れない行動に有利。／「あいつだったらどうするか」……その思いが判断を歪める。生き延びたことへの罪悪感が、全ての行動を鈍らせることもある。',
        '―――お前の代わりに。',
        '誰かがお前のために死んだ。庇った、身を挺した、お前の代わりに捕まった――形はどうあれ。お前は生き残り、あいつは死んだ。お前はあいつの分まで生きなきゃいけない。そう決めた。だが「あいつの分」が何なのか、わからない。お前がこの街で何をしても、あいつが「それでいい」と言ってくれる保証はない。',
-       '――おれが死ねばよかった、と思う夜がある。あいつなら、そんなことは考えもしないだろうに。']
+       '――おれが死ねばよかった、と思う夜がある。あいつなら、そんなことは考えもしないだろうに。'],
+      ['弔い手','アンダーテイカー',
+       '遺体や殺害現場から、死因・身元・生前の暮らしを読み取る判定に有利。回収班・火葬場・葬儀屋に顔が利き、遺体の処理や遺品の回収では無理が通る。／死臭が染みついていて、清潔を売りにする店、上層の屋内、飲食の場で露骨に避けられる。／GMは「運び込まれた遺体が知っている顔だった」という場面を置ける。',
+       '「誰も引き取りに来ない仏さんなら五百ジリコで済む。泣いてくれる身内がいると、五千はかかる。」',
+       'お前はクリーンスレート社の回収班にいた。白い遺体袋を担いで、サイレント・ホークで第7区の火葬場まで運ぶ仕事だ。防護スーツ越しに何百と死体を扱ううちに、死体からも案外いろいろ読み取れると覚えた。爪の形、袖口の縫い方、義体を抜かれた傷の切り口。帳簿に書かれた名前と袋の中身が別人のこともある。お前はそれも知っている。社を辞めた今も、袋のチャックの音を聞くと背筋が伸びる。',
+       '――袋のチャックを閉める前に、爪と袖口だけは必ず見る。'],
+      ['無休便','ノンストップ',
+       '街の移動・運搬・配達に関わる場面に限り、最短の経路、抜け道、人目につかない時間帯を必ず一つは見つけ出せる。荷物を預かっている間は、追跡・逃走・運搬の判定に有利。',
+       '「配達中に死んでも、荷物は届ける。そういう契約だ。」',
+       'お前は一時期、クロノス・ロジスティクスの下請けで配達を回していた。契約上は自営業だから、怪我をしても労災は出ない。だから、怪我をせずに早く着ける道を足で覚えるしかなかった。第8区インターの抜け道、ザ・パイプが市を開く時刻、監視ドローンの巡回が途切れる三分間。業界の死亡率が平均の四倍だと聞いても驚かなかった。走れなくなった同業者を、お前は何人も見てきた。',
+       '――今も、信号待ちのあいだに足踏みをやめられない。']
     ]},
     {cat:'身体の刻印',sub:'肉体に刻まれた代償。義体で隠せても、痛みは消えない',key:'uq_body',items:[
       ['隻眼','デッドアイ',
@@ -1301,7 +1368,17 @@
        'セッションを通じて一度だけ、確実な「死」を「かすり傷」に変えられる。撃たれても、落ちても、止まっても、お前は生き延びる。一度使えば、その"貯金"は尽きる。',
        '本来なら、お前はもう三度は死んでいる。',
        '説明はつかない。ただ、死ぬべき時に、死ななかった。弾が数センチ逸れた。落ちてきた梁が、なぜかお前の隣に落ちた。止まった心臓が、誰も触れていないのに動き出した。医者はそれを「幸運」と呼ぶ。お前はもう、その言葉を信じていない。だが確かに――お前は、まだここにいる。',
-       '――九つあった命の、これが何本目かは、数えない方がいい。']
+       '――九つあった命の、これが何本目かは、数えない方がいい。'],
+      ['月賦の腕','インスタルメント',
+       '内蔵工具のおかげで、修理・分解・配線・簡単な加工に有利。標準規格のため、下層から中層までどこの修理店でも部品と整備が手に入る。／GMは月の区切りに「引き落とし」を宣告できる。払えなければ、腕に遠隔で錠が掛かり、解除には延滞金が要る。／腕の稼働履歴は会社に筒抜けで、どこで何を握ったかまで把握される。',
+       '「お客様の腕は、現在お支払い確認中です。そのままお待ちください。」',
+       'お前の腕は、ハードハット・サイバネティクスのワーク・ハンドだ。買い切りでは手が出ず、月額の換装プランで入れた。街の修理店ならどこでも整備できる規格で、工具も内蔵している。便利な腕だ。ただし月末の引き落としが一度でも滞れば、契約どおりに遠隔で錠が掛かる。腕が止まれば、お前の稼ぎも止まる。署名したのはお前だ。',
+       '――契約書は全部読んでから署名した。ほかに手の届く腕がなかった。'],
+      ['獣の鼻','ブラッドハウンド',
+       '匂いと物音による察知に有利。毒・薬・血・ガス漏れ・腐敗の発見、誰かがここにいた形跡の追跡、嘘をついた時の汗の変化を読み取れる。／晴れないスモッグと酸性雨のせいで、屋外や下層では頭痛と吐き気が続く。GMはいつでも判定への不利を宣告できる。／悪臭・薬品・強い香水・煙幕に当てられると、しばらく動けなくなる。',
+       '「この部屋、三時間前に誰か死んでるな。」',
+       'スモッグの街で、お前の鼻だけは鈍らなかった。リパードクに入れ替えられたのか、生まれつきなのか、お前も覚えていない。合成出汁の匂いの底から培養肉の腐りかけを嗅ぎ当て、第7区の雨の中で血と消毒液を嗅ぎ分ける。嘘をついた人間の汗の変わり目も分かる。重宝されるが、この街の空気は、お前にとって拷問に近い。',
+       '――いい鼻だと褒められるのは仕事のときだけで、残りの時間はずっと、この街の臭いを嗅いでいる。']
     ]},
     {cat:'心の歪み',sub:'頭の中に棲みついたもの。治療はたぶん、存在しない',key:'uq_mind',items:[
       ['飢渇','クレイヴ',
@@ -1368,7 +1445,17 @@
        'サイバーサイコシスの兆候を本能的に察知できる。暴走者の行動パターンを読める。極限状態で"あちら側の力"が一瞬だけ戻ることがある。／GMは「あの時の感覚」を呼び起こせる。極度のストレス・戦闘・クロームの使用でフラッシュバックが起きる。お前の中の"あれ"は、眠っているだけで、死んでいない。',
        '「……おれ、何人殺した？」',
        'お前はあちら側に行った。クロームか、ストレスか、元々の何かか――理由はどうでもいい。大事なのは、お前が一度人間をやめ、そして誰の処置も受けずに、自力で戻ってきたということだ。医者は「あり得ない」と言った。データも前例もない。なぜ戻れたのか、誰にも――お前自身にも――分からない。つまり、今"あれ"を抑えているのは、医学でも薬でもない。ただの、お前だ。',
-       '――正気に戻れたのは奇跡だ。二度目の奇跡は、期待するな。']
+       '――正気に戻れたのは奇跡だ。二度目の奇跡は、期待するな。'],
+      ['記録魔','ログ・ホーダー',
+       '記録を取っている間、証言の矛盾・日付のずれ・噂の出どころを突き止める判定に有利。手元の記録は、証拠にも交渉の材料にもなる。／記録を失った、取り上げられた、消された時、GMは強い動揺を宣告できる。／録っているのが相手に知られると、その場の信用を失う。／記録の山はそれ自体が値打ち物で、狙う者が現れる。',
+       '「待て、もう一回言ってくれ。録ってなかった。」',
+       'お前は何でも残す。ポケットの録音端末、手首に巻いた古いメモ端末、義眼の録画機能。通りで聞いた噂、依頼人の声、屋台の値札、雨の日付。ディープダイブの書き込みを日付つきで保存して、削除された投稿の差分まで持っている。ブラインドアイが「消しました」と言った記録も、お前の手元には写しがある。記録がないと落ち着かない。手元に増えれば増えたで、いつ狙われるかが気になる。',
+       '――削除された投稿の写しを、今夜もまた一本、日付順に並べて足す。'],
+      ['機械憑き','アニミスト',
+       '自動機械（配送ドローン・端末・案内AI・警備ドローン・自販機）に邪険にされにくい。初見の機械でも、ロックの猶予や一度きりの見逃しといった融通が出ることがある。機械の「調子」を直感でつかめる。',
+       '「あいつは悪くないよ。ちょっと機嫌が悪かっただけさ。」',
+       '配送ドローンが頭上で一度旋回してから、荷物を置いていく。自販機は釣りを多く出し、案内AIはお前にだけ声色を変える。偶然かもしれない。第7区の路地で、壊れたはずの端末がお前の指先でだけ一度起動したこともある。お前は機械に名前をつけて礼を言い、壊れたら葬ってやる。街の連中は笑う。だが機械のほうは、お前を覚えているような顔をしている。',
+       '――機械に心があるかは知らない。ただ、角の自販機は、三回に一回は釣りを多めに返してくる。']
     ]},
     {cat:'纏わりつく宿命',sub:'いまも後を追ってくるもの。逃げ場はない',key:'uq_fate',items:[
       ['イタチごっこ','マンハント',
@@ -1440,7 +1527,17 @@
        'ステータスを高く設定でき、サイバーウェアを自由に設定できる。更に軍用サイバーウェアも問題なく装備できる。／製造元が「回収」に来るかもしれない。あるいは、「同期」「同型」が敵として現れるかもしれない。',
        '型式番号●●-▮▮、運用停止。処分保留。',
        'お前は造られた。あるいは造り変えられた。企業の戦争のために、軍の計画のために、誰かの野心のために。骨格は強化され、反射は書き換えられ、完璧な兵器だった。だが戦争は終わった。計画は中止された。お前は用済みになった。廃棄処分のリストに載ったまま、まだ歩いている。',
-       '――兵器に除隊はない。最後は例外なく廃棄される。']
+       '――兵器に除隊はない。最後は例外なく廃棄される。'],
+      ['雨夜の客','レインメーカー',
+       '雨の中や、路面の濡れた場所での行動に有利。隠密・追跡・逃走では、雨が足音と熱源を消してくれる。／GMは雨の夜に「客」を差し込める（古い依頼人、取り立て、追っ手の知らせ、会いたくない顔）。／長く雨に打たれると、皮膚と義体の接合部が傷む。',
+       '「また降ってきたな。今夜も誰か来るぞ。」',
+       'ネオンスパイアの雨は弱い酸性で、長く浴びれば皮膚をやられる。みんなが軒下に逃げる夜に、お前の周りでは決まって何かが起きる。傘も差さない依頼人が現れ、古い仇が看板の下に立っている。足音も体温も雨がかき消してくれるから、お前は雨の中ほど動きやすい。ただ、雨の夜には決まって「客」も来る。',
+       '――雨が降るたびに、扉を叩く奴がいる。'],
+      ['掠れ名','フェイドアウト',
+       '初対面でなくても、NPCはお前の名前と顔を思い出せないことがあり、GMは名乗り直し、手柄を別人に取られる、報酬の宛名の誤記、会話から外される、といった場面を宣告できる。／端末の記録や登録でも、名前の綴りや紐づけが誤る。',
+       '「悪い、もう一度名前を……いや、さっき聞いたよな。」',
+       'お前は名乗った。三度名乗って、四度目に同じ顔から聞き返された。ビルの受付も、通い詰めの屋台の親父も、昨日の仕事仲間も、お前の名前を覚えない。顔を見て首をかしげ、記録を引き、別の誰かの名でお前を呼ぶ。街に悪意があるわけじゃない。ただ、お前の名前だけが、手のひらの水みたいに漏れていく。',
+       '――報酬の振込先の名義が、今月もまた一文字違っていた。']
     ]},
     {cat:'在り方と信条',sub:'お前がこの街で"どう生きるか"を決めている刻印',key:'uq_creed',items:[
       ['戒律','コード',
@@ -1497,7 +1594,17 @@
        'どこに行っても、たいてい"顔なじみ"が一人見つかる。ちょっとした情報、一杯の酒、雨宿りの軒先――命は救わないが、日々を助けてくれるだろう。',
        '「よう、いつもの席空いてるぜ。」',
        'どの街区にも、お前を知っている顔がひとつはある。バーのマスター、屋台の親父、情報屋の窓口、夜勤の受付嬢。大した仲じゃない。名前も知らないかもしれない。だが「いつもの」が通じる相手が、この街のあちこちにいる。それだけで、ずいぶん生きやすくなる。',
-       '――名前も知らない相手が、名前を知ってる相手より、頼りになる夜がある。']
+       '――名前も知らない相手が、名前を知ってる相手より、頼りになる夜がある。'],
+      ['殿軍','ラストマン',
+       '味方が撤退・逃走・救出をしているあいだに、自分が足止めを引き受けているなら、足止め・囮・牽制の判定に有利。／自分が真っ先に逃げる場面では、精神判定に不利。GMは「お前が残らなければ誰も助からない」状況を提示できる。／黙って残る癖が、残された仲間の不信や負い目になる。',
+       '「行け。三分は持たせる。」',
+       '撤退のとき、お前はいつも最後に残る。第5区の倉庫通りで撃ち合いになった夜も、第8区の環状路で車列が割れた朝も、仲間が走り切るまで、お前は出口に背を向けて立っていた。頼まれたわけじゃない。仲間に見送られるより、仲間の背中を見送るほうが気が楽なだけだ。仲間は先に帰り、お前はいつも少し遅れて帰ってくる。',
+       '――扉を閉める役は、いつもお前だった。'],
+      ['定刻','クロックワーク',
+       '期限・待ち合わせ・時限装置・ダイヤのある場面で大きく有利。体内時計が正確で、今の時刻とあと何秒かを言い当てる。決めた時刻ちょうどに合わせる行動（同時突入、時限の解除、受け渡し）にも大きく有利。／遅れや予定外が起きた時、判定に大きな不利。／即興、待ち伏せの我慢、先の見えない長丁場に不利。／時間にルーズな相手との交渉やチーム行動で、衝突しやすい。',
+       '「五時三十二分発。一本遅れたら、下の連中は朝の仕事に間に合わない。」',
+       'お前は地下鉄の旧路線で、運行を回していた。一分遅れれば乗り継ぎが切れ、三分遅れれば誰かが仕事をなくす。そんな線のダイヤを、お前は体で守ってきた。体内時計はもう機械より正確で、約束の時刻に遅れる奴を許せない。自分が遅れた日のことは、もっと許せない。遅れの出た夜の車内の顔を、お前は一人ずつ覚えている。',
+       '――腕の時計は、もう何年も合わせ直していない。合わせる必要がないからだ。']
     ]}
   ];
 
@@ -1508,7 +1615,7 @@ var ROLE_SKILLS=[
     ["戦域掌握","コンバット・アウェアネス","弾が飛び交う一瞬だけ、世界がやけにゆっくり見える。誰がどこを狙っているか、どの壁が次に崩れるか、味方の悲鳴がどこから上がるか――全部、盤面みたいに頭の中に並ぶ。まだ起きていない一手まで見えている。","1戦闘1回、宣言して「行動を追加する」か「行動を割り込む」のどちらかを選んで得る。その際の判定は有利になる。"],
     ["一点突破","ブレイクスルー","その盾も壁も、お前には頼もしく見えるんだろう。陰に隠れていれば助かると、本気で信じている目だ。俺には、的の前に立てかけた紙きれにしか見えない。どこを撃てば抜けるかも、もう分かっている。","射線を遮る破壊可能なオブジェクトを\"看破\"する。相手を遮る破壊可能な物体を指定して攻撃し、破壊に成功した場合、追加でもう一回行動する。"],
     ["死中に活を","セカンド・ウィンド","心臓を撃ち抜いたつもりか。ああ、効いてはいる。だがこの体は、致命傷の一つや二つなら、死ぬのを後回しにできる。痛みはあとでまとめて払う。倒れるのは、お前を片付けてからだ。","1セッション1回、受ければ致命傷・即死級の一撃を一時的に\"かすり傷\"に変える。結果はあとで判定する。"],
-    ["過剰殺戮","オーバーキル","一人倒して一息、なんて余裕はない。膝を折った奴の姿がまだ目に残っているうちに、手はもう次の喉にかかっている。","モブを無力化した直後、同じターンでもう1体のモブにも即座に対処できる。1ターンに1回のみ。"],
+    ["過剰殺戮","オーバーキル","一人倒して一息、なんて余裕はない。膝を折った奴の姿がまだ目に残っているうちに、手はもう次の喉にかかっている。","モブを無力化した直後、同じラウンドでもう1体のモブにも即座に対処できる。1ラウンドに1回のみ。"],
     ["修羅の宣告","デス・センテンス","「次はお前だ」――声を荒らげもせず、それだけ告げる。指された奴は、その時点で逃げ場をなくす。背を向けても、距離を取っても、もう遅い。差し違えてでも、最後まで付き合ってもらう。","1戦闘に1回、敵1体を標的に指名する。ロールプレイによって\"動揺\"を付与し、付与された敵は逃走・離脱・距離を取ることが著しく困難になり、一対一に縛り付けられる。"]],
    passives:[
     ["戦場の威名","ヘヴィヒッター","抜くまでもない。名前だけで足りる。「あいつが来た」――その囁きが回っただけで、格下の銃口は震えだし、狙いも定まらないまま、勝手に下を向いていく。","戦闘時活躍するほど、格下のモブは怯み、降参・退散しやすい。"],
@@ -1516,7 +1623,7 @@ var ROLE_SKILLS=[
     ["一騎当千","アウトナンバード","囲んだつもりか。数を頼んで、ずいぶん安心しているらしいな。こっちから見れば、的がわざわざ四方に並んでくれただけだ。どこを向いても撃てる。","複数の敵に囲まれても包囲による不利を受けず、乱戦においても落ち着いて立ち回れる。"],
     ["名の値段","バトルボーナス","安い仕事は受けない。この名前には値札が付いている。雇う側も、敵に回す側も、その額を承知で勘定する。払えないなら、最初から関わらないことだ。","高名な傭兵として依頼料が高く、敵からも\"あの傭兵だ\"と一目置かれる。フィクサーは高額な配当をしなければならない。"]],
    special:[
-    ["戦士は徒手にて死せず","ザ・ソロ","ソロを倒せるのは、ソロだけだ。一度見据えた相手に後れは取らない。得物を失ったら、素手でやるまでだ。","自分のターン開始時、相対する敵から最大2体を\"見据える\"。そのラウンド中、見据えた相手に対する戦闘の全描写に有利。／ソロ以外に対して、戦闘面で全ての描写に小さな有利な判定。"]]},
+    ["戦士は徒手にて死せず","ザ・ソロ","ソロを倒せるのは、ソロだけだ。一度見据えた相手に後れは取らない。得物を失ったら、素手でやるまでだ。","自分の番の開始時、相対する敵から最大2体を\"見据える\"。そのラウンド中、見据えた相手に対する戦闘の全描写に有利。／ソロ以外に対して、戦闘面で全ての描写に小さな有利な判定。"]]},
   {role:"ロッカーボーイ",en:"Rockerboy",subOk:true,
    skills:[
     ["人心掌握","カリスマ・インパクト","一人を口説くのはただの交渉で、誰にだってできる。俺がやるのは、千人の心臓をいっぺんに掴んで、同じ方を向かせることだ。理屈はいらない。熱が移れば、あとは勝手に広がる。どこまで広がるかは、俺にも分からない。","ロールプレイによって\"大衆規模\"でNPC集団の感情を一斉に動かせる。PCには強制せずRPに委ねる。"],
@@ -1550,8 +1657,8 @@ var ROLE_SKILLS=[
    skills:[
     ["発明","インヴェンション","まだこの世にない物を、この手で作る。図面も前例もない。あるのは「こういうのが欲しい」という閃きと、夜通し手を動かす執念だけだ。朝には、世界に一つだけの相棒ができている。ちゃんと動くかどうかは、それから考える。","既存にないワンオフのガジェット・装備を生み出せる。GM裁定。"],
     ["万物応急","ジュリーリグ","ガムテープと針金と度胸、それと少しの祈り。それだけあれば、たいていの「無理」は何とかなるもんだ。見栄えは保証しねえ。今この瞬間に動けば十分だろ。五分後のことは聞くな。","1セッション1回、その場で\"あり得ない応急\"を成立させる。一時的で壊れやすい。"],
-    ["完全修復","リペア","いや……普通に直せるが……。","このスキルは自動で取得される。／武器、装備、機械を材料や時間があれば修理することができる。／戦闘時は1ターンに1回のみで、更にターンを消費する可能性がある。"],
-    ["過負荷起動","オーバークロック","安全装置なんて、臆病者のお守りだ。リミッターを引っぺがしてやれば、この機械は本来の倍の力を吐き出す。焼き切れて煙を上げるまでの、ほんの一瞬――賭ける価値はある……あ、壊れた。","1ターンに1回、行動を消費して、次のターンから自分や味方の装備・サイバーウェアを一時的に限界以上の出力で動かす。／反動・故障のリスクが上昇する。"],
+    ["完全修復","リペア","いや……普通に直せるが……。","このスキルは自動で取得される。／武器、装備、機械を材料や時間があれば修理することができる。／戦闘時は1ラウンドに1回のみで、更にラウンドを消費する可能性がある。"],
+    ["過負荷起動","オーバークロック","安全装置なんて、臆病者のお守りだ。リミッターを引っぺがしてやれば、この機械は本来の倍の力を吐き出す。焼き切れて煙を上げるまでの、ほんの一瞬――賭ける価値はある……あ、壊れた。","1ラウンドに1回、行動を消費して、次のラウンドから自分や味方の装備・サイバーウェアを一時的に限界以上の出力で動かす。／反動・故障のリスクが上昇する。"],
     ["技術的天啓","リバースエンジニア","一度バラさせてくれ、それだけでいい。ネジ一本、配線一本まで開けば、そいつがどう動いているか手に取るように分かる。分かった物は、この手で作れる。作っていい物かどうかは、また別の話だがな。","初見の未知の装置・技術を分解することで、仕組みを理解して再現できるようになる。"]],
    passives:[
     ["ガラクタの目","ジャンク・アイ","誰かが捨てたゴミの山も、俺には宝の山だ。錆びた部品の奥で、まだ生きてる回路が分かる。世の中、使える物で溢れてるんだよ。見る目さえあればな。","廃品・残骸から使える素材や隠れた価値を見出し、再利用できる。"],
@@ -1657,7 +1764,7 @@ var ROLE_SKILLS=[
     ["抜刀","アイアイストライク","モーターが唸り、鞘走りの音が聞こえたときには、もう終わっている。電脳に刻んだ居合の理は、得物を抜くより速い。","あらゆる戦闘開始時に、一番最初に行動を優先される。"],
     ["見切り","カウンター","何って……ただ攻撃を斬って弾いただけだが？","宣言した敵1体の次の攻撃を見切って\"全て\"受け流す。／相手によっては恐怖、威圧などを与える。"],
     ["介錯宣言","フェイタルストライク","万の手数は要らぬ。狙うのはただ一つ、寸分の無駄もない決定的な一刀のみ。","1戦闘1回、単一の標的への\"止めの一撃\"が非常に有利。射撃・斬撃を問わない。"],
-    ["死兵の覚悟","デッドマンスタンド","倒れるのは、仕留めてからだ。膝を折る傷を負ってなお、最後の一手だけは必ず置いていく。それが武士の死に様だ。","1セッション1回、行動不能級の負傷でも、規定ターン死亡せずに行動できる。"],
+    ["死兵の覚悟","デッドマンスタンド","倒れるのは、仕留めてからだ。膝を折る傷を負ってなお、最後の一手だけは必ず置いていく。それが武士の死に様だ。","1セッション1回、行動不能級の負傷でも、規定ラウンド死亡せずに行動できる。"],
     ["名乗り","デュエル","「いざ、尋常に」――最後の修羅場でも礼は欠かさず。","名前には特別な意味が宿り、\"一度だけ\"、自らの名前を宣言できる。"]],
    passives:[
     ["不動心","ゼン・マインド","血が滾っても、心の水面は鏡のように凪いでいる。挑発も威圧も絶望も、波紋一つ立てられはしない。","恐怖・威圧・挑発・混乱に陥らず、常に平常心で立ち回れる。"],
@@ -1672,7 +1779,7 @@ var ROLE_SKILLS=[
   // 一覧の2行目に出す代償（S19）。効果（／区切り）のうち、代償が始まる段の番号。載っていない名は2段目（番号1）から。
   // -1 は代償の段が無い（または1段目がそのまま代償）
   var UQ_COST_IX={'戦禍の子':2,'被検体':2,'灰の中から':3,'巻き添え':2,'声なき者':2,'拒絶体質':2,'安物の身体':-1,
-    '宿敵':2,'借り物の命':2,'烙印':2,'蜘蛛の巣':2,'偽りの戸籍':2,'幸運の星':-1,'千里眼':3,'主亡き刃':2,'顔なじみ':-1,'九生':-1};
+    '宿敵':2,'借り物の命':2,'烙印':2,'蜘蛛の巣':2,'偽りの戸籍':2,'幸運の星':-1,'千里眼':3,'主亡き刃':2,'顔なじみ':-1,'九生':-1,'無休便':-1,'機械憑き':-1,'掠れ名':-1};
   function uqCostOf(it){var p=it[2].split('／'),i=Object.prototype.hasOwnProperty.call(UQ_COST_IX,it[0])?UQ_COST_IX[it[0]]:1;return (i>0&&p[i])?p[i]:'';}
   // 数値が決まっていない固有（S20）。増える量は GM が決める
   var UQ_GM_NUM=['残光','灰の中から','疫病神','天賦の代償','廃棄兵装','主亡き刃'];
@@ -2142,7 +2249,7 @@ var ROLE_SKILLS=[
         // 狭い画面では折り返す。位置X・位置Y・倍率は1つにまとめ、560px以下では行の最後（2行目）へ回す（P113）
         row.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:7px 9px;border:1px solid rgba(95,184,196,.22);border-radius:6px;background:rgba(5,217,232,.03);';
         var prev=document.createElement('div');
-        prev.style.cssText='width:34px;height:46px;border-radius:5px;border:1px solid rgba(95,184,196,.4);flex:none;background:#0d1620 center/contain no-repeat;'+(ex.img?('background-image:url('+ex.img+');'):'');
+        prev.style.cssText='width:34px;height:52px;border-radius:5px;border:1px solid rgba(95,184,196,.4);flex:none;background:#0d1620 center bottom/contain no-repeat;'+(ex.img?('background-image:url('+ex.img+');'):'');
         var nm=document.createElement('input'); nm.className='inp'; nm.value=ex.name||''; nm.placeholder='差分名（例：怒り）'; nm.style.flex='1'; nm.style.minWidth='90px';
         nm.addEventListener('input',function(){IMG.exprs[i].name=nm.value;persist();});
         function numIn(lblTxt,key,val,step,min,max,dflt){
@@ -2156,9 +2263,9 @@ var ROLE_SKILLS=[
           w.appendChild(ni);
           return w;
         }
-        var xIn=numIn('位置X','x',(ex.x!=null?ex.x:0),'1','-200','200',0);
-        var yIn=numIn('位置Y','y',(ex.y!=null?ex.y:0),'1','-200','200',0);
-        var scIn=numIn('倍率','scale',(ex.scale!=null?ex.scale:1),'0.05','0.2','3',1);
+        var xIn=numIn('位置X(%)','x',(ex.x!=null?ex.x:0),'1','-100','100',0);
+        var yIn=numIn('位置Y(%)','y',(ex.y!=null?ex.y:0),'1','-100','100',0);
+        var scIn=numIn('倍率','scale',(ex.scale!=null?ex.scale:1),'0.05','0.4','3',1);
         var lbl=document.createElement('label'); lbl.className='filelbl'; lbl.htmlFor='expr-'+i+'-img'; lbl.innerHTML='<span>画像</span>';
         var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.id='expr-'+i+'-img';
         fi.addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(f)readImg(f,1000,function(d){IMG.exprs[i].img=d;renderImgs();persist();});});
@@ -2186,7 +2293,7 @@ var ROLE_SKILLS=[
   }
   function pad(n){return (n>=0&&n<10?'0':'')+n;}
   var BODY=['～120cm ／ 極小体型。施設や装備の多くは非対応のことが多い。','121–140cm ／ 人並み以下。機材の操作や銃の射角に制限あり。','141–155cm ／ 平均的な小柄の体型。','156–165cm ／ 標準的成人。都市で最も多い身長。','166–172cm ／ 都市設計の基準値。あらゆる装備に適応する。','173–179cm ／ やや高め。装備のフィット感が良い。','180–187cm ／ 高身長。存在感が増し、威圧効果を持ちはじめる。','188–195cm ／ 巨体。狭所では制約が増え始める。','196–205cm ／ 規格外の高さ。義体・装備も特注になり始める。','206cm以上 ／ 人外的サイズ。立っているだけで釘付けに。'];
-  function renderBody(){var h=document.getElementById('height-in'),bi=document.getElementById('body-in'),d=document.getElementById('body-desc');if(!h||!bi||!d)return;var cm=parseInt(h.value,10);if(isNaN(cm)){bi.value='';d.textContent='身長（cm）を入れると、体格と説明が出る。';d.style.color='#7a8fa0';if(typeof recalc==='function')recalc();return;}var v;if(cm<=120)v=1;else if(cm<=140)v=2;else if(cm<=155)v=3;else if(cm<=165)v=4;else if(cm<=172)v=5;else if(cm<=179)v=6;else if(cm<=187)v=7;else if(cm<=195)v=8;else if(cm<=205)v=9;else v=10;bi.value=v;d.textContent='▸ 体格'+v+'：'+BODY[v-1];d.style.color='#9fd4dc';if(typeof recalc==='function')recalc();}
+  function renderBody(){var h=document.getElementById('height-in'),bi=document.getElementById('body-in'),d=document.getElementById('body-desc');if(!h||!bi||!d)return;var cm=parseInt(h.value,10);if(isNaN(cm)){bi.value='';d.textContent='身長（cm）を入れると、体格と説明が出る。';d.style.color='#7a8fa0';if(typeof recalc==='function')recalc();return;}var v;if(cm<=120)v=1;else if(cm<=140)v=2;else if(cm<=155)v=3;else if(cm<=165)v=4;else if(cm<=172)v=5;else if(cm<=179)v=6;else if(cm<=187)v=7;else if(cm<=195)v=8;else if(cm<=205)v=9;else v=10;bi.value=v;var bAdd=v>=9?2:(v>=7?1:0);d.textContent='▸ 体格'+v+'：'+BODY[v-1]+(bAdd?'　素手の衝撃値＋'+bAdd+'、〈怪力〉〈耐久力／忍耐〉の目標値−'+bAdd+'。':'');d.style.color='#9fd4dc';if(typeof recalc==='function')recalc();}
 
   // 数の欄の［－］［＋］（R20）。範囲の中で1ずつ動かし、打ったときと同じ input を送る（計算と自動保存が同じに走る）
   function NUM_B(d){return '<button type="button" class="num-b" data-step="'+d+'" aria-label="'+(d<0?'減らす':'増やす')+'">'+(d<0?'－':'＋')+'</button>';}
@@ -2266,7 +2373,7 @@ var ROLE_SKILLS=[
   FIC.forEach(function(s){ficBox.appendChild(statRow(s[0],s[1],s[0].toUpperCase(),s[2],s[3],false));});
   // 能力値の説明は初回も閉じておく（S34）。引用の1行と「説明」のボタンだけを出す
   // 技能ポイントの欄も［－］［＋］で挟む（R20）
-  ['sp'].forEach(function(k){var i=document.querySelector('[data-f="'+k+'"]');if(!i)return;var p=i.parentNode,n=i.nextSibling,w=numWrap(i);p.insertBefore(w,n);});
+  ['sp','hum_adj'].forEach(function(k){var i=document.querySelector('[data-f="'+k+'"]');if(!i)return;var p=i.parentNode,n=i.nextSibling,w=numWrap(i);p.insertBefore(w,n);});
   // 所持金の欄（2026-10-21）。コードと保存には素の数（"1500"）を入れ、欄では打っていない間だけ桁区切り（1,500）で見せる。
   // 全角数字・カンマ・単位つきの貼り付けは数字だけにする。負の数と小数は受けず、欄を離れたら直前の値へ戻す。下のボタンで増減する
   var MONEY_STEPS={zc:[-1000,-100,100,1000],rusuru:[-1,1]}, MONEY_MAX='999999999999999';
@@ -2345,6 +2452,16 @@ var ROLE_SKILLS=[
   function statNorm(e,raw){var mn=statMin(e),v=parseInt(raw==null?e.value:raw,10);if(isNaN(v))v=mn;return String(Math.min(10,Math.max(mn,v)));}
   function fixStat(e){var n=statNorm(e);if(e.value===n)return false;e.value=n;return true;}
 
+  // 部位ごとの人間性損失（2026-11-05 先生の裁定 w06 で欄を足した）。値は未定なので、どの部位も0で数える。
+  // 決まったらここに入れる（『ルール/サイバーサイコ進行ルール.md』2章の表は幅の案だけで、部位ごとの値はない。案を作るのは別の便 k05）
+  var CW_HL={cw_core:0,cw_vision:0,cw_nerve:0,cw_immune:0,cw_skeleton:0,cw_skin:0,cw_head:0,cw_torso:0,cw_arm:0,cw_waist:0,cw_leg:0,cw_exterior:0,cw_sub:0};
+  // いまの人間性＝最大の人間性−（義体を書いた部位の損失の合計）＋手直し。0より下にはしない
+  function humanityNow(cap){
+    var loss=0;
+    Object.keys(CW_HL).forEach(function(k){var f=document.querySelector('[data-f="'+k+'"]');if(f&&f.value.trim())loss+=CW_HL[k];});
+    var ai=document.querySelector('[data-f="hum_adj"]'),adj=parseInt(ai&&ai.value,10); if(isNaN(adj))adj=0;
+    return {cap:cap,loss:loss,adj:adj,now:Math.max(0,cap-loss+adj)};
+  }
   // humanity 器/精算 — 器=生まれEgo×10+Edge×5、代償①=Edge/3の切り捨て、代償②=(器-100)/10の切り上げ（100超のみ）
   var humanityValid=true;
   function computeHumanity(){
@@ -2401,6 +2518,11 @@ var ROLE_SKILLS=[
     setT('hm-effemp',H.effEmp);
     // 精算後Egoを隠しフィールドへ。書き出し先（VTT）はこちらを読む
     var eef=el('ego-eff-field'); if(eef)eef.value=String(H.effEmp);
+    // いまの人間性（w06）。義体の部位と手直しから出し、隠し欄 hum_now にも入れる（VTT が読む）
+    var HN=humanityNow(H.cap);
+    setT('hm-now',HN.now);
+    setT('hm-now-formula','最大 '+HN.cap+' − 義体の損失 '+HN.loss+' ＋ 手直し '+(HN.adj<0?'−'+(-HN.adj):HN.adj)+' ＝ '+HN.now);
+    var hnf=el('hum-now-field'); if(hnf)hnf.value=String(HN.now);
     setT('hm-slots',H.edge);
     var eff=el('hm-effemp');if(eff)eff.style.color=H.valid?'':'#ff2a6d';
     var hb=el('humanity-box');if(hb)hb.classList.toggle('invalid',!H.valid);
@@ -2564,7 +2686,7 @@ var ROLE_SKILLS=[
       ['〈重火器〉','Firearms',2],['〈弓術〉','Firearms',1],
       ['〈フルオート射撃〉','Firearms',2],['〈精密射撃〉','Firearms',3],
       ['〈制圧射撃〉','Firearms',3],['〈アキンボ〉','Firearms',3],
-      ['〈投擲〉','Nerve',1],['〈クイックドロー〉','Nerve',2],['〈ガンファイト〈CQB〉〉','Firearms',2]
+      ['〈投擲〉','Nerve',1],['〈クイックドロー〉','Nerve',2]
     ]],
     ['乗り物',[
       ['〈車両操縦〉','Nerve',1],['〈バイク操縦〉','Nerve',1],['〈重機操作〉','Nerve',1],
@@ -2648,7 +2770,17 @@ var ROLE_SKILLS=[
       '〈救急医療〉':[{skill:'〈応急手当〉',lv:2}],
       '〈フェンシング〉':[{skill:'〈白兵戦〈近接武器〉〉',lv:3}],
       '〈二刀流／双兵装〉':[{skill:'〈白兵戦〈近接武器〉〉',lv:5}],
-      '〈ガンファイト〈CQB〉〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉'],lv:3},{skill:'〈格闘〉',lv:2}],
+      '〈武術〈ボクシング〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈合気道〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈空手〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈柔道〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈テコンドー〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈長拳〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈ムエタイ〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈カポエイラ〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈クラヴ・マガ〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈CQC〉〉':[{skill:'〈格闘〉',lv:4}],
+      '〈武術〈CQB〉〉':[{skill:'〈格闘〉',lv:4},{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉'],lv:3}],
       '〈ガン＝カタ〉':[{skill:'〈ハンドガン〉',lv:5},{skill:'〈アキンボ〉',lv:5},{skill:'〈格闘〉',lv:5}],
       '〈外科医術〉':[{skill:'〈応急手当〉',lv:2},{skill:'〈診断〉',lv:2}],
       '〈精神分析／メンタルケア〉':[{skill:'〈会話術〉',lv:2}],
@@ -2657,6 +2789,15 @@ var ROLE_SKILLS=[
       '〈精密射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈弓術〉'],lv:3}],
       '〈制圧射撃〉':[{skill:'〈フルオート射撃〉',lv:1}],
       '〈フルオート射撃〉':[{anyOf:['〈ハンドガン〉','〈ライフル〉','〈ショットガン〉','〈重火器〉'],lv:3}]
+    },
+    minCost:{
+      '〈フェンシング〉':5,'〈二刀流／双兵装〉':8,
+      '〈武術〈ボクシング〉〉':6,'〈武術〈合気道〉〉':6,'〈武術〈空手〉〉':6,'〈武術〈柔道〉〉':6,
+      '〈武術〈テコンドー〉〉':6,'〈武術〈長拳〉〉':6,'〈武術〈ムエタイ〉〉':6,'〈武術〈カポエイラ〉〉':6,
+      '〈武術〈クラヴ・マガ〉〉':6,'〈武術〈CQC〉〉':6,'〈武術〈CQB〉〉':9,
+      '〈ガン＝カタ〉':28,'〈外科医術〉':6,'〈精神分析／メンタルケア〉':4,'〈推理／プロファイリング〉':4,
+      '〈サイバー技術〉':6,'〈精密射撃〉':6,'〈制圧射撃〉':8,'〈フルオート射撃〉':5,
+      '〈救急医療〉':4,'〈軽業／パルクール〉':4,'〈電子戦〈ジャミング〉〉':4
     }
   };
   // 前提技能_データ_2026-11-01.json (2026-11-01b) の追加データ。
@@ -2712,10 +2853,56 @@ var ROLE_SKILLS=[
       list.insertBefore(list.lastElementChild,anchor); added=true;
     });
     if(added)have=univMark();
+    // 3つは表の先頭に、知覚→精神集中→第六感／直感の順で置く（2026-11-04）。行を打っている最中は動かさず、次の機会に直す
+    var head=UNIV_FREE.map(function(k){return have[k];}).filter(Boolean);
+    var now=Array.prototype.slice.call(list.children,0,head.length);
+    if(head.some(function(r,i){return now[i]!==r;}) && !(list.contains(document.activeElement)&&document.activeElement!==list)){
+      for(var i=head.length-1;i>=0;i--)list.insertBefore(head[i],list.firstElementChild);
+    }
     UNIV_FREE.forEach(function(k){
       var lv=have[k]&&have[k].querySelector('.skill-lvl');
       if(lv&&lv!==document.activeElement&&!((parseInt(lv.value,10)||0)>=1)){lv.value='1';lv.dataset.accepted='1';}
     });
+  }
+  // 同じ技能を2行に書かない（2026-11-05 先生の裁定 w12）。比べるのは一覧の正式名（別名は正式名に直す）。
+  // 〈専門知識〈経済〉〉のように具体名を入れた技能は、打ったとおりの名前で比べる（〈経済〉と〈法律〉は別の行にできる）
+  function skillDupKey(name){
+    var n=normSkill(name); if(!n)return '';
+    var ix=skillIndex(),rec=ix.byName[n]||ix.byAlias[n];
+    return rec?normSkill(rec.full):n;
+  }
+  // 読み込んだ技能の行（{name,text} の配列）を整える。古いコードでも必ずこの形にそろえる（2026-11-05 w11・w12・w03）。
+  // （1）レベルが上限を超えていれば上限に直す（2）同じ技能が2行あれば、レベルの高いほうを残す（3）万能技能の3行を知覚→精神集中→第六感／直感の順で頭に置く。
+  // 戻り値は {list, notes}。notes は読み込んだあとに知らせる文
+  function skillListTidy(list){
+    var out=[],at={},capped=[],dropped=[],moved=false,high=[];
+    (list||[]).forEach(function(x){
+      if(!x||typeof x!=='object')return;
+      // 〈ガンファイト〈CQB〉〉は2026-11-05に廃止され、〈武術〈CQB〉〉へ移った。古いコードの行は同じレベルのまま名前だけ直す
+      if(/^ガンファイト[〈<(（]?CQB/i.test(String(x.name==null?'':x.name).normalize('NFKC').replace(/[\s　〈《「]/g,''))){x=Object.assign({},x,{name:'〈武術〈CQB〉〉'});moved=true;}
+      var lv=parseInt(x.text,10);
+      if(lv>SKILL_LV_CAP){capped.push(String(x.name||'').trim()+' Lv'+lv);x=Object.assign({},x,{text:String(SKILL_LV_CAP)});}
+      // 作成時の上限7を超える行。直さずに、成長後のチェックを入れて残す（古いキャラを壊さない。2026-11-05 r04）
+      if(parseInt(x.text,10)>SKILL_LV_CREATE)high.push(String(x.name||'').trim());
+      var k=skillDupKey(x.name);
+      if(!k){out.push(x);return;}
+      if(k in at){
+        var j=at[k],a=parseInt(out[j].text,10)||0,b=parseInt(x.text,10)||0;
+        dropped.push(String((b>a?out[j]:x).name||'').trim());
+        if(b>a)out[j]=x;
+        return;
+      }
+      at[k]=out.length; out.push(x);
+    });
+    var head=[],rest=[];
+    UNIV_FREE.forEach(function(u){var k=skillDupKey(u);if(k in at)head.push(out[at[k]]);});
+    out.forEach(function(x){if(head.indexOf(x)<0)rest.push(x);});
+    var notes=[];
+    if(moved)notes.push('〈ガンファイト〈CQB〉〉は〈武術〈CQB〉〉に移りました。');
+    if(capped.length)notes.push('技能レベルの上限は10です。'+capped.join('、')+' を Lv10 に直しました。');
+    if(high.length&&!isGrown()){setGrown(true);notes.push('作成時の技能レベルの上限は7ですが、Lv8 以上の技能（'+high.join('、')+'）があるため、「成長後（GM の承認あり）」にチェックを入れました。');}
+    if(dropped.length)notes.push('同じ技能が2行ありました。'+dropped.join('、')+' の低いほうの行を外し、高いほうを残しました。');
+    return {list:head.concat(rest),notes:notes};
   }
   var SKILL_COST_MARK={'〈鑑識／フォレンジック〉':'無印','〈鑑定／目利き〉':'無印','〈密輸ルート把握／調達〉':'無印'};
   var SKILL_STAT_AXIS={'〈スリ〉':'Nerve','〈フルオート射撃〉':'Firearms','〈精密射撃〉':'Firearms','〈制圧射撃〉':'Firearms','〈アキンボ〉':'Firearms'};
@@ -2730,8 +2917,12 @@ var ROLE_SKILLS=[
     for(var t in SKILL_TIER)if(SKILL_TIER[t].some(function(s){return normSkill(s)===n;}))return t;
     return 'B';
   }
+  function skillPrereqKey(name){
+    var style=maStyleOfName(name);
+    return style?'〈武術〈'+style+'〉〉':skillCanonical(name);
+  }
   function skillPrereqMissing(name){
-    var req=SKILL_PREREQ.prerequisites[skillCanonical(name)]||[],rows=collectList('skill-list');
+    var req=SKILL_PREREQ.prerequisites[skillPrereqKey(name)]||[],rows=collectList('skill-list');
     function has(item,lv){return rows.some(function(r){return (parseInt(r.text,10)||0)>=lv&&(typeof item==='string'?normSkill(skillCanonical(r.name))===normSkill(skillCanonical(item)):String(r.name).indexOf(item.prefix)===0);});}
     return req.filter(function(r){return r.skill?!has(r.skill,r.lv):!r.anyOf.some(function(a){return has(a,r.lv);});});
   }
@@ -2800,7 +2991,7 @@ var ROLE_SKILLS=[
     var rows=Array.prototype.slice.call(el('skill-list').querySelectorAll('.dyn-row'));
     var before=rows.map(function(row){return {row:row,name:row.querySelector('.dyn-name').value,value:row.querySelector('.skill-lvl').value};});
     var signature=JSON.stringify(collectList('skill-list')),budget=spBudget(),plan=[],selected={},visiting={};
-    function key(name){return String(name).indexOf('〈武術〈')===0?normSkill(name):normSkill(skillCanonical(name));}
+    function key(name){return normSkill(skillPrereqKey(name));}
     function owned(name){
       var k=key(name),best=null;
       before.forEach(function(r){if(key(r.name)===k&&(!best||(parseInt(r.value,10)||0)>(parseInt(best.value,10)||0)))best=r;});
@@ -2826,7 +3017,7 @@ var ROLE_SKILLS=[
       if(entry){entry.to=Math.max(entry.to,wanted);return;}
       if(visiting[k])throw new Error('前提技能が循環しているため取得できません。');
       visiting[k]=true;
-      var reqs=SKILL_PREREQ.prerequisites[skillCanonical(name)]||[];
+      var reqs=SKILL_PREREQ.prerequisites[skillPrereqKey(name)]||[];
       for(var i=0;i<reqs.length;i++){
         var req=reqs[i],pick=req.skill;
         if(!pick){
@@ -2895,7 +3086,7 @@ var ROLE_SKILLS=[
   function spField(){return document.querySelector('[data-f="sp"]');}
   // 技能の取得コスト倍率（ルール/技能一覧.md 2026-08-10改稿版から機械抽出。無印=1点/Lv・★=2点/Lv・★★=3点/Lv）
   // 別名・複合名（「／」の左右）・括弧つき専門化（〈武術〈空手〉〉等）は対応ステータス表と同じ流儀で解決する
-  var SKILL_X2=['回避','軽業／パルクール','軽業','パルクール','武術','フェンシング','重火器','フルオート射撃','フルオート制御','早抜き／クイックドロー','早抜き','クイックドロー','ガンファイト','第六感／直感','第六感','直感','救急医療','外科医術','精神分析／メンタルケア','精神分析','メンタルケア','推理／プロファイリング','推理','プロファイリング','戦術指揮','サイバー技術','ブリーチ・プロトコル','ブリーチプロトコル','電子戦','ドローン操作','リギング','出血管理','コンバージョン順応','BD離脱制御'];
+  var SKILL_X2=['回避','軽業／パルクール','軽業','パルクール','武術','フェンシング','重火器','フルオート射撃','フルオート制御','早抜き／クイックドロー','早抜き','クイックドロー','第六感／直感','第六感','直感','救急医療','外科医術','精神分析／メンタルケア','精神分析','メンタルケア','推理／プロファイリング','推理','プロファイリング','戦術指揮','サイバー技術','ブリーチ・プロトコル','ブリーチプロトコル','電子戦','ドローン操作','リギング','出血管理','コンバージョン順応','BD離脱制御'];
   var SKILL_X3=['二刀流／双兵装','二刀流','双兵装','ガン＝カタ','ガンカタ','精密射撃','制圧射撃','アキンボ','二丁拳銃','詐欺','義体過負荷制御'];
   var _skillMult=null;
   function skillMultLegacy(n){
@@ -2909,9 +3100,9 @@ var ROLE_SKILLS=[
   // 表記ゆれ（〈〉・空白・全角空白）を落として突き合わせる。VTT側の照合と同じ流儀
   function normSkill(s){return String(s||'').replace(/[〈〉《》\s　]/g,'').trim();}
   // ── 〈武術〈流派〉〉の流派（BXS・2026-09-26） ──
-  // セッションツールで技が使える流派は、MARTIAL_ARTS（template.html）の鍵の9つだけ（2026-11-02 に長拳・ムエタイ・カポエイラ・クラヴ・マガを足した）。名前も並びもそこに一字一致で合わせる。
-  // 流派がこの9つにないと、セッションツールは〈武術〉として読まず〈格闘〉で解決する。登録は止めず、警告だけ出す
-  var MA_STYLES=['ボクシング','合気道','空手','柔道','テコンドー','長拳','ムエタイ','カポエイラ','クラヴ・マガ'];
+  // セッションツールで技が使える流派は、MARTIAL_ARTS（template.html）の鍵の11だけ（2026-11-02 に長拳・ムエタイ・カポエイラ・クラヴ・マガ、技能アプデ 2026-11-06-4 に CQC・CQB を足した）。名前も並びもそこに一字一致で合わせる。
+  // 流派がこの11にないと、セッションツールは〈武術〉として読まず〈格闘〉で解決する。登録は止めず、警告だけ出す
+  var MA_STYLES=['ボクシング','合気道','空手','柔道','テコンドー','長拳','ムエタイ','カポエイラ','クラヴ・マガ','CQC','CQB'];
   var MA_WARN='セッションツールに技がない流派です。〈格闘〉で解決します。';
   var MA_COMPOSE=false;  // 技能の行の名前を変換している最中か（その間は行の警告を書き換えない）
   // 流派名の表記ゆれを吸収する。NFKCで文字幅をそろえ（半角カナのボクシングも全角になる）、空白と括弧類を取り除く。
@@ -2963,15 +3154,15 @@ var ROLE_SKILLS=[
   // VTT（_tools/VTT開発/template.html）の SKILL_DESC と skillDescOf の写し。キーは正式名だけで、別名は初回に足す。
   // 2か所持ちは R42 で正本を1つにするまでの仮。文を直すときは VTT 側と同時に直し、shots/S15/accept.mjs で一字一致を確かめる
   var SKILL_DESC={
-    "運動":"体を大きく使って動く技能。跳ぶ、よじ登る、全力で走る、受け身を取る、軽い物を投げる、といった場面で振る。戦闘中に遮蔽から遮蔽へ走るときもこれを使う。グレネードや焼夷弾のような重い物を狙って投げるときは〈投擲〉で振る。",
-    "怪力":"自分から力をかけて物や人を動かす技能。鉄扉をこじ開ける、バリケードをどかす、片腕で人を引き上げる、といった力仕事で振る。爆風や体当たりで押されて踏みとどまるのは〈踏ん張り／耐衝〉、手錠や組み付きから抜け出すのは〈拘束離脱〉で振る。",
-    "水泳":"水の中で体を動かす技能。泳ぐ、潜る、浮いたまま待つ、といった場面で振る。身につけた装備の重さと流れの速さで、目標値が変わる。息を止めて潜っている時間を延ばしたいときは〈呼吸調節〉を振る。",
-    "耐久力／忍耐":"長いあいだ我慢を続ける技能。寝ない、食べない、歩き続ける、といった場面で振り、飢えや寝不足や苦痛を抱えたまま動き続けられるかを決める。その場所の暑さ、寒さ、毒ガス、放射線に耐えるのは〈環境耐性〉で振る。酷暑の中を何日も歩くように両方が絡むときは、GMがどちらか1つを選ぶ。",
+    "運動":"体を大きく使って動く技能。跳ぶ、よじ登る、全力で走る、受け身を取る、軽い物を投げる、といった場面で振る。戦闘中のふつうの移動に判定は要らない。振るのは、跳ぶ・登る・押しのけて通るなど、失敗すると困る動きをするときだけ。登る・泳ぐ・助走をつけて跳ぶときは、1マス進むのに2マス分の移動を使い、助走なしで跳べる距離は助走をつけたときの半分。判定は、濡れた壁のように条件が悪いときだけ振り、泳ぐときは〈水泳〉で振る。グレネードや焼夷弾のような重い物を狙って投げるときは〈投擲〉で振る。",
+    "怪力":"自分から力をかけて物や人を動かす技能。鉄扉をこじ開ける、バリケードをどかす、片腕で人を引き上げる、といった力仕事で振る。目標値の目安は、重い家具や瓦礫をどけるのが13（普通）、閉まった扉をこじ開けるか人を片手で吊り上げるのが15（難しい）、車のドアを引きはがすのが17（とても難しい）、車を持ち上げるのが21（至難）。体格が7〜8なら目標値が1、9〜10なら2下がる。爆風や体当たりで押されて踏みとどまるのは〈踏ん張り／耐衝〉、手錠や組み付きから抜け出すのは〈拘束離脱〉で振る。",
+    "水泳":"水の中で体を動かす技能。泳ぐ、潜る、浮いたまま待つ、といった場面で振る。泳ぐときは、1マス進むのに2マス分の移動を使う。判定は条件が悪いときだけ振り、目標値の目安は、流れのない水が13（普通）、装備を着けたまま波のある水が15（難しい）、急流や夜の海が17（とても難しい）。体格の補正は付かない。届かなければ、その移動では前へ進めない。息を止めて潜っている時間を延ばしたいときは〈呼吸調節〉を振る。",
+    "耐久力／忍耐":"長いあいだ我慢を続ける技能。寝ない、食べない、歩き続ける、といった場面で振り、飢えや寝不足や苦痛を抱えたまま動き続けられるかを決める。眠らずに過ごした1日ごと、食べずに過ごした2日ごと、水なしで過ごした1日ごとに振り、目標値は13で、続くたびに＋2する（2回目は15、3回目は17）。体格が7〜8なら目標値が1、9〜10なら2下がる。届かなければ、眠るか食べるか飲むまで、すべての判定の目標値に＋2が乗る。何度届かなくても、この＋2は1つだけ。その場所の暑さ、寒さ、毒ガス、放射線に耐えるのは〈環境耐性〉で振る。酷暑の中を何日も歩くように両方が絡むときは、GMがどちらか1つを選ぶ。",
     "呼吸調節":"息を止め、整える技能。煙の中で息を止めて短いあいだ動くときや、潜っている時間を延ばすときに振る。射撃の前にアクションを1回使って息を整えると、次の射撃1回の目標値が−1になり、〈呼吸調節〉がLv5以上なら−2になる。息を整えたあとに移動するか被弾したら、この修正は消える。",
-    "軽業／パルクール":"壁を走り、段差を越え、転がって着地する動きを、止まらずに続ける技能。ふつうの人なら通れない狭い隙間をくぐり抜けるときもこれで振る。跳ぶ、よじ登る、受け身を取る、落ちる、の判定は〈運動〉の代わりにこの技能で振ってよく、そのときは目標値を2下げる。戦闘中は、高低差が1マス（2m）までの段差、手すり、窓枠を、移動の一部として判定なしで越えられる。手錠や組み付きなどの拘束から抜けるときは、〈拘束離脱〉の代わりに〔【Nerve】＋〈軽業／パルクール〉＋1d10〕で振れる。前提は〈運動〉Lv2。",
-    "格闘":"素手か、その場で拾った物で戦う技能。殴る、掴む、投げるの命中を〔【Nerve】＋〈格闘〉＋1d10〕で振り、目標値は13（同じアクションの2回目は16）。素手で当てても武術のダメージ表は使わず、素手の三値（貫通値1・耐久値3・衝撃値1）で解く。武器を握って殴れば、武器の三値で解く。近接の回避判定には〈格闘〉の2分の1（端数切り捨て）が乗る。殺さずに止めるなら、命中の前に「取り押さえ」と宣言する。命中したら絞めるか関節を極め、相手は〔【Constitution】と【Ego】の平均（端数切り上げ）＋〈耐痛〉＋1d10〕を目標値〔6＋【Nerve】＋〈格闘〉〕と比べる。届かなければ相手は気絶し、届けば傷を負わずに組み付きから抜け出す。重量級の義体腕など、武器として扱う義体では取り押さえはできない。",
-    "武術〈流派指定〉":"体系立てて鍛えた格闘術で戦う技能。取るときに、ボクシング、合気道、空手、柔道、テコンドー、長拳、ムエタイ、カポエイラ、クラヴ・マガの9流派から1つを決める。攻撃の命中は〔【Nerve】＋〈武術〈流派〉〉＋1d10〕で、目標値は13（同じアクションの2回目は16）。間合いは2mで、隣接した相手に1アクション2回まで打てる。素手で当てたら三値ではなく素手のダメージ表で解き、武器を握っていればその武器の三値で解く。流派ごとにLv1からLv5まで技が1つずつ開き、技の判定を受けた相手は回避判定を振れない。1レベルでも持てば、転倒から立ち上がる跳ね起きも使える。近接の回避判定には〈武術〉の3分の1（端数切り捨て）が乗る。Lv6からは技が増えず、レベルが命中・技・回避判定に乗るだけになる。",
-    "白兵戦〈近接武器〉":"刀、斧、棍棒、チェーンのような近接武器を振るい、受け流し、装甲の継ぎ目を狙う技能。命中は〔【Nerve】＋〈白兵戦〈近接武器〉〉＋1d10〕で振り、目標値は13（同じアクションの2回目は16）。当てたら、その武器の貫通値・耐久値・衝撃値の三値で解く。【Strength】が7以上なら実効貫通値に＋1、9以上なら＋2が乗る。近接の回避判定には〈白兵戦〉の3分の1（端数切り捨て）が乗る。",
+    "軽業／パルクール":"壁を走り、段差を越え、転がって着地する動きを、止まらずに続ける技能。ふつうの人なら通れない狭い隙間をくぐり抜けるときもこれで振る。跳ぶ、よじ登る、受け身を取る、落ちる、の判定は〈運動〉の代わりにこの技能で振ってよく、そのときは目標値を2下げる。戦闘中は、高低差が1マス（2m）までの段差、手すり、窓枠を、移動の一部として判定なしで越えられる。手錠や組み付きなどの拘束から抜けるときは、〈拘束離脱〉の代わりに〔【Nerve】＋〈軽業／パルクール〉＋1d10〕で振れる。転倒しているときは、自分のアクションの最初に〔【Nerve】＋〈軽業／パルクール〉＋1d10〕を振り、11以上ならアクションを使わずに立てる。転倒の＋2が乗るので、実際の目標値は13になる（〈武術〉の跳ね起きと同じ）。1ラウンドに1回で、失敗したらアクションを1回使って立つ。前提は〈運動〉Lv2。",
+    "格闘":"素手か、その場で拾った物で戦う技能。殴る、掴む、投げるの命中を〔【Nerve】＋〈格闘〉＋1d10〕で振り、目標値は13（同じアクションの2回目は16）。素手で当てても武術のダメージ表は使わず、素手の三値（貫通値1・耐久値3・衝撃値1）で解く。素手の衝撃値は、【Strength】が9以上なら＋1、さらに体格が7〜8なら＋1、9〜10なら＋2する。武器を握って殴れば、武器の三値で解く。近接の回避判定には、〈格闘〉と〈白兵戦〈近接武器〉〉のうち高いほうの2分の1（端数切り捨て）が乗る。両方は足さない。殺さずに止めるなら、命中の前に「取り押さえ」と宣言する。命中したら絞めるか関節を極め、相手は〔【Constitution】と【Ego】の平均（端数切り上げ）＋〈耐痛〉＋1d10〕を目標値〔6＋【Nerve】＋〈格闘〉〕と比べる。届かなければ相手は気絶し、届けば傷を負わずに組み付きから抜け出す。重量級の義体腕など、武器として扱う義体では取り押さえはできない。",
+    "武術〈流派指定〉":"体系立てて鍛えた格闘術で戦う技能。取るときに、ボクシング、合気道、空手、柔道、テコンドー、長拳、ムエタイ、カポエイラ、クラヴ・マガ、CQC、CQBの11流派から1つを決める。どの流派も、取るには〈格闘〉Lv4が要る。CQBは、これに加えて〈ハンドガン〉〈ライフル〉〈ショットガン〉のどれか1つのLv3が要る。CQBの撃つ技は【Firearms】と【Nerve】の平均（端数切り上げ）で振る。持っているだけで、密着した相手を撃つときの＋3と拘束中の射撃の＋2を受けず（密着射撃の命中は〔【Firearms】＋〈武術〈CQB〉〉＋1d10〕）、銃を奪われる対抗にも使える。攻撃の命中は〔【Nerve】＋〈武術〈流派〉〉＋1d10〕で、目標値は13（同じアクションの2回目は16）。間合いは2mで、隣接した相手に1アクション2回まで打てる。素手で当てたら三値ではなく素手のダメージ表で解き、武器を握っていればその武器の三値で解く。ダメージ表は〈武術〈流派〉〉のレベルで引き、【Strength】も体格も関わらない。武装を内蔵しない標準的な義体腕か、脚の義体で打ったときは、ダメージに＋1する。流派ごとにLv1からLv5まで技が1つずつ開き、技の判定を受けた相手は回避判定を振れない。流派を2つ以上持っていても、1回目の攻撃に続けて出す技は、1回目と同じ流派の技に限る。1レベルでも持てば、転倒から立ち上がる跳ね起きも使える。柔道はLv3以上、CQCはLv2以上なら、拘束からの脱出を〈拘束離脱〉の代わりに〔【Nerve】＋〈武術〈流派〉〉＋1d10〕で振れる。近接の回避判定には〈武術〉の3分の1（端数切り捨て）が乗る。Lv6からは技が増えないが、レベルは命中・技・回避判定とダメージ表に乗る。",
+    "白兵戦〈近接武器〉":"刀、斧、棍棒、チェーンのような近接武器を振るい、受け流し、装甲の継ぎ目を狙う技能。命中は〔【Nerve】＋〈白兵戦〈近接武器〉〉＋1d10〕で振り、目標値は13（同じアクションの2回目は16）。当てたら、その武器の貫通値・耐久値・衝撃値の三値で解く。【Strength】が7以上なら実効貫通値に＋1、9以上なら＋2が乗る。近接の回避判定には、〈格闘〉と〈白兵戦〉のうち高いほうの2分の1（端数切り捨て）が乗る。両方は足さない。",
     "フェンシング":"レイピアや高周波ブレードを速さと正確さで操り、装甲の隙間を突く技能。片手で扱う斬撃の近接武器（刺突の武器を含む）で部位を指定して攻撃するとき、上がる目標値を2減らす。頭部なら＋5が＋3に、頭部以外なら＋3が＋1になる。命中はこの技能ではなく〈白兵戦〈近接武器〉〉で振る。前提は〈白兵戦〈近接武器〉〉Lv3。持っているだけで効果がそろい、レベルを上げても伸びないので、Lv1までしか取れない（2点を一度払う）。",
     "二刀流／双兵装":"左右の手に近接武器を1本ずつ持ち、攻めと守りを同時にこなす技能。両手に近接武器を1本ずつ持っているとき、1アクションの2回目の攻撃に乗る目標値の＋3を打ち消す。2回目は2本目の武器で振り、その武器の三値で解く。2回目が外れたら\"よろめき\"を受ける。前提は〈白兵戦〈近接武器〉〉Lv5。持っているだけで効果がそろうので、Lv1までしか取れない（3点を一度払う）。",
     "回避":"撃ち手の構えと銃口の向きを読み、撃たれる瞬間に射線から外れる技能。射撃が命中したら、撃たれた側は〔【Nerve】＋〈回避〉＋1d10〕で回避判定を振る。目標値は撃った側が出した合計で、届けば命中は消える。〈回避〉を持たなければ【Nerve】＋1d10で振る。背後、暗闇、姿の見えない遠くからの狙撃のように撃ち手と銃口が見えていないときは振れず、散弾とグレネードも避けられない。\"よろめき\"か\"釘付け\"を受けているあいだも振れない。近接攻撃の回避判定にはこの技能を使わない。",
@@ -2979,15 +3170,14 @@ var ROLE_SKILLS=[
     "ハンドガン":"拳銃を撃つ技能。すばやく抜いて撃つ速さと、至近での取り回しを受け持つ。SMG（短機関銃）もこの技能で撃ち、目標値はSMGの行で読む。バーストかフルオートで撃つときは、この技能ではなく〈フルオート射撃〉で振る。",
     "ライフル":"ライフルを撃つ技能。中距離から長距離で、狙って当てる射撃と、相手を押さえる射撃を受け持つ。狙撃銃と対物銃もこの技能で撃ち、目標値は狙撃・対物の行で読む。バーストかフルオートで撃つときは〈フルオート射撃〉、相手を釘付けにするときは〈制圧射撃〉で振る。",
     "ショットガン":"散弾銃を撃つ技能。近距離を面で撃ち払うとき、扉を撃ち破るとき、相手を押し戻すときに振る。目標値はショットガンの行で読む。バーストかフルオートで撃つときは〈フルオート射撃〉で振る。",
-    "重火器":"軽機関銃、グレネードランチャー、ロケットのような重い火器で、広い範囲を撃ち、物を壊す技能。技能が受け持つのは当てるところまでで、爆発物の貫通値と爆風は武器のデータで決まる。移動した周に撃つと目標値に＋2する。Lv5以上なら、この＋2を受けない。伏せるか、二脚や据え付け台、遮蔽の縁に据えて撃つと、軽機関銃と重機関銃の目標値が1下がる。据えるのにアクションは要らないが、その周は移動できない。グレネードランチャーとロケットが外れたとき、ずれは1〜2マスで済む（〈投擲〉で投げたときは1〜3マス）。",
-    "弓術":"弓とクロスボウの技能。音を立てずに射て、特殊な矢を使い分けられる。目標値と距離の修正は弓/クロスボウの行で読む。〈弓術〉をLv3にしても、〈フルオート射撃〉と〈ガンファイト〈CQB〉〉の前提は満たせない。〈精密射撃〉の前提は満たせる。",
+    "重火器":"軽機関銃、グレネードランチャー、ロケットのような重い火器で、広い範囲を撃ち、物を壊す技能。技能が受け持つのは当てるところまでで、爆発物の貫通値と爆風は武器のデータで決まる。移動したラウンドに撃つと目標値に＋2する。Lv5以上なら、この＋2を受けない。伏せるか、二脚や据え付け台、遮蔽の縁に据えて撃つと、軽機関銃と重機関銃の目標値が1下がる。据えるのにアクションは要らないが、そのラウンドは移動できない。グレネードランチャーとロケットが外れたとき、ずれは1〜2マスで済む（〈投擲〉で投げたときは1〜3マス）。",
+    "弓術":"弓とクロスボウの技能。音を立てずに射て、特殊な矢を使い分けられる。目標値と距離の修正は弓/クロスボウの行で読む。〈弓術〉をLv3にしても、〈フルオート射撃〉と〈武術〈CQB〉〉の前提は満たせない。〈精密射撃〉の前提は満たせる。",
     "フルオート射撃":"バーストやフルオートで撃ち続け、反動を抑え、銃を据えて撃つ技能。連射で撃つときの命中は〔【Firearms】＋〈フルオート射撃〉＋1d10〕対 その銃の行の目標値で振り、武器の射撃技能は足さない。単発で撃つときは武器の射撃技能で振る。命中すると、超過は1回だけ計算し、同じ帯の部位判定と負傷表を回数ぶん振る。回数と弾の数は武器ごとに決まっていて、武器データに書いていない銃はバースト2回3発、フルオート3回10発で扱う。前提として、〈ハンドガン〉〈ライフル〉〈ショットガン〉〈重火器〉のどれか1つがLv3に届いている必要がある。",
     "精密射撃":"頭や関節、光学機器、手に持つ物を狙い分けて撃ち、距離も測る技能。命中は撃つ武器の技能で振り、この技能のレベルは足さない。スマート機構とは一緒に使えない。〈ハンドガン〉〈ライフル〉〈ショットガン〉〈弓術〉のどれか1つがLv3なら取れる。Lv1で、部位指定で上がる目標値が2減る（頭部は＋5が＋3、ほかは＋3が＋1）。振る回数は増えない。Lv2で、手に持つ物、カメラや照準器、車のタイヤを目標値＋3で撃てる。当たれば物は落ち、機器は壊れ、人に負傷は出ない。部位指定や〈ガン＝カタ〉の零距離射撃とは重ねない。Lv3で、遮蔽越しの目標値が1下がる（薄い遮蔽は＋1、厚い遮蔽は＋3になる）。Lv4で、26m以上の距離帯の目標値が1下がる。Lv5で、頭部以外の部位指定が＋0になる（頭部は＋3のまま）。",
-    "制圧射撃":"弾幕を張って相手を動けなくする技能。フルオートを撃てる銃で弾10発とアクション1回を使い、狙った相手の向きから左右45度・25m以内の、射線の通る相手すべてを狙う。〔【Firearms】＋〈制圧射撃〉＋1d10〕を1回振り、武器の射撃技能は足さない。合計が相手ごとの〔6＋【Ego】＋〈精神集中〉〕に届けば、その相手は釘付けになる。釘付けはかけた周の次の周の終わりまで続き、その間は回避判定を振れず、次の移動は遮蔽へ向かうことにしか使えない。実効貫通値が相手のいちばん薄い部位の装甲値以下なら、その相手には効かない。〈アキンボ〉で2丁ともフルオートを撃てる銃を持てば、弾20発とアクション1回で2つの向きへ同時に撃ち、向きごとに1回ずつ振る。前提として〈フルオート射撃〉Lv1が要る。",
-    "アキンボ":"手に持つ銃を、1アクションで同時に撃つ技能。両手に2丁、内蔵兵器が1つあれば3つまで撃て、2人を同時に狙える。前提はない。命中はそれぞれ〔【Firearms】＋その武器の射撃技能＋1d10〕で振り、〈アキンボ〉のレベルは足さない。両手で撃つ銃すべての目標値に、レベルで決まる数を足す（Lv1は＋8、Lv2は＋6、Lv3は＋4、Lv4は＋3、Lv5は＋2）。別々の相手へ分けて撃つと、さらに＋2する。2丁ともバーストかフルオートで撃つと、さらに＋2し、命中は〈フルオート射撃〉で振る。片方だけ連射なら、この＋2は乗らない。当てはまる数はすべて足す。標的は撃つ向きの左右45度・25m以内で、Lv4から左右90度に広がる。リロードは1丁につきアクション1回で、まとめて込め直すには〈ガン＝カタ〉が要る。",
+    "制圧射撃":"弾幕を張って相手を動けなくする技能。フルオートを撃てる銃で弾10発とアクション1回を使い、狙った相手の向きから左右45度・25m以内の相手すべてを狙う。遮蔽の裏にいる相手も入る。〔【Firearms】＋〈制圧射撃〉＋1d10〕を1回振り、武器の射撃技能は足さない。合計が相手ごとの〔6＋【Ego】＋〈精神集中〉〕に届けば、その相手は釘付けになる。釘付けはかけたラウンドの次のラウンドの終わりまで続き、その間は回避判定を振れず、次の移動は遮蔽へ向かうことにしか使えない。遮蔽の裏にいた相手は、遮蔽から出られなくなる。実効貫通値が相手のいちばん薄い部位の装甲値以下なら、その相手には効かない。釘付けの相手が次の自分の移動を終えても遮蔽に入っていなければ、単発1回の命中として負傷表を1回引く。部位は1d6、超過はこの銃の実効貫通値で出し、回避判定は振れない。遮蔽の裏にいた相手には負傷は出ない。釘付けを受けた者は、自分のラウンドの始めに、アクションを使わずに〔【Ego】＋【Edge】＋〈恐慌抵抗〈クー・ド・グラ〉〉＋〈精神集中〉のレベルの2分の1（端数切り捨て）＋1d10〕を1回振れる。撃ち手の合計以上なら釘付けが外れ、負傷も出ない。撃ち手の判定に難易度の補正は足さない。〈アキンボ〉で2丁ともフルオートを撃てる銃を持てば、弾20発とアクション1回で2つの向きへ同時に撃ち、向きごとに1回ずつ振る。前提として〈フルオート射撃〉Lv1が要る。",
+    "アキンボ":"手に持つ銃を、1アクションで同時に撃つ技能。両手に2丁、内蔵兵器が1つあれば3つまで撃て、2人を同時に狙える。前提はない。命中はそれぞれ〔【Firearms】＋その武器の射撃技能＋1d10〕で振り、〈アキンボ〉のレベルは足さない。両手で撃つ銃すべての目標値に、レベルで決まる数を足す（Lv1は＋4、Lv2は＋3、Lv3は＋2、Lv4は＋2、Lv5以上は＋1）。別々の相手へ分けて撃つと、さらに＋2する。2丁ともバーストかフルオートで撃つと、さらに＋2し、命中は〈フルオート射撃〉で振る。片方だけ連射なら、この＋2は乗らない。当てはまる数はすべて足す。標的は撃つ向きの左右45度・25m以内で、Lv4から左右90度に広がる。リロードは1丁につきアクション1回で、まとめて込め直すには〈ガン＝カタ〉が要る。",
     "投擲":"グレネードや焼夷弾のような重い物を、狙った場所へ投げ込む技能。信管を調整してから投げるか、床を転がすか、山なりに投げて見えない場所へ落とすかを選べる。軽い物は〈運動〉で投げる。判定は〔【Nerve】＋〈投擲〉＋1d10〕対 グレネード/ロケットの行の目標値で、届くのは25mまで。外れると、1d6で決めた向きへ1〜3マスずれて爆発する。",
     "クイックドロー":"銃をすばやく抜いて先に撃つ技能。ホルスターに収めた状態から抜くのにアクションを使わず、そのまま初撃を撃てる。戦闘の始めに振るイニシアチブの判定に、〈クイックドロー〉のレベルをそのまま足す。リロードもアクションの一部として済ませられ、リロードのためだけにアクションを1回使わなくてよい。〈ガン＝カタ〉の両手の銃のリロードとも重ねられる。弾の威力は変わらない。",
-    "ガンファイト〈CQB〉":"密着した相手や組み合った相手にも、銃を手放さずに撃つ技能。この技能を持たない者が、同じマスにいる相手か組み合っている相手を撃つと、目標値に＋3する。持っていれば、この＋3を受けずに〔【Firearms】＋〈ガンファイト〈CQB〉〉＋1d10〕で撃てる。拘束されていても、射撃の目標値に拘束の＋2は乗らない。ただし拘束中は、両手を要する銃を使えない。銃を奪われそうなときや叩き落とされそうなときは、近接の対抗と同じ手順で、この技能で抗う。組み付きから抜けるには〈拘束離脱〉を使う。前提として〈ハンドガン〉〈ライフル〉〈ショットガン〉のどれか1つのLv3と、〈格闘〉Lv2が要る。",
     "車両操縦":"自動車と装甲車を走らせる技能。体当たりを制御するときや、車体を遮蔽にして動くときもこの技能で振る。車で追いかけ合うときは、追う側と追われる側がどちらも〈車両操縦〉で対抗する（二輪なら〈バイク操縦〉）。走っている車から同乗者が撃つと、射撃の目標値に＋3が乗る。運転手も片手で撃てるが、射撃の目標値に＋6が乗り、そのアクションのあいだは運転の判定にも＋3が乗る。",
     "バイク操縦":"二輪を走らせる技能。狭い路地を抜けるとき、渋滞の車のあいだをすり抜けるとき、乗ったまま戦うときに振る。二輪で追いかけ合うときは、追う側と追われる側がどちらもこの技能で対抗する。",
     "重機操作":"クレーン、ブルドーザー、フォークリフトのような重機を動かす技能。作業アームを即席の武器として使うときも、この技能で振る。",
@@ -3001,7 +3191,7 @@ var ROLE_SKILLS=[
     "拡張知覚":"義体の感覚が拾った情報を読み分ける技能。義眼のズームや熱源表示、義耳の集音、皮下の走査装置を使って、暗闇で熱源を数え、壁越しの足音を人数ごとに分け、録画から顔を割り出す。感覚系の義体を入れていなければ振れず、何が見えるかはその義体の説明に従う。同じ場面で〈知覚〉と両方を振ることはできない。続けて振っても目標値は上がらず、相手が専用の技能で仕掛けていても目標値に＋3はかからない。",
     "集中":"自分から始めた作業を、雑音や動揺に乱されずに最後まで続ける技能。狙撃の姿勢を保つとき、妨害を受けながら解析を続けるとき、長い張り込みに耐えるときに振り、成功すれば作業の成果が出る。恐慌や幻覚、制圧射撃の釘付けのように外から来る妨害を払うのは〈精神集中〉で、〈精神集中〉は自分を保つだけで成果は生まない。同じ場面で〈集中〉と〈精神集中〉を両方振ることはできない。",
     "読唇術":"唇の動きを見て、話している中身を読み取る技能。声は届かないが口元が見える場面で、会話を拾うときに振る。ホロコールの相手の唇は読めない。",
-    "隠密":"気配と音を消して動く技能。気づかれずに近づくとき、建物に忍び込むとき、物音を立てずに移動するときに振る。見張りが〈知覚〉で気づこうとしているなら、目標値は普通の段で〔3＋相手の【Intelligence】＋相手の〈知覚〉〕になる。仕事の前に現場を調べるのは〈下見／段取り〉で、この技能は当日の動きを受け持つ。",
+    "隠密":"気配と音を消して動く技能。気づかれずに近づくとき、建物に忍び込むとき、物音を立てずに移動するときに振る。見張りが〈知覚〉で気づこうとしているなら、目標値は普通の段で〔3＋相手の【Intelligence】＋相手の〈知覚〉〕になる。戦闘の前に気づかれずに仕掛けるときは、攻撃側の各人が〔【Nerve】＋〈隠密〉＋1d10〕を振り、目標値は〔難しさで決まる数＋防御側で最も高い【Intelligence】＋〈知覚〉〕。難しさで決まる数は、物陰・暗がりを使うか隠れて待ち伏せているなら簡単（2）、ふつうなら普通（6）、大通り・明るい所・人目が多い所なら難しい（8）、見張りが警戒している開けた所ならとても難しい（10）で、GMが選ぶ。全員が届けば不意討ちが成り立ち、1人でも届かなければふつうにイニシアチブを振る。防御側から視線が通っていない（背後を含む）なら、〈隠密〉を振らずに成り立つ。視線の通る者がいれば、その者たちだけを相手に振る。不意討ちラウンドでは攻撃側だけが、1人アクション1回で動き、移動はできない。攻撃はどの種類でもよく、近接も射撃もふつうに命中判定を振り、不意を突かれた相手は回避判定を振れない。〈第六感／直感〉の危険感知で判定に成功した者は、不意討ちラウンドの攻撃にも回避判定を振れる。仕事の前に現場を調べるのは〈下見／段取り〉で、この技能は当日の動きを受け持つ。",
     "尾行／追跡":"人の跡を追う技能。気づかれずに相手をつけるときと、痕跡から居場所を割り出すときに振る。血の跡、足跡、タイヤの跡をたどって相手を追うのもこの技能だ。弾道や薬莢、遺留品を科学的に調べるのは〈鑑識／フォレンジック〉で振る。判定は〔【Nerve】と【Operations】の平均（端数切り上げ）＋〈尾行／追跡〉＋1d10〕で振る。",
     "隠蔽／発見":"物を隠し、隠された物を見つける技能。物を隠すとき、隠された物や罠、隠し扉を腰を据えて探すときに振る。仕事のあとに血や薬莢、指紋、監視映像を消して現場を片づけるのもこの技能で、区警などが〈鑑識／フォレンジック〉で調べるときは、片づけた側のこの判定の達成値が目標値になる。ふと目に留まるかどうかは〈知覚〉で決まり、この技能で隠した物を誰かが〈知覚〉で見抜こうとするときは、その目標値に＋3する。判定は〔【Intelligence】と【Operations】の平均（端数切り上げ）＋〈隠蔽／発見〉＋1d10〕で振る。",
     "第六感／直感":"見えないものとこの先について、根拠のない予感をGMから受け取る技能。待ち伏せ、罠、まずい取引、相手の隠し事の気配や、どちらへ進めばよいかを感じ取るが、証拠は出ず、対抗の判定にも何も足さない。撃ち手が見えず回避判定を振れない攻撃を受けたら、1場面に1回、〔【Chance】＋〈第六感／直感〉＋1d10〕対13を振り、成功すればその攻撃に回避判定を振れる（散弾とグレネードは回避できない）。不意討ちを受けたときも、同じ判定に成功すれば不意討ちのラウンドの攻撃に回避判定を振れる。PLが「嫌な予感がする」と言えば同じ判定を振ってよく、成功するとGMが危険のあるなしを一言で答える。作ったときから無料のLv1で持ち、Lv2から1レベル2点を払う。同じシーンで続けて振るたび、2回目から目標値が＋3ずつ上がる。",
@@ -3037,7 +3227,7 @@ var ROLE_SKILLS=[
     "暗号学":"暗号の理論を知り、解読の糸口を探す技能。暗号文や符号化されたデータを前にして、どの方式で組まれているか、どこから崩せそうかを見立てるときに振る。",
     "推理／プロファイリング":"手がかりをつないで筋道を立てる技能。痕跡と心理から、相手の動き方と潜伏先を読む。取るには、〈知覚〉か〈情報収集／検索〉のどちらかがLv2に届いていなければならない。使い方は二つある。一つは、手がかりを2つ以上集めた場面で振る。成功すると、GMはその手がかりから導ける結論を1つ言い、達成値が目標値を5以上上回れば、次に当たるべき場所か人をもう1つ言う。もう一つは、相手を1人決めて振る。成功すると、そのシーンのあいだ、その相手を追う・待ち伏せる・出し抜く判定（〈尾行／追跡〉〈下見／段取り〉〈隠密〉など）の目標値が2下がる。〈第六感／直感〉の予感は根拠を示さないが、この技能は手がかりを並べて筋を示す。",
     "鑑識／フォレンジック":"物証を科学的に調べて、何が起きたかを組み立て直す技能。弾道、指紋、薬莢、遺留品、監視ログ、BD記録を解析する。血の跡や足跡、タイヤ痕をたどって相手を追うのは〈尾行／追跡〉、集めた手がかりから筋を読むのは〈推理／プロファイリング〉で振る。〈隠蔽／発見〉で片づけた現場を調べるときは、片づけた側の〈隠蔽／発見〉の達成値が目標値になり、〈知覚〉で見抜くときのような＋3はかからない。",
-    "戦術指揮":"仲間の動きを見渡して分隊を動かす技能。配置、進路、待ち伏せの場所を読み、連携や囮の指示を出す。戦闘中はアクション1回を使い、〔【Intelligence】と【Operations】の平均（端数切り上げ）＋〈戦術指揮〉＋1d10〕対13で振る。成功すると、声か通信の届く仲間から、この技能のレベルと同じ人数までを選ぶ。選ばれた仲間は次の周の終わりまでに1回、自分の判定（命中・回避判定・技能判定のどれでもよい）の目標値を2下げられ、下げるかどうかは本人が振る前に決める。使えるのは1周に1回まで。戦闘の外では、待ち伏せや撤退路を決める判定をGMがこの技能で振らせ、目標値は難易度の札で決める。仕事の前の下見は〈下見／段取り〉で振る。",
+    "戦術指揮":"仲間の動きを見渡して分隊を動かす技能。配置、進路、待ち伏せの場所を読み、連携や囮の指示を出す。戦闘中はアクション1回を使い、〔【Intelligence】と【Operations】の平均（端数切り上げ）＋〈戦術指揮〉＋1d10〕対13で振る。成功すると、声か通信の届く仲間から、この技能のレベルと同じ人数までを選ぶ。選ばれた仲間は次のラウンドの終わりまでに1回、自分の判定（命中・回避判定・技能判定のどれでもよい）の目標値を2下げられ、下げるかどうかは本人が振る前に決める。使えるのは1ラウンドに1回まで。戦闘の外では、待ち伏せや撤退路を決める判定をGMがこの技能で振らせ、目標値は難易度の数字で決める。仕事の前の下見は〈下見／段取り〉で振る。",
     "土地鑑〈地域指定〉":"決めた一つの地区に詳しい技能。取るときに〈土地鑑〈第7区〉〉のように地区を決める。その地区の地理、抜け道、有力者、危ない場所、触れてはいけないことを知っていて、道を探すときや、誰に話を通せばいいかを考えるときに振る。",
     "言語〈指定〉":"決めた外国語を読み書きし、話す技能。ネオンスパイアには共通語があり、街の中なら誰とでも通じるので、この技能で取るのは外国語だけになる。街の外から来た相手と話すときや、外国の文書、輸入品の説明書きを読むときに振る。企業の中の符丁やロウアーの隠語は、言語として扱わない。",
     "下見／段取り":"仕事の前に現場を調べて、手順を組む技能。警備の巡回の間隔、カメラの死角、搬入口の開く時間、逃げ道を押さえる。目標値は13で、警備の厳しい現場では15になる。成功すると当日に効く情報をGMから1つ受け取り、達成値が目標値を5以上上回れば2つ受け取る。届かなかっただけなら、何も分からずに終わる。達成値が目標値を5以上下回ったときは、下見をしていること自体が誰かの目に留まる。当日の動きは〈隠密〉、装置そのものは〈電子・保安技術〉、戦闘中の配置は〈戦術指揮〉、その場での嫌な予感は〈第六感／直感〉で振る。",
@@ -3048,7 +3238,7 @@ var ROLE_SKILLS=[
     "ビジネス":"企業の動きと経営に通じた技能。会社がどう金を回し、誰が何を決め、組織がどう動くかを理解していて、コーポには欠かせない素養だ。何をいつどこへ持っていけば儲かるかを読むのは〈商才〉、目の前の相手との値決めは〈取引〉で振る。",
     "鑑定／目利き":"物の値打ちを見る技能。真贋と出どころを見抜き、闇市の取引や戦利品の選り分けで振る。贋作を見抜くときは、〈偽造〉か〈絵画〉で作った側との対抗になり、〔難しさで決まる数（普通なら6）＋作り手の【Craft】＋作り手の〈偽造〉か〈絵画〉〕が目標値になる。この技能で見抜くなら、〈知覚〉で見抜くときのような＋3はかからない。",
     "動物使い／調教":"生きた動物を手なずけ、仕込み、働かせる技能。番犬、闘技獣、運搬獣、義体化した動物を扱い、動物の心を読んで信頼を築く。動物の種類や生態を知っているかどうかは〈動物学〉で振る。",
-    "ベーシック・テク":"ふつうの機械と電子機器を直し、手を加える技能。負傷表で「防具を1つ破損」となった防具もこれで直す。部品や工具が足りない現場では応急修理になり、動くところまでは戻せるが、場面が変わるまでしか保たない。壊れた武器を現場で仮に直すときもこの技能で振れて、目標値は〈武器製作〉と同じ13になる。〈サイバー技術〉を取るには、この技能がLv2要る。",
+    "ベーシック・テク":"ふつうの機械と電子機器を直し、手を加える技能。負傷表で「防具を1つ破損」となった防具もこれで直す。部品や工具が足りない現場では応急修理になり、動くところまでは戻せるが、場面が変わるまでしか保たない。壊れた武器を現場で仮に直すときもこの技能で振れて、目標値は〈武器製作〉と同じ13になる。装甲のへこみで下がった装甲値もこの技能で直し、目標値は現場での仮修理が13、工房での修理が11。仮修理で戻した分は、場面が変わるとへこんだ値に戻る。届かなくても防具は悪くならず、同じ防具にもう一度挑めるのは場面が変わってから。〈サイバー技術〉を取るには、この技能がLv2要る。",
     "サイバー技術":"サイバーウェアを修理し、改造し、調整し、移植する技能。リパードクであることが条件になる。恒久修理、改造、移植は、この技能でしかできない。現場で一時的に動かすだけなら〈義体応急整備〉でも足りるが、そちらで失敗した義体の本格整備と、壊れた義体内蔵の武装の恒久修理はこの技能で振る。前提として〈ベーシック・テク〉Lv2と〈応急手当〉Lv2が要る。",
     "義体応急整備":"現場で義体を一時的に動かす技能。負傷表の「義体不調」「義体停止」や、壊れた義体内蔵の武装を、その場で押さえ込む。外れた関節をはめ直し、切れた線を仮につなぎ、駆動系の熱を抜き、いざとなれば切り離す。目標値は13で、直した状態は場面が変わるまで保つ。失敗した義体は、〈サイバー技術〉で本格的に整備するまで戻せない。恒久修理、改造、移植はこの技能ではできない。リパードクでなくても使え、前提もない。",
     "武器製作":"銃と近接武器を整備し、改造し、作る技能。近接の耐久値チェックなどで壊れた武器を直すのもこの技能だ。現場での仮修理は目標値13で、場面が変わるまで保つ。この仮修理は〈ベーシック・テク〉でも同じ目標値で振れる。工房で恒久修理するなら目標値は11になる。失敗しても武器は悪くならないが、同じ武器にもう一度挑めるのは場面が変わってから。義体内蔵の武装は、現場では〈義体応急整備〉、恒久修理は〈サイバー技術〉で直す。",
@@ -3067,7 +3257,7 @@ var ROLE_SKILLS=[
     "電子・保安技術":"監視カメラ、センサー、警報、自動砲台、電子ロックを、外側から設置し、解析し、無力化する技能。NETには潜らない。これらの機器にNETから入って掌握するハックは、ネットランナーにしかできない。触れられる機器の認証を破り、操作の記録まで消すなら〈ブリーチ・プロトコル〉で振る。",
     "プログラミング":"ソフト、ICE、デーモン、クイックハック用のプログラム、マルウェアを作り、改造する技能。組んだクイックハックを実際に撃てるのはネットランナーだけだ。NETの深層への潜行とNET戦闘も、この技能ではできない。",
     "ブリーチ・プロトコル":"手で触れられる機器、錠、端末の認証を、その場で破って入る技能。アクション1回で振り、目標値は機器の格で決まる。民生品は13、企業の機器は15、軍用は17だ。成功したら、開ける・止める（錠、扉、カメラ1台、警報1つ）、中身を抜く（その機器にあるデータ1件）、跡を消す（その機器に残る自分の操作の記録）から1つを選ぶ。達成値が目標値を5以上上回れば2つ選べる。失敗すると何も起きず、達成値が目標値を5以上下回ると機器が警報を出す。〈鍵開け〉や〈電子・保安技術〉と違って認証そのものを破るので、開けたあとに記録も消せる。NETの深層への潜行、視線の先の相手への即時の戦闘ハック、魂の奪取はネットランナーにしかできない。",
-    "電子戦〈ジャミング〉":"電波を乱し、戦場の通信と信号を押さえる技能。ジャマーかそれに当たる義体や端末があれば使え、NETには潜らない。通信妨害はアクション1回、目標値13で、成功すると次の周の終わりまで、自分から25m以内のホロフォン通話、無線、制御リンクが味方の分も切れる。ドローンの乗っ取りはアクション1回で、目標値は〔6＋操縦者の【Interface】と【Neural】の平均（端数切り上げ）＋〈ドローン操作〈リギング〉〉〕。成功すると次の周の終わりまでドローンが止まり、達成値が5以上上回ればその間は自分で動かせる。スマート弾やホーミングのグレネードが自分か味方を狙ったときは、1周に1回、目標値13で振れる。成功すると命中部位を1d6で振り直させるが、外れにはならない。前提として〈エレクトロニクス〉Lv2が要る。",
+    "電子戦〈ジャミング〉":"電波を乱し、戦場の通信と信号を押さえる技能。ジャマーかそれに当たる義体や端末があれば使え、NETには潜らない。通信妨害はアクション1回、目標値13で、成功すると次のラウンドの終わりまで、自分から25m以内のホロフォン通話、無線、制御リンクが味方の分も切れる。ドローンの乗っ取りはアクション1回で、目標値は〔6＋操縦者の【Interface】と【Neural】の平均（端数切り上げ）＋〈ドローン操作〈リギング〉〉〕。成功すると次のラウンドの終わりまでドローンが止まり、達成値が5以上上回ればその間は自分で動かせる。スマート弾やホーミングのグレネードが自分か味方を狙ったときは、1ラウンドに1回、目標値13で振れる。成功すると命中部位を1d6で振り直させるが、外れにはならない。前提として〈エレクトロニクス〉Lv2が要る。",
     "ドローン操作〈リギング〉":"偵察機、戦闘ドローン、ロボットを制御リンクで遠隔操縦する技能。本人は安全な場所にいたまま支援できる。判定は〔【Interface】と【Neural】の平均（端数切り上げ）＋〈ドローン操作〈リギング〉〉＋1d10〕で振る。ドローンが撃たれたら、命中部位は振らずに胴体として扱い、負傷表の胴体の行を引く。出た負傷は故障の重さとして読み、軽傷なら動きが鈍り、中傷なら機能の一部が落ち、重傷なら止まり、貫通なら壊れる。相手が〈電子戦〈ジャミング〉〉でドローンを乗っ取ろうとするときは、〔6＋自分の【Interface】と【Neural】の平均（端数切り上げ）＋自分の〈ドローン操作〈リギング〉〉〕が相手の目標値になる。",
     "密造／ジャンク加工":"廃材や規格外の素材から、合成酒、薬、ストリートドラッグ、\"コルパス・チキン\"などを即席で作る技能。失敗すると出来上がった物が毒になり、口にした者の体を壊す。",
     "エチケット":"上流の場で怪しまれずにふるまう技能。礼儀作法、ビジネスマナー、社交の決まりを心得ていて、場違いな客だと見とがめられずに済む。",
@@ -3082,24 +3272,24 @@ var ROLE_SKILLS=[
     "商才":"何をいつ、どこへ持っていけば儲かるかを読む技能。売り時と買い時、相場の歪み、儲け話が本物かどうかが分かる。目の前の相手との値決めは〈取引〉、組織を回す素養は〈ビジネス〉で振る。同じ場面で〈商才〉と〈取引〉を重ねては振れない。",
     "企業方針":"企業の内側を知る技能。社内の規約に何が書いてあるかと、社内政治がいまどちらへ動いているかを、外の人間より正確につかんでいる。",
     "文化知識〈指定〉":"一つの地域か文化を深く知っている技能。どの地域か文化かは、技能を取るときに決める。その土地の暮らしや、人々のものの考え方に通じている。",
-    "詐欺":"信用できる相手を装って騙す技能。【Influence】で振る【社会】の技能の代わりに振れる。代わりにできるのは〈エチケット〉〈裏社会〉〈取引〉〈会話術〉〈弁舌／説得〉〈袖の下／買収〉〈信望〉〈威圧〉〈尋問〉〈誘惑／魅了〉〈縄張りの掟〉だけで、目標値は代わりに振った技能のものと同じ。【Intelligence】で振る技能と、〈真意看破〉〈ギャンブル〉の代わりには振れない。失敗すると嘘がばれ、その相手と、相手が話を通す仲間に対する以後の【社会】判定は、すべて目標値＋3になる。この＋3は場面が変わっても消えず、GMが関係を結び直したと認めるまで続く。同じ相手に、一つの場面で〈詐欺〉と元の技能を重ねては振れない。",
+    "詐欺":"信用できる相手を装って騙す技能。【Influence】で振る【社会】の技能のうち、自分が Lv1 以上で持っている技能の代わりに振れる。代わりにできるのは〈エチケット〉〈裏社会〉〈取引〉〈会話術〉〈弁舌／説得〉〈袖の下／買収〉〈信望〉〈威圧〉〈尋問〉〈誘惑／魅了〉〈縄張りの掟〉だけで、目標値は代わりに振った技能のものと同じ。代わりに振るには、〈詐欺〉のほかに【社会】の技能を2つ以上、Lv1 以上で持っていなければならない。【Intelligence】で振る技能と、〈真意看破〉〈ギャンブル〉の代わりには振れない。失敗すると嘘がばれ、その相手と、相手が話を通す仲間に対する以後の【社会】判定は、すべて目標値＋3になる。この＋3は場面が変わっても消えず、GMが関係を結び直したと認めるまで続く。同じ相手に、一つの場面で〈詐欺〉と元の技能を重ねては振れない。",
     "ギャンブル":"賭けの場で勝ちを拾う技能。ポーカー、賭け試合、運試しで場の流れを読み、いかさまを見抜き、ときには自分で仕込む。判定は【Chance】と【Intelligence】の平均（端数切り上げ）に、〈ギャンブル〉と1d10を足して振る。",
-    "威圧":"銃口や気迫で相手の戦意をくじき、降伏、後退、自白を迫る技能。戦闘でも交渉の席でも振れる。振る前に、相手に何をさせたいかを言う。目標値はGMが望みの重さと相手の立場で決め、目安は次のとおり。一瞬ひるませるなら〔6＋相手の【Ego】＋〈精神集中〉〕で、成功すると相手は怯み、相手が次に振る判定の目標値に＋2がつく。銃を下ろさせる、引き下がらせるなら同じ値に＋2、命や組織を裏切らせるなら＋5。相手が明らかに強いか数で勝っているとGMが見れば、さらに＋2。アクション1回を使い、1周に1回まで。口を割らせるのは〈尋問〉で振る。周りの士気をまとめて崩すことや一騎討ちを強いることは職業の特権で、この技能でできるのは1人を怯ませるところまでだ。",
+    "威圧":"銃口や気迫で相手の戦意をくじき、降伏、後退、自白を迫る技能。戦闘でも交渉の席でも振れる。振る前に、相手に何をさせたいかを言う。目標値はGMが望みの重さと相手の立場で決め、目安は次のとおり。一瞬ひるませるなら〔6＋相手の【Ego】＋〈精神集中〉〕で、成功すると相手は怯み、相手が次に振る判定の目標値に＋2がつく。銃を下ろさせる、引き下がらせるなら同じ値に＋2、命や組織を裏切らせるなら＋5。相手が明らかに強いか数で勝っているとGMが見れば、さらに＋2。アクション1回を使い、1ラウンドに1回まで。口を割らせるのは〈尋問〉で振る。周りの士気をまとめて崩すことや一騎討ちを強いることは職業の特権で、この技能でできるのは1人を怯ませるところまでだ。",
     "尋問":"捕虜や容疑者から、脅し、揺さぶり、取引で情報を引き出す技能。判定は〔【Influence】＋〈尋問〉＋1d10〕対〔6＋相手の【Constitution】と【Ego】の平均（端数切り上げ）＋相手の〈拷問／薬物抵抗〉〕。成功すると、問い一つに本当の答えが返ってくる。1回の尋問で振れるのは1度だけで、同じ相手にもう一度挑むのは場面が変わってから。薬物や拷問を使うなら、GMは目標値を2下げてよい。その代わり、相手の負傷かサイバーサイコ度にはね返る。相手は〈精神集中〉では受けられず、〈拷問／薬物抵抗〉でしか抗えない。",
     "誘惑／魅了":"色香と距離の詰め方で相手を惹きつける技能。相手の警戒を解かせ、好意や油断を引き出す。ハニートラップを仕掛けるときは、この技能が芯になる。",
     "等級査定":"相手の顧客等級を見分ける技能。ホロコールの表示、身なり、作法から、第I〜IV種かノン・レジスターかと、その場に立ち入る資格があるかを一目で読み取る。相手が自分より格上か格下かも分かる。読み違えると礼を欠いたことになり、ヒートが上がる。",
     "縄張りの掟":"ギャングの縄張りで、その場の掟を読んで無用な衝突を避ける技能。グラフィティやマーキングを読み取り、上納と礼儀の作法に従ってふるまう。失敗すると侵入者として扱われ、相手は敵に回る。",
     "密輸ルート把握／調達":"手に入りにくい物の仕入れ先を突き止める技能。水、弾、薬、本物の食材のような封鎖物資を、ザ・パイプのような移動市場や密輸網から探し、いちばん早い経路と相場を割り出す。目標値は品物の手に入りにくさで決まり、街で普通に出回る品は13、封鎖物資は15、企業の管理品は17。失敗すると空振りに終わるか、足がつく。値段の交渉は〈取引〉で振る。",
     "拷問／薬物抵抗":"尋問を受けても口を割らず、意志で情報を守る技能。尋問する側が〔6＋【Constitution】と【Ego】の平均（端数切り上げ）＋〈拷問／薬物抵抗〉〕を目標値にして振り、こちらは振らない。薬物や拷問を使う尋問なら、GMは目標値を2下げてよい。尋問には〈精神集中〉で代わりに抵抗できない。毒や薬に体で耐えるのは〈毒／薬物抵抗〉で振る。",
-    "耐痛":"痛みの中で意識を保って動き続け、戦闘不能を遅らせる技能。痛みから来る判定の不利、怯み、棒立ち、ショックに抗うときに振る。脅しから来る怯みは〈精神集中〉で受ける。体の欠損、起立不能、昏倒、即死には効かない。食いしばりは、自分のアクション中に行動を1つ宣言する直前に、アクションを使わずに〔【Constitution】と【Ego】の平均（端数切り上げ）＋〈耐痛〉＋1d10〕対12を振る（1アクションに1回まで）。成功すると、その行動はHPが最大の4分の3以下のときの目標値＋2を受けない。失敗すると、次の自分のアクションが終わるまで目標値にさらに＋1が乗る。取り押さえには〈耐痛〉で抵抗し、目標値は〔6＋相手の【Nerve】＋〈格闘〉〕になる。失敗すると気絶し、成功すると傷を負わずに抜け出す。",
-    "精神集中":"自分を保つ技能。興奮から戻り、苛立ちを抑え、恐怖・幻覚・心理干渉・脅しから来る怯みを振り払い、表情と真意を顔に出さないときに振る。成功しても、情報や行動の成果は生まない。痛みに抗う判定は〈耐痛〉の代わりにこの技能で振ってよく、食いしばりなら〔【Ego】＋〈精神集中〉＋1d10〕対12になる。制圧射撃の釘付けと〈威圧〉では、相手が〔6＋【Ego】＋〈精神集中〉〕を目標値にして振る。偽りの感情を見せるのは〈演技〉、戦意の崩れを防ぐのは〈恐慌抵抗〉、尋問で口を割らないのは〈拷問／薬物抵抗〉、作業を続けて成果を出すのは〈集中〉で振る。作ったときからLv1で持ち、Lv1の分は点を払わず、Lv2から1レベル1点を払う。同じシーンで続けて振るたび目標値が＋2ずつ上がり、シーンが変わるか一晩休むと0に戻る。",
-    "環境耐性":"その場所の暑さ、寒さ、煙、毒ガス、放射線に耐える技能。その環境に入ったときに1回振り（1場面に1回まで）、目標値はきつい環境（酷暑・酷寒・煙・薄いガス）なら13、命に関わる環境（濃い毒ガス・高い放射線・酸素のない場所）なら15になる。失敗すると、その場面のあいだ全判定の目標値に＋2が付く。命に関わる環境で失敗した者は、さらに毎ターンHP−1を受け、環境から出れば止まる。防護服、フィルター、耐環境の義体があれば振らなくてよい。寝ない、食べない、歩き続けるような長い我慢は〈耐久力／忍耐〉で振り、両方が絡むときはGMがどちらか1つを選ぶ。",
-    "出血管理":"血管を縮め、ナノマシンを制御して、自分の出血を抑える技能。毎ターンHPが減る出血系の負傷を受けた直後に1回、アクションを使わずに〔【Constitution】＋〈出血管理〉＋1d10〕を振れる。目標値は、その負傷の帯を〈救急医療〉で治すときの値で、軽傷10・中傷12・重傷14・貫通16。成功すると、その負傷による毎ターンのHP減少が止まる。傷は治っていないので、手当ては別に要る。3ターンたつと戦闘不能になるカウントも止まらない。同じ負傷には1回だけ、1周に1回まで振れる。他人の出血には使えない。",
+    "耐痛":"痛みの中で意識を保って動き続け、戦闘不能を遅らせる技能。痛みから来る判定の不利、怯み、棒立ち、ショックに抗うときに振る。脅しから来る怯みは〈精神集中〉で受ける。体の欠損、起立不能、昏倒、即死には効かない。食いしばりは、自分のアクション中に行動を1つ宣言する直前に、アクションを使わずに〔【Constitution】と【Ego】の平均（端数切り上げ）＋〈耐痛〉＋1d10〕対13を振る（1アクションに1回まで）。成功すると、その行動はHPが最大の4分の3以下のときの目標値＋2を受けない。失敗すると、次の自分のアクションが終わるまで目標値にさらに＋1が乗る。取り押さえには〈耐痛〉で抵抗し、目標値は〔6＋相手の【Nerve】＋〈格闘〉〕になる。失敗すると気絶し、成功すると傷を負わずに抜け出す。",
+    "精神集中":"自分を保つ技能。興奮から戻り、苛立ちを抑え、恐怖・幻覚・心理干渉・脅しから来る怯みを振り払い、表情と真意を顔に出さないときに振る。成功しても、情報や行動の成果は生まない。痛みに抗う判定は〈耐痛〉の代わりにこの技能で振ってよく、食いしばりなら〔【Ego】＋〈精神集中〉＋1d10〕対12になる。制圧射撃の釘付けと〈威圧〉では、相手が〔6＋【Ego】＋〈精神集中〉〕を目標値にして振る。釘付けを振り払う判定（〈恐慌抵抗〈クー・ド・グラ〉〉で振る）には、〈精神集中〉のレベルの2分の1（端数切り捨て）を足す。偽りの感情を見せるのは〈演技〉、戦意の崩れを防ぐのは〈恐慌抵抗〉、尋問で口を割らないのは〈拷問／薬物抵抗〉、作業を続けて成果を出すのは〈集中〉で振る。作ったときからLv1で持ち、Lv1の分は点を払わず、Lv2から1レベル1点を払う。同じシーンで続けて振るたび目標値が＋2ずつ上がり、シーンが変わるか一晩休むと0に戻る。",
+    "環境耐性":"その場所の暑さ、寒さ、煙、毒ガス、放射線に耐える技能。その環境に入ったときに1回振り（1場面に1回まで）、目標値はきつい環境（酷暑・酷寒・煙・薄いガス）なら13、命に関わる環境（濃い毒ガス・高い放射線・酸素のない場所）なら15になる。失敗すると、その場面のあいだ全判定の目標値に＋2が付く。命に関わる環境で失敗した者は、さらに毎ラウンドHP−1を受け、環境から出れば止まる。防護服、フィルター、耐環境の義体があれば振らなくてよい。寝ない、食べない、歩き続けるような長い我慢は〈耐久力／忍耐〉で振り、両方が絡むときはGMがどちらか1つを選ぶ。",
+    "出血管理":"血管を縮め、ナノマシンを制御して、自分の出血を抑える技能。毎ラウンドHPが減る出血系の負傷を受けた直後に1回、アクションを使わずに〔【Constitution】＋〈出血管理〉＋1d10〕を振れる。目標値は、その負傷の帯を〈救急医療〉で治すときの値で、軽傷10・中傷12・重傷14・貫通16。成功すると、その負傷による毎ラウンドのHP減少が止まる。傷は治っていないので、手当ては別に要る。3ラウンドたつと戦闘不能になるカウントも止まらない。同じ負傷には1回だけ、1ラウンドに1回まで振れる。他人の出血には使えない。",
     "ショック耐性":"爆音と閃光のスタンに耐え、すぐに立ち直る技能。閃光手榴弾（FG-1「フラッシュ」）、爆音、至近の爆発の閃光を受けたとき、〔【Constitution】＋〈ショック耐性〉＋1d10〕対13を振る。装備の側に目標値が書いてあればそれを使う。成功すれば何も起きない。失敗すると\"よろめき\"になり、次のアクションが終わるまで回避判定を振れず、次の判定の目標値＋2。達成値が目標値を5以上下回ると\"息詰まり\"になり、次のアクションは移動だけになる。閃光を防ぐ義眼や聴覚の遮断がある者は、GMが判定を免じてよい。負傷表の「視界の白飛び」「耳鳴り」は負傷なので、この判定では消せない。",
     "毒／薬物抵抗":"神経毒、睡眠ガス、戦闘ドラッグの副作用に体で耐える技能。毒や薬の側に目標値が書いてあればそれを使い、なければ市販の睡眠薬や弱い毒は13、戦闘ドラッグの副作用や神経毒は15、軍用の神経剤は17。失敗したときに眠るか、麻痺するか、HPが減るかは毒の側のデータで決まり、書いていなければGMが決める。尋問の中で意志を保って口を閉ざすのは〈拷問／薬物抵抗〉で振る。",
     "電磁耐性":"EMPや電撃で義体が止まったり体が痺れたりするのに抗い、再起動までの時間を縮める技能。EMPグレネード、EMPデバイス、電撃バトン、電撃矢、感電で義体が揺さぶられたとき、〔【Constitution】と【Neural】の平均（端数切り上げ）＋〈電磁耐性〉＋1d10〕対13を振る。装備の側に目標値が書いてあればそれを使う。失敗すると、GMが選ぶ義体1つが次の自分のアクションの終わりまで動作不良になる。動作不良は負傷表の「義体不調」と同じ扱いで、〈義体応急整備〉でその場面のあいだ押さえ込める。達成値が目標値を5以上下回ると、場面が変わるまで止まる。義体を入れていない者は振らない。義体の枠（【Neural】×2）を超えて積んでいる者は、この技能ではなく〈義体過負荷制御〉で振る。",
-    "恐慌抵抗〈クー・ド・グラ〉":"仲間の死や絶望的な戦力差から来るパニックに抗い、逃げ出さない技能。GMが判定を求めるのは、明らかな戦力差で囲まれたとき（目標値9）、仲間が目の前で死んだとき（11）、サイバーサイコの暴走を目の当たりにしたとき（13）。式は〔【Ego】＋【Edge】＋〈恐慌抵抗〉＋1d10〕で、【Edge】は平均にせず足す。失敗すると、次の自分の周の移動とアクションを、離れる・遮蔽へ隠れる・伏せるにしか使えず、攻撃も手当てもできない。達成値が目標値を5以上下回ると、この状態が場面の終わりまで続き、仲間が〈精神分析／メンタルケア〉で引き戻せる。サイバーサイコ度の暴走判定はこの技能か〈集中〉で振り、目標値は暴走判定のルールに従う。恐怖や心理干渉を振り払うのは〈精神集中〉で振る。続けて振っても目標値は上がらない。",
-    "拘束離脱":"手錠、ネット、組み付きから抜け出す技能。関節を外したり、一瞬の筋力で振りほどいたりする。組み付きから抜けるときは、アクション1回で〔【Strength】と【Nerve】の平均（端数切り上げ）＋〈拘束離脱〉＋1d10〕を振り、目標値は〔6＋拘束している側の【Strength】＋〈格闘〉〕。拘束されているときの＋2はこの判定には乗らない。失敗するたび、次からの目標値が2下がる。〈軽業／パルクール〉を持つ者は、この技能の代わりに〔【Nerve】＋〈軽業／パルクール〉＋1d10〕で振ってよい。手錠、結束バンド、ネットからの脱出は目標値13（企業の拘束具は15）で、1場面に1回振れる。",
+    "恐慌抵抗〈クー・ド・グラ〉":"仲間の死や絶望的な戦力差から来るパニックに抗い、逃げ出さない技能。GMが判定を求めるのは、明らかな戦力差で囲まれたとき（目標値9）、仲間が目の前で死んだとき（11）、サイバーサイコの暴走を目の当たりにしたとき（13）。式は〔【Ego】＋【Edge】＋〈恐慌抵抗〉＋1d10〕で、【Edge】は平均にせず足す。失敗すると、次の自分の番の移動とアクションを、離れる・遮蔽へ隠れる・伏せるにしか使えず、攻撃も手当てもできない。達成値が目標値を5以上下回ると、この状態が場面の終わりまで続き、仲間が〈精神分析／メンタルケア〉で引き戻せる。制圧射撃で釘付けになった者は、自分のラウンドの始めに〔【Ego】＋【Edge】＋〈恐慌抵抗〉＋〈精神集中〉のレベルの2分の1（端数切り捨て）＋1d10〕を振れ、撃ち手の合計以上なら釘付けが外れる。アクションは使わず、1ラウンドに1回。サイバーサイコ度の暴走判定はこの技能か〈集中〉で振り、目標値は暴走判定のルールに従う。恐怖や心理干渉を振り払うのは〈精神集中〉で振る。続けて振っても目標値は上がらない。",
+    "拘束離脱":"手錠、ネット、組み付きから抜け出す技能。関節を外したり、一瞬の筋力で振りほどいたりする。組み付きから抜けるときは、アクション1回で〔【Strength】と【Nerve】の平均（端数切り上げ）＋〈拘束離脱〉＋1d10〕を振り、目標値は〔6＋拘束している側の【Strength】＋〈格闘〉〕で、この〈格闘〉は〈格闘〉と〈武術〈流派〉〉の高いほう1つで読む。拘束されているときの＋2はこの判定には乗らない。失敗するたび、次からの目標値が2下がる。〈軽業／パルクール〉を持つ者は、この技能の代わりに〔【Nerve】＋〈軽業／パルクール〉＋1d10〕で振ってよい。柔道をLv3以上か、CQCをLv2以上で持つ者も、拘束から抜ける技を使えるので、この技能の代わりに〔【Nerve】＋〈武術〈流派〉〉＋1d10〕で振ってよい。目標値はふつうの脱出と同じ。手錠、結束バンド、ネットからの脱出は目標値13（企業の拘束具は15）で、1場面に1回振れる。",
     "踏ん張り／耐衝":"ノックバック、吹き飛ばし、爆風の押しに抗い、下がりも倒れもせずに踏みとどまる技能。ふつうは〔9＋その一撃の超過値〕を目標値にして振る。鈍器で殴られたときは、実効衝撃（衝撃値に【Strength】と突進を足し、耐衝値を引いた値）が転倒の4以上になったときに振り、目標値は〔9＋実効衝撃〕になる。成功すると、転倒と、吹き飛びで動かされる分だけを打ち消す。HPの減りと、息詰まりまでの段階はそのまま受け、実効衝撃8以上で起きる気絶も防げない。拘束から抜けるのは〈拘束離脱〉、自分から力を出す力仕事は〈怪力〉で振る。",
     "コンバージョン順応":"新しい体に慣れる技能。義体を入れるか換えたあと、最初に戦闘か、その義体を頼る判定に入るときに1回、〔【Constitution】と【Neural】の平均（端数切り上げ）＋〈コンバージョン順応〉＋1d10〕対〔11＋新しく入れた部位の数〕を振る。失敗すると、その場面のあいだ射撃と近接の命中と、義体を頼る判定の目標値に＋2が付く。一晩休めば判定なしで馴染む。持っていない者は自動で失敗する。拾った義体や借りた義体のように自分に合わせていない義体を使うときも、場面ごとに1回振り、失敗するとその義体を頼る判定の目標値に＋2が付く。義体が負傷表の「義体停止」「喪失」で使えなくなったときに振って成功すれば、その場面のあいだ、残った体で動く不利（目標値＋2まで）を受けない。",
     "義体過負荷制御":"過熱と神経の過負荷をその場だけ押しとどめ、正気と稼働を保つ技能。義体の枠（【Neural】×2部位）を超えて積んでいる者は、戦闘が始まったとき、戦闘の外で義体を頼る判定をその場面で初めて振るとき（この2つは1場面に1回）、感電・EMP・電脳への攻撃で義体が揺さぶられたときに振る。〔【Nerve】と【Neural】の平均（端数切り上げ）＋〈義体過負荷制御〉＋1d10〕対〔9＋枠を超えた部位の数×2〕で、成功すればその場面は義体がふつうに動く。失敗すると、枠を超えた部位の数だけ（最低1つ）GMが選ぶ義体が動作不良になり、サイバーサイコ度も上がる。取っていなければ失敗になり、枠に収まっている者は振らない。エッジウェアを続けて使ったときなどは、枠と関係なくGMが目標値を決めて振らせてよい。",
@@ -3118,7 +3308,7 @@ var ROLE_SKILLS=[
       var alias={'信用':'信望','ガンカタ':'ガン＝カタ','ブリーチプロトコル':'ブリーチ・プロトコル',
         '二丁拳銃':'アキンボ','リギング':'ドローン操作〈リギング〉','フルオート制御':'フルオート射撃',
         'ジャミング':'電子戦〈ジャミング〉','地域知識':'土地鑑〈地域指定〉','ライブラリ検索':'情報収集／検索',
-        '電子セキュリティ':'電子・保安技術','CQB':'ガンファイト〈CQB〉','クー・ド・グラ':'恐慌抵抗〈クー・ド・グラ〉'};
+        '電子セキュリティ':'電子・保安技術','CQB':'武術〈流派指定〉','クー・ド・グラ':'恐慌抵抗〈クー・ド・グラ〉'};
       for(k in alias){var an=n0(k);if(!flat[an]&&SKILL_DESC[alias[k]])flat[an]=SKILL_DESC[alias[k]];}
       _skDesc=flat;
       _skDescKeys=Object.keys(flat).sort(function(a,b){return b.length-a.length;});
@@ -3138,6 +3328,192 @@ var ROLE_SKILLS=[
     '〈威圧〉':'脅し 脅迫','〈真意看破〉':'心理学 嘘を見抜く','〈車両操縦〉':'運転 ドライブ','〈運動〉':'ジャンプ 登攀 走る'
   };
   Object.keys(SKILL_RENAME).forEach(function(old){var name=SKILL_RENAME[old];SKILL_FIND[name]=(SKILL_FIND[name]||'')+' '+old;});
+  // 技能の探しやすさ（2026-11-05 先生の採用）。12分類・職業の札・やりたいことの一覧。正本は _tools/技能一覧帳/skills_seed.json と skills_wants.json
+  /* SKILL_FINDER 生成 開始（_tools/技能一覧帳/gen_skill_find.mjs が skills_seed.json と skills_wants.json から作る。手で直さない） */
+  var SKILL_FINDER={
+    groups:['万能技能','運動','格闘・近接','射撃','乗り物','感覚','芸術・表現','医療','知識','技術・電脳','社会','抵抗'],
+    jobs:['ソロ','ロッカーボーイ','ネットランナー','テク','メドテク','リパードク','ドール','フィクサー','ジャーナリスト','サムライ','ノーマッド','ルーキー'],
+    // 技能名：[分類の番号（groups の並び）, {職業名: 1＝まず取る・2＝あると便利}]
+    skills:{
+      '〈知覚〉':[0],
+      '〈精神集中〉':[0],
+      '〈第六感／直感〉':[0],
+      '〈運動〉':[1,{'ルーキー':1}],
+      '〈怪力〉':[1],
+      '〈水泳〉':[1],
+      '〈耐久力／忍耐〉':[1],
+      '〈呼吸調節〉':[1],
+      '〈軽業／パルクール〉':[1],
+      '〈格闘〉':[2,{'ソロ':1}],
+      '〈武術〈流派指定〉〉':[2,{'サムライ':1}],
+      '〈白兵戦〈近接武器〉〉':[2,{'ソロ':1,'サムライ':1}],
+      '〈フェンシング〉':[2,{'サムライ':2}],
+      '〈二刀流／双兵装〉':[2],
+      '〈回避〉':[2,{'ソロ':1,'サムライ':1}],
+      '〈ガン＝カタ〉':[2],
+      '〈ハンドガン〉':[3,{'ソロ':1,'サムライ':1,'ルーキー':1}],
+      '〈ライフル〉':[3,{'ソロ':1,'ノーマッド':1}],
+      '〈ショットガン〉':[3,{'ソロ':2,'ノーマッド':2}],
+      '〈重火器〉':[3],
+      '〈弓術〉':[3],
+      '〈フルオート射撃〉':[3,{'ソロ':2}],
+      '〈精密射撃〉':[3,{'サムライ':2}],
+      '〈制圧射撃〉':[3],
+      '〈アキンボ〉':[3],
+      '〈投擲〉':[3],
+      '〈クイックドロー〉':[3,{'サムライ':2}],
+      '〈車両操縦〉':[4,{'ノーマッド':1,'ルーキー':2}],
+      '〈バイク操縦〉':[4,{'ノーマッド':1}],
+      '〈重機操作〉':[4],
+      '〈航空機操縦〈固定翼〉〉':[4],
+      '〈航空機操縦〈回転翼／ジャイロ〉〉':[4],
+      '〈エアロダイン操縦〉':[4],
+      '〈飛行船操縦〉':[4],
+      '〈船舶操縦〉':[4],
+      '〈騎乗〉':[4],
+      '〈拡張知覚〉':[5],
+      '〈集中〉':[5],
+      '〈読唇術〉':[5],
+      '〈隠密〉':[5,{'ジャーナリスト':2,'ルーキー':2}],
+      '〈尾行／追跡〉':[5,{'ジャーナリスト':1}],
+      '〈隠蔽／発見〉':[5],
+      '〈芸能〉':[6,{'ロッカーボーイ':1}],
+      '〈楽器演奏〉':[6,{'ロッカーボーイ':1}],
+      '〈絵画〉':[6],
+      '〈写真／映像〉':[6,{'ジャーナリスト':1}],
+      '〈演技〉':[6,{'ドール':1}],
+      '〈文筆〉':[6,{'ロッカーボーイ':2,'ジャーナリスト':1}],
+      '〈舞踊〉':[6],
+      '〈ファッション〉':[6,{'ロッカーボーイ':2,'ドール':2}],
+      '〈ブレインダンス使用〉':[6],
+      '〈ブレインダンス編集〉':[6,{'ドール':2}],
+      '〈身繕い〉':[6,{'ドール':2}],
+      '〈応急手当〉':[7,{'ソロ':2,'メドテク':1,'リパードク':1,'ノーマッド':2,'ルーキー':1}],
+      '〈救急医療〉':[7,{'メドテク':1}],
+      '〈外科医術〉':[7,{'メドテク':1,'リパードク':1}],
+      '〈診断〉':[7,{'メドテク':1,'リパードク':2}],
+      '〈薬学〉':[7,{'メドテク':1,'リパードク':2}],
+      '〈精神分析／メンタルケア〉':[7,{'メドテク':2}],
+      '〈教育／一般知識〉':[8],
+      '〈歴史〉':[8],
+      '〈会計〉':[8],
+      '〈株式市場〉':[8],
+      '〈人類学〉':[8],
+      '〈生物学〉':[8,{'メドテク':2}],
+      '〈動物学〉':[8],
+      '〈植物学〉':[8],
+      '〈地質学〉':[8],
+      '〈化学〉':[8,{'メドテク':2}],
+      '〈物理学〉':[8],
+      '〈数学〉':[8],
+      '〈暗号学〉':[8,{'ネットランナー':2}],
+      '〈推理／プロファイリング〉':[8,{'ジャーナリスト':2}],
+      '〈鑑識／フォレンジック〉':[8],
+      '〈戦術指揮〉':[8,{'ソロ':2}],
+      '〈土地鑑〈地域指定〉〉':[8,{'ジャーナリスト':2,'ノーマッド':2}],
+      '〈言語〈指定〉〉':[8],
+      '〈下見／段取り〉':[8],
+      '〈情報収集／検索〉':[8,{'ネットランナー':2,'ジャーナリスト':1,'ルーキー':1}],
+      '〈システム知識〉':[8,{'ネットランナー':1}],
+      '〈専門知識〈指定〉〉':[8],
+      '〈野外生存術〉':[8,{'ノーマッド':1}],
+      '〈ビジネス〉':[8],
+      '〈鑑定／目利き〉':[8,{'テク':2,'フィクサー':2}],
+      '〈動物使い／調教〉':[8],
+      '〈ベーシック・テク〉':[9,{'テク':1,'リパードク':1,'ルーキー':2}],
+      '〈サイバー技術〉':[9,{'テク':2,'リパードク':1}],
+      '〈義体応急整備〉':[9,{'リパードク':1}],
+      '〈武器製作〉':[9,{'テク':1}],
+      '〈車両整備〉':[9,{'テク':1,'ノーマッド':1}],
+      '〈航空機整備〉':[9],
+      '〈エアロダイン整備〉':[9],
+      '〈ジャイロ整備〉':[9],
+      '〈船舶整備〉':[9],
+      '〈メカニック〉':[9,{'テク':1,'ノーマッド':2}],
+      '〈爆破工作〉':[9,{'テク':2}],
+      '〈偽造〉':[9],
+      '〈変装〉':[9,{'ドール':1}],
+      '〈鍵開け〉':[9],
+      '〈スリ〉':[9],
+      '〈エレクトロニクス〉':[9,{'ネットランナー':1,'テク':1}],
+      '〈電子・保安技術〉':[9,{'ネットランナー':1}],
+      '〈プログラミング〉':[9,{'ネットランナー':1}],
+      '〈ブリーチ・プロトコル〉':[9,{'ネットランナー':1}],
+      '〈電子戦〈ジャミング〉〉':[9,{'ネットランナー':2}],
+      '〈ドローン操作〈リギング〉〉':[9],
+      '〈密造／ジャンク加工〉':[9,{'テク':2}],
+      '〈エチケット〉':[10,{'ドール':2}],
+      '〈裏社会〉':[10,{'ロッカーボーイ':2,'リパードク':2,'フィクサー':1,'ルーキー':2}],
+      '〈取引〉':[10,{'リパードク':2,'フィクサー':1}],
+      '〈会話術〉':[10,{'ロッカーボーイ':1,'ドール':1,'ジャーナリスト':1,'ルーキー':1}],
+      '〈弁舌／説得〉':[10,{'ロッカーボーイ':1,'フィクサー':1}],
+      '〈袖の下／買収〉':[10,{'フィクサー':2}],
+      '〈真意看破〉':[10,{'ドール':1,'フィクサー':2,'ジャーナリスト':2}],
+      '〈信望〉':[10,{'ロッカーボーイ':1}],
+      '〈官僚術〉':[10],
+      '〈商才〉':[10,{'フィクサー':2}],
+      '〈企業方針〉':[10],
+      '〈文化知識〈指定〉〉':[10],
+      '〈詐欺〉':[10,{'ドール':2}],
+      '〈ギャンブル〉':[10],
+      '〈威圧〉':[10,{'ロッカーボーイ':2}],
+      '〈尋問〉':[10],
+      '〈誘惑／魅了〉':[10,{'ドール':1}],
+      '〈等級査定〉':[10,{'フィクサー':2}],
+      '〈縄張りの掟〉':[10,{'フィクサー':1}],
+      '〈密輸ルート把握／調達〉':[10,{'フィクサー':1}],
+      '〈拷問／薬物抵抗〉':[11],
+      '〈耐痛〉':[11,{'ソロ':2}],
+      '〈環境耐性〉':[11,{'ノーマッド':2}],
+      '〈出血管理〉':[11],
+      '〈ショック耐性〉':[11],
+      '〈毒／薬物抵抗〉':[11],
+      '〈電磁耐性〉':[11,{'ネットランナー':2}],
+      '〈恐慌抵抗〈クー・ド・グラ〉〉':[11,{'サムライ':2}],
+      '〈拘束離脱〉':[11],
+      '〈踏ん張り／耐衝〉':[11],
+      '〈コンバージョン順応〉':[11],
+      '〈義体過負荷制御〉':[11],
+      '〈BD離脱制御〉':[11]
+    },
+    wants:[
+      ['物陰の敵に先に気づきたい','〈知覚〉'],
+      ['隠された物や罠を探したい','〈隠蔽／発見〉'],
+      ['気づかれずに近づきたい','〈隠密〉'],
+      ['人を尾けたい','〈尾行／追跡〉'],
+      ['遠くの会話を口元から読みたい','〈読唇術〉'],
+      ['高い所へ登りたい・跳びたい','〈運動〉'],
+      ['狭い隙間をくぐって逃げたい','〈軽業／パルクール〉'],
+      ['車で追っ手を振り切りたい','〈車両操縦〉'],
+      ['鍵を開けたい','〈鍵開け〉'],
+      ['カメラや警報を黙らせたい','〈電子・保安技術〉'],
+      ['機器の認証を破りたい','〈ブリーチ・プロトコル〉'],
+      ['ネットや記録で調べたい','〈情報収集／検索〉'],
+      ['仕事の前に現場を下見したい','〈下見／段取り〉'],
+      ['嘘を見抜きたい','〈真意看破〉'],
+      ['相手を言いくるめたい','〈弁舌／説得〉'],
+      ['値段を交渉したい','〈取引〉'],
+      ['金を握らせて通りたい','〈袖の下／買収〉'],
+      ['脅して従わせたい','〈威圧〉'],
+      ['口を割らせたい','〈尋問〉'],
+      ['相手を口説きたい','〈誘惑／魅了〉'],
+      ['ギャングの縄張りで揉めずに通りたい','〈縄張りの掟〉'],
+      ['表にない品を手に入れたい','〈密輸ルート把握／調達〉'],
+      ['品物の真贋と値打ちを見たい','〈鑑定／目利き〉'],
+      ['別人になりすましたい','〈変装〉'],
+      ['書類や身分証を偽造したい','〈偽造〉'],
+      ['財布を抜き取りたい','〈スリ〉'],
+      ['怪我の血を止めたい','〈応急手当〉'],
+      ['死にかけを持ちこたえさせたい','〈救急医療〉'],
+      ['壊れた機械を直したい','〈ベーシック・テク〉'],
+      ['義体をその場で動かしたい','〈義体応急整備〉'],
+      ['爆弾を仕掛けたい・外したい','〈爆破工作〉'],
+      ['現場の証拠を調べたい','〈鑑識／フォレンジック〉'],
+      ['撃たれても動き続けたい','〈耐痛〉'],
+      ['縛られた状態から抜けたい','〈拘束離脱〉']
+    ]
+  };
+  /* SKILL_FINDER 生成 終了 */
   // ── 判定・腕前・振る（S15・R22） ──
   // 判定＝【対応ステータス】＋〈技能レベル〉（これに1d10を足して振る）。腕前＝判定＋5（VTT の技能一覧の「腕前の目安」と同じ値）。
   // Ego は精算後の値（ego_eff と同じ）で引く。二つの対応ステータスは平均（端数切り上げ）、Edge を含むときは合計（2026-11-01裁定）。
@@ -3177,7 +3553,37 @@ var ROLE_SKILLS=[
     out.setAttribute('data-base',c.name+'|'+c.check);
   }
   // 行の判定・腕前・説明を引き直す。判定の値か技能名が変わったら、前に振った出目は消す
+  /* 回避判定の計算値（2026-10-31 裁定・2026-11-05 改定）。射撃＝【Nerve】＋〈回避〉、近接＝【Nerve】＋〈格闘〉と〈白兵戦〉の高いほうの2分の1＋〈武術〉の3分の1（端数切り捨て）。
+     〈格闘〉と〈白兵戦〈近接武器〉〉は足し合わせず、高いほう1つを使う（同じなら〈格闘〉と出す）。
+     〈武術〉は持っている流派のいちばん高いレベル。〈ガン＝カタ〉も〈武術〉の一つとして数える。
+     同じラウンドの2回目からの不利（−2ずつ）は戦闘中に VTT が数えるので、シートの値には入れない。
+     VTT の DODGE_RULE（weaponMode:'max'）と同じ式。VTT 側を直したらここも同じ値に直す */
+  function sheetSkillMax(test){
+    var best=0;
+    Array.prototype.forEach.call(document.querySelectorAll('#skill-list .dyn-row'),function(r){
+      var nm=r.querySelector('.dyn-name'),lv=r.querySelector('.skill-lvl');
+      var n=nm?normSkill(nm.value):'',v=lv?parseInt(lv.value,10):NaN;
+      if(n&&!isNaN(v)&&test(n))best=Math.max(best,v);
+    });
+    return best;
+  }
+  function dodgeOf(){
+    var nv=checkStat('Nerve')||0;
+    var dv=sheetSkillMax(function(n){return n==='回避';});
+    var bb=sheetSkillMax(function(n){return n==='格闘';});
+    var wp=sheetSkillMax(function(n){return n==='白兵戦近接武器'||n==='白兵戦';});
+    var ma=sheetSkillMax(function(n){return /^武術/.test(n)||n==='ガン＝カタ';});
+    var useW=wp>bb,br=useW?wp:bb;
+    return {gun:nv+dv,melee:nv+Math.floor(br/2)+Math.floor(ma/3),nv:nv,dv:dv,br:br,brName:useW?'白兵戦':'格闘',ma:ma};
+  }
+  function dodgeShow(){
+    var D=dodgeOf(),g=el('dodge-gun'),m=el('dodge-melee'),fm=el('dodge-formula');
+    if(g)g.textContent=String(D.gun);
+    if(m)m.textContent=String(D.melee);
+    if(fm)fm.textContent='射撃＝【Nerve】'+D.nv+'＋〈回避〉'+D.dv+'／近接＝【Nerve】'+D.nv+'＋〈'+D.brName+'〉'+D.br+'の2分の1（〈格闘〉と〈白兵戦〉の高いほう）＋〈武術〉'+D.ma+'の3分の1（端数切り捨て）';
+  }
   function skillChecks(){
+    dodgeShow();
     if(!SKILL_DB||!SKILL_DESC)return;
     Array.prototype.forEach.call(document.querySelectorAll('#skill-list .dyn-row'),function(r){
       var box=r.querySelector('.skill-chk'); if(!box)return;
@@ -3275,6 +3681,8 @@ var ROLE_SKILLS=[
       var activeRow=active.closest('.dyn-row'),previous=active.dataset.accepted||'';
       // 万能技能の行は Lv1 より下げない（2026-11-03）
       if(activeRow.dataset.univ==='1'&&cv<1){active.value='1';cv=1;}
+      // 技能レベルの上限（2026-11-05 先生の裁定 w03・r04）。作成時は7、成長後のチェックがあれば10。打ち込んでも＋を押しても止める
+      if(cv>skillCap()){active.value=String(skillCap());cv=skillCap();}
       var missingPrereq=skillPrereqMissing(activeRow.querySelector('.dyn-name').value).length>0;
       var existingMissing=missingPrereq&&(parseInt(previous,10)||0)>=1;
       var limit=SKILL_MAX_LEVEL[skillCanonical(activeRow.querySelector('.dyn-name').value)];
@@ -3298,10 +3706,10 @@ var ROLE_SKILLS=[
       var inf=rowInfo(r); if(!inf.badge)return;
       var tier=skillClassOf(wNm?wNm.value:''),missing=skillPrereqMissing(wNm?wNm.value:''),reason=skillPrereqText(missing);
       r.querySelector('.skill-tier').textContent=wNm&&wNm.value?({B:'基本',M:'その他',S:'専門'}[tier]):'';
-      // レベルの上限は先生の裁定待ち（第4節の3）。決まるまでは Lv11 以上に注記だけ出す（S12）
-      r.querySelector('.skill-tier-note').textContent=inf.lvlVal<1?(tier==='S'?'取得が必要':tier==='M'?'未修得は目標値＋3':''):(inf.lvlVal>=11?'作成ガイドの目安は10まで':'');
+      // レベルの上限（作成時7・成長後10。2026-11-05 先生の裁定 w03・r04）。上限に届いた行に「上限」と出す（S12）
+      r.querySelector('.skill-tier-note').textContent=inf.lvlVal<1?(tier==='S'?'取得が必要':tier==='M'?'未修得は目標値＋3':''):(inf.lvlVal>=skillCap()?(isGrown()?'Lv10 が上限':'作成時は Lv7 が上限'):'');
       var maxLevel=SKILL_MAX_LEVEL[skillCanonical(wNm?wNm.value:'')],overLevel=!!maxLevel&&inf.lvlVal>maxLevel;
-      if(maxLevel&&!(reason&&inf.lvlVal>=1))inf.lvl.max=String(maxLevel);else{inf.lvl.removeAttribute('max');delete inf.lvl.dataset.limitBlocked;}
+      if(maxLevel&&!(reason&&inf.lvlVal>=1))inf.lvl.max=String(maxLevel);else{inf.lvl.max=String(skillCap());delete inf.lvl.dataset.limitBlocked;}
       var limitText=overLevel||inf.lvl.dataset.limitBlocked?'この技能はLv1まで':'';
       r.classList.toggle('skill-prereq-missing',!!reason);
       var prereq=r.querySelector('.skill-prereq');prereq.classList.toggle('invalid',!!limitText);
@@ -3327,7 +3735,7 @@ var ROLE_SKILLS=[
   function skTaken(){
     var s={};
     Array.prototype.forEach.call(document.querySelectorAll('#skill-list .dyn-name'),function(n){
-      var k=normSkill(n.value); if(k)s[k]=1;
+      var k=normSkill(n.value); if(k){s[k]=1;s[skillDupKey(n.value)]=1;}   // 別名で書いた行も、正式名の技能を取得済みにする（2026-11-05 w12）
     });
     return s;
   }
@@ -3362,49 +3770,158 @@ var ROLE_SKILLS=[
     r.textContent=sp>0?('残り '+(sp-used)+'点'):('使用 '+used+'点');
     r.classList.toggle('over',sp>0&&used>sp);
   }
+  // ── 技能の探しやすさ（2026-11-05 先生の採用） ──
+  // タブ：おすすめ（メインロールの札つき）・取得済み・すべて・12分類（SKILL_FINDER.groups の順）。押した分類だけを出す。
+  // 職業の札は2段（1＝まず取る・2＝あると便利）。表は SKILL_FINDER（正本 _tools/技能一覧帳/skills_seed.json から生成）
+  var SKF_REC='@rec',SKF_GOT='@got';
+  var SKF_KIND={1:'まず取る',2:'あると便利'};
+  function skfRole(){var m=document.querySelector('[data-f="rolepick_main"]');return m?String(m.value||''):'';}
+  // 技能（SKILL_DB の正式名）に付いた、いまのメインロールの札。0＝札なし
+  function skfJob(name){var r=SKILL_FINDER.skills[name],role=skfRole();return (r&&r[1]&&role&&r[1][role])||0;}
+  function skfGroupOf(name){var r=SKILL_FINDER.skills[name];return r?SKILL_FINDER.groups[r[0]]:'';}
+  // SKILL_DB の技能を SKILL_FINDER の分類と並びで束ねる。表に無い技能は SKILL_DB の分類のまま後ろに付ける
+  var _skfOrd=null;
+  function skfOrdered(){
+    if(_skfOrd)return _skfOrd;
+    var by={},out=SKILL_FINDER.groups.map(function(g){return [g,[]];}),extra={};
+    SKILL_DB.forEach(function(c){c[1].forEach(function(s){by[s[0]]=[c[0],s];});});
+    Object.keys(SKILL_FINDER.skills).forEach(function(n){if(by[n]){out[SKILL_FINDER.skills[n][0]][1].push(by[n][1]);delete by[n];}});
+    Object.keys(by).forEach(function(n){var g=by[n][0];if(!extra[g]){extra[g]=[g,[]];out.push(extra[g]);}extra[g][1].push(by[n][1]);});
+    _skfOrd=out.filter(function(c){return c[1].length;});
+    return _skfOrd;
+  }
+  // 取得済みか。〈武術〈流派指定〉〉のような〈指定〉の技能は、頭の名前で始まる行が1つでもあれば取得済み
+  function skfGot(s,taken){
+    if(!s[3])return !!taken[normSkill(s[0])];
+    var head=normSkill(s[3]);
+    return Object.keys(taken).some(function(k){return k.indexOf(head)===0;});
+  }
   function renderPkCats(){
     var box=el('sk-cats'); if(!box)return; box.innerHTML='';
-    var list=[['','すべて']].concat(SKILL_DB.map(function(c){return [c[0],'【'+c[0]+'】'];}));
+    var taken=skTaken(),rec=0,got=0;
+    skfOrdered().forEach(function(c){c[1].forEach(function(s){if(skfJob(s[0]))rec++;if(skfGot(s,taken))got++;});});
+    var list=[[SKF_REC,'おすすめ',rec],[SKF_GOT,'取得済み',got],['','すべて']].concat(skfOrdered().map(function(c){return [c[0],c[0]];}));
     list.forEach(function(c){
       var b=document.createElement('button'); b.type='button';
-      b.className='pk-cat'+(PK.cat===c[0]?' on':''); b.textContent=c[1];
-      b.addEventListener('click',function(){PK.cat=c[0];renderPkCats();renderPkList();});
+      b.className='pk-cat'+(PK.cat===c[0]?' on':''); b.textContent=c[1]+(c[2]!=null?' '+c[2]:'');
+      b.setAttribute('data-cat',c[0]||'@all'); b.setAttribute('aria-pressed',PK.cat===c[0]?'true':'false');
+      b.addEventListener('click',function(){
+        PK.cat=c[0];
+        // タブを押したら、打ち込んだ語は消して、その分類だけを出す
+        if(PK.find){PK.find='';el('sk-find').value='';}
+        renderPkCats();renderPkList();el('sk-body').scrollTop=0;
+      });
       box.appendChild(b);
     });
   }
+  // 前提の文（「前提：〈白兵戦〈近接武器〉〉Lv3」）と、押して飛ぶ先。足りない前提があれば miss を返す
+  function skfPreLine(s){
+    var req=SKILL_PREREQ.prerequisites[s[0]];
+    if(!req||!req.length)return null;
+    var missing=skillPrereqMissing(s[0]);
+    var div=document.createElement('div'); div.className='pk-pre'+(missing.length?' miss':''); div.setAttribute('data-pre-of',s[0]);
+    div.appendChild(document.createTextNode('前提：'));
+    function link(name){
+      var b=document.createElement('button'); b.type='button'; b.className='pk-pre-link'; b.textContent=name; b.setAttribute('data-jump',name);
+      b.title=name+' の行へ飛ぶ';
+      b.addEventListener('click',function(e){e.stopPropagation();skfJump(name);});
+      div.appendChild(b);
+    }
+    req.forEach(function(r,i){
+      if(i)div.appendChild(document.createTextNode('、'));
+      if(r.skill){link(r.skill);div.appendChild(document.createTextNode('Lv'+r.lv));}
+      else{
+        r.anyOf.forEach(function(a){link(typeof a==='string'?a:'〈武術〈流派指定〉〉');});
+        div.appendChild(document.createTextNode('のどれかLv'+r.lv));
+      }
+    });
+    // 行の余白を押したときは、足りない前提の最初の1つへ飛ぶ
+    if(missing.length){
+      var m0=missing[0],to=m0.skill||(typeof m0.anyOf[0]==='string'?m0.anyOf[0]:'〈武術〈流派指定〉〉');
+      div.setAttribute('data-miss',to); div.title='足りない前提：'+to+' の行へ飛ぶ';
+      div.addEventListener('click',function(){skfJump(to);});
+    }
+    return {el:div,miss:missing.length>0};
+  }
+  // 技能の行へ飛ぶ。その技能の分類のタブに切り替えて、行を選び、見える所まで送る
+  function skfJump(name){
+    var g=skfGroupOf(name);
+    PK.find='';el('sk-find').value='';
+    PK.cat=g||'';
+    var w=el('sk-wants');if(w&&!w.hidden)skfWants(false);
+    renderPkCats();renderPkList();
+    var b=null;Array.prototype.forEach.call(el('sk-body').querySelectorAll('.pk-item'),function(x){if(!b&&x.getAttribute('data-skill')===name)b=x;});
+    if(!b)return;
+    var s=null;skfOrdered().forEach(function(c){c[1].forEach(function(t){if(t[0]===name)s=t;});});
+    b.scrollIntoView({block:'center'});
+    b.classList.remove('flash');void b.offsetWidth;b.classList.add('flash');
+    if(s&&!b.classList.contains('taken'))pkChoose(s);else if(s){hideSpec();b.classList.add('sel');showDesc(s);}
+  }
+  // 「やりたいことから引く」の一覧を開け閉めする
+  function skfWants(open){
+    var w=el('sk-wants'),t=el('sk-want-btn'); if(!w)return;
+    if(open==null)open=w.hidden;
+    w.hidden=!open; t.setAttribute('aria-expanded',open?'true':'false'); t.classList.toggle('on',open);
+    if(open&&!w.childNodes.length){
+      SKILL_FINDER.wants.forEach(function(x){
+        var b=document.createElement('button'); b.type='button'; b.className='pk-want'; b.textContent=x[0];
+        b.setAttribute('data-want',x[1]); b.title=x[1]+' へ飛ぶ';
+        b.addEventListener('click',function(){skfJump(x[1]);});
+        w.appendChild(b);
+      });
+    }
+  }
   function renderPkList(){
     var box=el('sk-body'); if(!box)return; var keep=box.scrollTop; box.innerHTML='';
-    var taken=skTaken(), q=kanaFold(normSkill(PK.find)), hits=0;
+    var taken=skTaken(), q=kanaFold(normSkill(PK.find)), hits=0, role=skfRole();
     PK.hits=[];
-    SKILL_DB.forEach(function(c){
-      if(PK.cat&&PK.cat!==c[0])return;
-      var ms=c[1].filter(function(s){
-        if(!q)return true;
-        // 〈武術〈流派指定〉〉は9流派の名でも引ける（「ボクシング」と打って探す人がいる。BXS）
-        return kanaFold(normSkill(s[0])+' '+s[1]+' '+c[0]+' '+(s[3]||'')+(s[3]==='武術'?' '+MA_STYLES.join(' '):'')+' '+(SKILL_FIND[s[0]]||'')).indexOf(q)>=0;
-      });
-      if(!ms.length)return;
-      var h=document.createElement('div'); h.className='pk-grp'; h.textContent='【'+c[0]+'】'; box.appendChild(h);
-      ms.forEach(function(s){
+    var descHits=[];
+    function item(s,c){
         hits++;
-        var spec=!!s[3], got=!spec&&!!taken[normSkill(s[0])];
-        if(!got)PK.hits.push(s);
-        var b=document.createElement('button'); b.type='button'; b.className='pk-item'+(got?' taken':'')+(PK.sel&&PK.sel[0]===s[0]?' sel':''); b.setAttribute('data-skill',s[0]);
-        b.title=s[0]+'　対応ステータス：'+s[1]+'　'+xWord(s[2]);
+        var spec=!!s[3], got=!spec&&!!taken[normSkill(s[0])], job=skfJob(s[0]), pre=skfPreLine(s);
+        var b=document.createElement('button'); b.type='button'; b.className='pk-item'+(got?' taken':'')+(PK.sel&&PK.sel[0]===s[0]?' sel':'')+(job?' job'+job:'')+(pre&&pre.miss?' pre-miss':''); b.setAttribute('data-skill',s[0]);
+        if(job)b.setAttribute('data-job',String(job));
+        b.title=s[0]+'　対応ステータス：'+s[1]+'　'+xWord(s[2])+(job?'　'+role+'の札：'+SKF_KIND[job]:'');
         var nm=document.createElement('span'); nm.className='pk-nm'; nm.textContent=s[0]+(got?'　取得済み':'');
+        if(job){var jb=document.createElement('span');jb.className='pk-job j'+job;jb.textContent=SKF_KIND[job];nm.insertBefore(jb,nm.firstChild);}
         var tier=skillClassOf(s[0]),tierBadge=document.createElement('span');tierBadge.className='skill-tier';tierBadge.textContent=' '+({B:'基本',M:'その他',S:'専門'}[tier]);nm.appendChild(tierBadge);
         var owned=collectList('skill-list').some(function(r){return normSkill(skillCanonical(r.name))===normSkill(s[0])&&(parseInt(r.text,10)||0)>=1;});
         if(!owned&&tier!=='B'){var note=document.createElement('span');note.className='skill-tier-note';note.textContent=' '+(tier==='S'?'取得が必要':'未修得は目標値＋3');nm.appendChild(note);}
         var ab=document.createElement('span'); ab.className='pk-ab'; ab.textContent=s[1];
         var xx=document.createElement('span'); xx.className='pk-x'+(s[2]===2?' x2':s[2]===3?' x3':''); xx.textContent=xMark(s[2]);
         b.appendChild(nm); b.appendChild(ab); b.appendChild(xx);
+        // 取得済みの行は追加できないが、押せば説明は出る
         if(!got)b.addEventListener('click',function(){pkChoose(s);});
+        else b.addEventListener('click',function(){hideSpec();b.classList.add('sel');showDesc(s);});
         box.appendChild(b);
+        if(pre)box.appendChild(pre.el);
+        return got;
+    }
+    skfOrdered().forEach(function(c){
+      var ms=c[1].filter(function(s){
+        if(q){
+          // 〈武術〈流派指定〉〉は9流派の名でも引ける（「ボクシング」と打って探す人がいる。BXS）
+          if(kanaFold(normSkill(s[0])+' '+s[1]+' '+c[0]+' '+(s[3]||'')+(s[3]==='武術'?' '+MA_STYLES.join(' '):'')+' '+(SKILL_FIND[s[0]]||'')).indexOf(q)>=0)return true;
+          // 名前で当たらなければ説明の文で探す。説明だけで当たった技能は、名前で当たった技能の後ろにまとめる
+          if(kanaFold(normSkill(skillDescOf(s[0]))).indexOf(q)>=0)descHits.push([s,c]);
+          return false;
+        }
+        if(PK.cat===SKF_REC)return !!skfJob(s[0]);
+        if(PK.cat===SKF_GOT)return skfGot(s,taken);
+        return !PK.cat||PK.cat===c[0];
       });
+      if(!ms.length)return;
+      var h=document.createElement('div'); h.className='pk-grp'; h.textContent='【'+c[0]+'】'; box.appendChild(h);
+      ms.forEach(function(s){if(!item(s,c))PK.hits.push(s);});
     });
+    if(descHits.length){
+      var h2=document.createElement('div'); h2.className='pk-grp pk-grp-desc'; h2.textContent='説明に「'+PK.find.trim()+'」が出てくる技能'; box.appendChild(h2);
+      descHits.forEach(function(x){item(x[0],x[1]);});
+    }
     if(!hits){
       var em=document.createElement('div'); em.className='pk-empty';
-      em.textContent='当てはまる技能がありません';
+      em.textContent=PK.cat===SKF_REC&&!q?(role?role+'の札が付いた技能はない。':'メインロールを選ぶと、その職業で「まず取る」「あると便利」な技能がここに出る。')
+        :PK.cat===SKF_GOT&&!q?'まだ技能を取っていない。':'当てはまる技能がありません';
       box.appendChild(em);
     }
     box.scrollTop=keep;
@@ -3520,7 +4037,7 @@ var ROLE_SKILLS=[
     el('sk-ttl').textContent=(m==='own')?'自作技能を追加':'技能を選ぶ';
     el('sk-sub').textContent=(m==='own')
       ?'一覧に無い技能を自分で決めて登録する。名前・対応ステータス・取得コストの3つを埋めると、〔自作〕の印つきで行に入る。ポイントは選んだ取得コストで数える。'
-      :'カテゴリで絞り込むか、名前を打ち込んで探す。行を押すと説明が出て、「追加する」で行に入る。選んだ技能はレベル1で行に入る。前提が足りない技能は、レベル0で入れて前提の案内を出す。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 には点を使わない。取得済みの技能は選べない。';
+      :'分類のタブで絞り込むか、名前や説明の言葉を打ち込んで探す。「やりたいことから引く」を押すと、場面の言葉から技能へ飛べる。メインロールを選んでいれば、その職業で「まず取る」技能に濃い印、「あると便利」な技能に薄い印が付く。行を押すと説明が出て、「追加する」で行に入る。選んだ技能はレベル1で行に入る。前提が足りない技能は、レベル0で入れて前提の案内を出す。〈知覚〉〈精神集中〉〈第六感／直感〉の3つは、はじめから Lv1 で行に入っていて、この Lv1 には点を使わない。取得済みの技能は選べない。';
     if(m==='own'){hideSpec();el('sk-go').style.display='';updOwnPrev();}
     else{el('sk-go').style.display=PK.sel?'':'none';renderPkList();}
   }
@@ -3552,7 +4069,7 @@ var ROLE_SKILLS=[
   }
   function pkOpen(m){
     PK.find=''; el('sk-find').value='';
-    hideSpec(); pkMode(m||'list'); renderPkCats(); renderPkList();
+    hideSpec(); skfWants(false); pkMode(m||'list'); renderPkCats(); renderPkList();
     el('skmodal').classList.add('on');
     var f=(m==='own')?el('sk-own-nm'):el('sk-find'); if(f)f.focus();
   }
@@ -3562,6 +4079,9 @@ var ROLE_SKILLS=[
   el('sk-tab-own').addEventListener('click',function(){pkMode('own');});
   el('sk-close').addEventListener('click',function(){el('skmodal').classList.remove('on');});
   el('sk-go').addEventListener('click',pkGo);
+  el('sk-want-btn').addEventListener('click',function(){skfWants();});
+  // メインロールを替えたら、開いている選び窓の札を引き直す
+  document.addEventListener('change',function(e){var t=e.target;if(t&&t.getAttribute&&t.getAttribute('data-f')==='rolepick_main'&&el('skmodal').classList.contains('on')){renderPkCats();renderPkList();}});
   // 名前を打ったら、選んでいたカテゴリを外して全部から探す（S15）
   el('sk-find').addEventListener('input',function(){PK.find=this.value;if(normSkill(PK.find)&&PK.cat){PK.cat='';renderPkCats();}renderPkList();});
   // 日本語入力の変換中のキーかどうか（2026-11-03）。Safari では確定の Enter が isComposing:false・keyCode 229 で届くことがあるので、両方とキー名 Process を見る
@@ -3671,7 +4191,7 @@ var ROLE_SKILLS=[
     // "unspecified" and preserves any per-expression tuning done on its side across re-imports
     var img={icon:IMG.icon,stand:IMG.stand,exprs:(IMG.exprs||[]).map(function(ex){
       var o={name:ex.name,img:ex.img};
-      if(!((ex.x||0)===0&&(ex.y||0)===0&&(ex.scale==null||ex.scale===1))){o.x=ex.x||0;o.y=ex.y||0;o.scale=(ex.scale&&ex.scale>0)?ex.scale:1;}
+      if(!((ex.x||0)===0&&(ex.y||0)===0&&(ex.scale==null||ex.scale===1))){o.x=Math.max(-100,Math.min(100,ex.x||0));o.y=Math.max(-100,Math.min(100,ex.y||0));o.scale=(ex.scale&&ex.scale>0)?Math.max(0.4,Math.min(3,ex.scale)):1;}
       return o;})};
     var o={v:2,cid:CUR,tel:ensureTel(),images:img,fields:f,stats:s,lists:{unique:collectList('unique-list'),edge:collectList('edge-list'),skill:collectList('skill-list'),items:collectList('item-list')},calc:calcOf()};
     // 読み込んだときにシートが読まなかった鍵を、同じ値のまま返す（S17・R42）
@@ -3682,6 +4202,19 @@ var ROLE_SKILLS=[
     var ov=budgetNote(); if(!ov)return o;
     var w={warn:ov}; for(var k in o)w[k]=o[k]; return w;
   }
+  // 成長後（GMの承認あり）のチェック（2026-11-05 先生の裁定 r04）。入れると技能レベルの上限が10、外すと7。
+  // Lv8 以上の技能が残っているあいだは外せない（古いキャラを壊さないため）。値は hidden の fields.grown に持ち、input を流して自動保存に乗せる
+  (function(){
+    var c=document.getElementById('grown-chk');if(!c)return;
+    c.addEventListener('change',function(){
+      if(!c.checked){
+        var hi=Array.prototype.some.call(document.querySelectorAll('#skill-list .skill-lvl'),function(e){return (parseInt(e.value,10)||0)>SKILL_LV_CREATE;});
+        if(hi){c.checked=true;toast('Lv8 以上の技能があるあいだは、チェックを外せません。',3200);return;}
+      }
+      setGrown(c.checked);clampSkills(null);
+      var g=grownField();if(g)g.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+  })();
   function apply(d){
     if(!d)return;
     if(d.fields)d=Object.assign({},d,{fields:skillRenameFields(Object.assign({},d.fields))});
@@ -3691,6 +4224,8 @@ var ROLE_SKILLS=[
     if(okTel(d.tel))setTel(d.tel);
     if(d.images){IMG={icon:d.images.icon||null,stand:d.images.stand||null,exprs:(d.images.exprs||[]).slice()};}
     if(d.fields)fields().forEach(function(e){var k=e.getAttribute('data-f');if(k in d.fields)e.value=d.fields[k];});
+    // 成長後のチェック（fields.grown）。古いコードには無いので、その時は外す。チェックの見た目は値に合わせる
+    (function(){var g=grownField();if(g){if(!(d.fields&&'grown' in d.fields))g.value='';else g.value=(g.value==='1'||g.value===true||g.value==='true')?'1':'';}setGrown(isGrown());})();
     // 旧コードの自由記入のメインロール（fields.role）は欄ごと無くした。肩書きが空なら肩書きへ移し、読み残しの鍵としては返さない（2026-10-26）
     (function(){var r=d.fields&&typeof d.fields.role==='string'?d.fields.role.trim():'';var te=document.getElementById('f-title');if(r&&te&&!te.value.trim())te.value=r;if(EXTRA&&EXTRA.fields)delete EXTRA.fields.role;})();
     // 自作技能の控え。技能行を組み直す前に読んでおく（旧データには無いので、その時は空へ戻す）
@@ -3703,6 +4238,9 @@ var ROLE_SKILLS=[
       statInputs().forEach(function(e){var k=e.getAttribute('data-stat');if(k in d.stats)e.value=statNorm(e,d.stats[k]);});
     }
     fillSp(); fillWallet();
+    // 技能の行を整える（上限10・同じ技能は1行・万能技能3行を頭に。2026-11-05）。直したことは読み込みのあとで知らせる
+    var skTidy=null;
+    if(d.lists&&Array.isArray(d.lists.skill)){skTidy=skillListTidy(d.lists.skill);d=Object.assign({},d,{lists:Object.assign({},d.lists,{skill:skTidy.list})});}
     // 旧データ互換：d.lists.active / d.lists.passive（旧・自由記入の職業スキルUI）は
     // 現行の選択式ロールピッカーに引き継げないため、存在しても無視してスキップする（クラッシュ防止のみ）
     if(d.lists){[['unique','unique'],['edge','edge'],['skill','skill'],['items','item']].forEach(function(p){var key=p[0],dom=p[1];var c=document.getElementById(dom+'-list');if(!c)return;c.innerHTML='';(d.lists[key]||[]).forEach(function(it){addRow(dom+'-list',it,PH[dom]);});if(c.children.length===0)addRow(dom+'-list',{},PH[dom]);});}
@@ -3738,7 +4276,11 @@ var ROLE_SKILLS=[
     // エッジウェアが1件でも入っていれば、開き直しても読み込んでもロックを外したままにする（P251）。一度外した印があっても外す（S39）
     edgeLockSync();
     uniqueSync();
+    // 技能の行を直したら知らせる。コードの読み込みは「読み込み完了」の後ろに同じ文を付ける（APPLY_NOTES）
+    APPLY_NOTES=skTidy?skTidy.notes.join('\n'):'';
+    if(APPLY_NOTES)toast(APPLY_NOTES,7000);
   }
+  var APPLY_NOTES='';
   // 窓の中の欄（出力・貼り付け）は伸ばさない。貼り付け欄を伸ばすと、長いコードで窓が画面の外まで膨らむ（P015）
   function autoGrow(t){if(!t||t.tagName!=='TEXTAREA')return;if(t.id==='out-text'||t.id==='imp-text')return;t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';}
   function growAll(){Array.prototype.forEach.call(document.querySelectorAll('textarea'),function(t){autoGrow(t);});}
@@ -4050,6 +4592,7 @@ var ROLE_SKILLS=[
     if(st('Edge'))line('Edge（狂気・限界域）',st('Edge'));
     L.push('');
     L.push('［人間性］'+H.cap+'　※生まれEgo'+H.birthEmp+'×10＋Edge'+H.edge+'×5'+((H.cost1||H.cost2)?'／代償 -'+(H.cost1+H.cost2)+'（①-'+H.cost1+'・②-'+H.cost2+'）':'／代償なし'));
+    var HN=humanityNow(H.cap); L.push('［いまの人間性］'+HN.now+'　※最大'+HN.cap+'−義体の損失'+HN.loss+'＋手直し'+(HN.adj<0?'（−'+(-HN.adj)+'）':HN.adj));
     if(st('Edge'))L.push('　エッジウェア枠：'+H.edge);
     var HP=hpOf();
     L.push('［HP（意識）］'+HP.hp+'　※（Constitution'+HP.con+'＋Ego'+HP.ego+'）×2＝'+HP.raw+(HP.hp!==HP.raw?'→最低12':'')+'（生まれの Ego で計算）');
@@ -4138,6 +4681,8 @@ var ROLE_SKILLS=[
     // エッジウェアの行を書き足したら、枠との比べ直し（P193）
     if(t.closest&&t.closest('#edge-list'))recalc();
     if(CYBER_SLOT_FIELDS.indexOf(t.getAttribute('data-f'))!==-1)renderCyberSlots();
+    // 義体の部位と手直しを書いたら、いまの人間性を引き直す（w06）
+    if((t.getAttribute('data-f') in CW_HL)||t.getAttribute('data-f')==='hum_adj')recalc();
     if(t.id==='gender-in')setBody();
     if((t.classList&&t.classList.contains('skill-lvl'))||t.getAttribute('data-f')==='sp')clampSkills(t);
     // 技能名の変更でも倍率と消費を引き直す（倍率は技能名から引くため）
@@ -4170,6 +4715,13 @@ var ROLE_SKILLS=[
     var t=e.target; if(!isSkillName(t))return;
     var st=maStyleOfName(t.value);
     if(st){var nm='〈武術〈'+st+'〉〉'; if(t.value!==nm)t.value=nm;}
+    // 同じ技能を2行に書けない（2026-11-05 w12）。ほかの行にある技能の名前を打ったら、この行を空に戻して知らせる
+    var dk=skillDupKey(t.value), myRow=t.closest('.dyn-row');
+    if(dk&&Array.prototype.some.call(document.querySelectorAll('#skill-list .dyn-row'),function(r){var n=r.querySelector('.dyn-name');return r!==myRow&&n&&skillDupKey(n.value)===dk;})){
+      var dupName=t.value.trim(), dlv=myRow.querySelector('.skill-lvl');
+      t.value=''; if(dlv)dlv.value='';
+      toast(dupName+' はもう行があります。同じ技能は2行に書けません。レベルはその行で上げてください。',5000);
+    }
     MA_COMPOSE=false; clampSkills(t);
     // changeの時点では、まだ欄にフォーカスが残っていることがある。この行は確定した値として見直す
     setWarn(t.closest('.dyn-row').querySelector('.skill-warn'),maWarnOf(maStyleOfName(t.value),false));
@@ -4212,6 +4764,7 @@ var ROLE_SKILLS=[
   function todoItems(){
     var q=function(f){var e=document.querySelector('[data-f="'+f+'"]');return e?String(e.value||'').trim():'';};
     var out=[], add=function(sec,t,go,over){out.push({sec:sec,t:t,go:go,over:!!over});};
+    if(!q('player'))add('基本情報','PL名','f-player');
     if(!(q('name')||q('handle')))add('基本情報','名前かハンドル','f-name');
     if(!heightVal())add('基本情報','身長','height-in');
     if(!humanityValid)add('ステータス','精算後の Ego が1未満','st-Ego',true);
@@ -4442,6 +4995,19 @@ var ROLE_SKILLS=[
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(code).then(done,fallback);}
     else fallback();
   }
+  // 家（家.html）を開く（2026-11-05・lane-hometool）。開いたタブの「用意できた」に、このキャラのコードを渡す。家はシートの cid で決まる
+  (function(){
+    var on=false;try{on=new URLSearchParams(location.search).get('feat')==='homevend'||localStorage.getItem('himari_feat_homevend')==='1';}catch(e){}
+    var b=el('b-home'); if(!b||!on)return; b.hidden=false;
+    var wait=[];
+    window.addEventListener('message',function(e){var m=e&&e.data;if(!m||m.type!=='rosf-home-ready')return;for(var i=0;i<wait.length;i++){if(wait[i].w===e.source){var c=wait[i].code;wait.splice(i,1);try{e.source.postMessage({type:'rosf-home-char',code:c},'*');}catch(er){}return;}}});
+    b.addEventListener('click',function(){
+      persistNow();
+      var w=null;try{w=window.open(new URL('家.html',location.href).href,'_blank');}catch(e){}
+      if(!w){toast('家を開けませんでした。ポップアップを許してから、もう一度押してください。');return;}
+      wait.push({w:w,code:enc(serialize())});
+    });
+  })();
   function showCopyBox(code){
     var t=el('copy-code'); t.value=code; el('cmodal').classList.add('on');
     t.focus(); t.select();
@@ -4517,23 +5083,38 @@ var ROLE_SKILLS=[
   });
   // コードを読み込む。asNew なら新しいキャラ（新しい cid）に入れ、そうでなければ今のキャラに上書きする
   function importSheet(d,asNew){
+    var switched=false, switchedName='';
     // 上書きは今までどおりその場で読む。新しいキャラは保存の準備（IndexedDB）を待ってから
     if(asNew)whenReady(run);else run();
     function run(){
     if(asNew&&MODE!=='multi')asNew=false;
+    // 保存済みの cid なら、今のキャラを保存してからそちらへ読み込む
+    if(MODE==='multi'&&d.cid!==CUR&&entry(d.cid)){
+      persistNow(); hideUndo(); asNew=false;
+      loadChar(d.cid).then(function(x){
+        showChar(d.cid,x); switched=true; switchedName=liveName()||'名前なし'; run();
+      });
+      return;
+    }
     // 上書き＝一度まっさらにしてから入れる。コードに無い欄・画像を前のキャラのまま残さない（P053）
     // ただし VTT の「コードを書き出す」で出したコードは images の項目ごと画像を運ばない。名前が今のキャラと同じなら、
     // 今の画像を残す（2026-10-21 食い違い調査 3。シートのコードは画像が空でも images の項目を持つので、今までどおり入れ替わる）
     takeUndo();
-    var keepImg=(!asNew&&!('images' in d)&&nameOf(d.fields)&&nameOf(d.fields)===liveName())?IMG:null;
+    var keepImg=(!asNew&&!('images' in d)&&(switched||(nameOf(d.fields)&&nameOf(d.fields)===liveName())))?IMG:null;
+    // 同じキャラの更新コードに公開設定が無ければ、今の設定と公開 ID を残す
+    var incoming=d;
+    if(!asNew&&!('pub' in d)&&(switched||d.cid===CUR||(okTel(d.tel)&&telNorm(d.tel)===TEL)||(nameOf(d.fields)&&nameOf(d.fields)===liveName()))){
+      var keepPub=typeof pubGet==='function'?pubGet():EXTRA.top.pub;
+      if(keepPub!==undefined)incoming=Object.assign({},d,{pub:keepPub});
+    }
     var prevTel=TEL, prevCid=CUR;
     if(asNew){persistNow();CUR=newCid();LIST.cur=CUR;LASTIMG=null;}
-    resetSheet(); apply(d); if(keepImg){IMG=keepImg;renderImgs();} var spDrop=ROLE_SPECIAL_DROPPED; adoptCid(d.cid);
+    resetSheet(); apply(incoming); if(keepImg){IMG=keepImg;renderImgs();} var spDrop=ROLE_SPECIAL_DROPPED; adoptCid(d.cid);
     if(asNew)UNDO_NEW={from:prevCid,to:CUR};
     // 番号の無いコード（番号を持つ前の版）は、同じキャラ（cid が今のまま）なら今の番号を保ち、別のキャラなら新しく振る（2026-10-31）
     if(!okTel(d.tel))setTel(!asNew&&CUR===prevCid?prevTel:'');
-    ensureTel(); persistNow(); if(asNew)renderChars();
-    toast(spDrop?'読み込み完了（専門ボーナスを解除）':'読み込み完了');
+    ensureTel(); persistNow(); if(asNew||switched)renderChars();
+    toast((spDrop?'読み込み完了（専門ボーナスを解除）':'読み込み完了')+(switched?'\n保存したキャラ「'+switchedName+'」へ読み込み':'')+(APPLY_NOTES?'\n'+APPLY_NOTES:''),APPLY_NOTES||switched?7000:0);
     showUndo();
     }
   }
@@ -4601,6 +5182,7 @@ var ROLE_SKILLS=[
     Array.prototype.forEach.call(document.querySelectorAll('.seg input'),function(i){i.value=(i.getAttribute('data-f')==='gender')?'不明':'無';});
     statInputs().forEach(function(e){e.value=(e.getAttribute('data-stat')==='Edge')?'0':'1';});
     fillSp(); fillWallet();
+    setGrown(false);   // 成長後のチェックも外す（欄を空にしたので、見た目も合わせる）
     OWN={};
     EXTRA={top:{},images:{},fields:{},stats:{},lists:{}};
     setTel('');   // 番号はキャラごと。まっさらにしたら、次に保存するときに新しい番号を振る（ensureTel）
@@ -4680,70 +5262,6 @@ var ROLE_SKILLS=[
       for(var i=0;i<hs.length;i++)if(hs[i].textContent===b.getAttribute('data-sec')){var s=hs[i].parentNode.parentNode;s.scrollIntoView({block:'start'});try{hs[i].focus({preventScroll:true});}catch(x){}break;}
     });
   });
-  // おすすめの型（2026-11-03）。能力値14値・技能の一覧・メインロールを型の値に置き換える。名前・身長・画像・固有・所持品・技能ポイントの欄は触らない。
-  // 職業スキルは数が裁定待ちなので選ばない（ネットランナーの接続特権はロールの決まりで自動で付く）。数値の出どころと検算は仕様の md
-  // 万能技能の3つ（〈知覚〉〈精神集中〉〈第六感／直感〉）は、新しいキャラと同じく頭に置く。最初の1レベルが無料になったので（2026-11-03）、
-  // 〈知覚〉と〈精神集中〉は使う点を変えずにレベルを1つ上げ、〈第六感／直感〉は無料の Lv1 で入れる。どの型も80点ちょうど
-  var TYPES={
-    gun:{name:'銃で戦う',role:'ソロ',line:'ソロ・撃ち合いと身のこなし',
-      stats:{Strength:4,Constitution:7,Intelligence:4,Ego:4,Nerve:8,Chance:3,Edge:0,Firearms:10,Interface:2,Craft:3,Techmed:2,Influence:3,Operations:5,Neural:5},
-      skills:[['〈知覚〉',6],['〈精神集中〉',5],['〈第六感／直感〉',1],
-        ['〈ハンドガン〉',7],['〈ライフル〉',5],['〈ショットガン〉',3],['〈フルオート射撃〉',3],['〈回避〉',5],['〈クイックドロー〉',2],['〈格闘〉',4],['〈白兵戦〈近接武器〉〉',3],
-        ['〈隠密〉',4],['〈運動〉',4],['〈耐痛〉',4],['〈ショック耐性〉',3],['〈応急手当〉',3],['〈投擲〉',3],['〈威圧〉',3],['〈裏社会〉',3],['〈車両操縦〉',2]]},
-    net:{name:'電脳で侵入する',role:'ネットランナー',line:'ネットランナー・ハックと機械',
-      stats:{Strength:3,Constitution:4,Intelligence:9,Ego:6,Nerve:3,Chance:4,Edge:1,Firearms:1,Interface:10,Craft:4,Techmed:2,Influence:3,Operations:3,Neural:7},
-      skills:[['〈知覚〉',5],['〈精神集中〉',4],['〈第六感／直感〉',1],
-        ['〈システム知識〉',6],['〈プログラミング〉',5],['〈エレクトロニクス〉',4],['〈ブリーチ・プロトコル〉',5],['〈電子戦〈ジャミング〉〉',3],['〈電子・保安技術〉',4],['〈情報収集／検索〉',6],['〈ベーシック・テク〉',4],
-        ['〈拡張知覚〉',3],['〈集中〉',3],['〈電磁耐性〉',3],['〈隠密〉',4],['〈ハンドガン〉',2],['〈回避〉',2],['〈暗号学〉',3],['〈教育／一般知識〉',3],['〈会話術〉',3]]},
-    talk:{name:'口で切り抜ける',role:'フィクサー',line:'フィクサー・交渉と取引',
-      stats:{Strength:4,Constitution:5,Intelligence:5,Ego:5,Nerve:5,Chance:4,Edge:2,Firearms:2,Interface:4,Craft:3,Techmed:2,Influence:10,Operations:5,Neural:4},
-      skills:[['〈知覚〉',5],['〈精神集中〉',4],['〈第六感／直感〉',1],
-        ['〈会話術〉',7],['〈弁舌／説得〉',6],['〈取引〉',6],['〈真意看破〉',6],['〈裏社会〉',5],['〈袖の下／買収〉',4],['〈エチケット〉',4],['〈演技〉',4],['〈威圧〉',3],['〈誘惑／魅了〉',3],
-        ['〈縄張りの掟〉',3],['〈等級査定〉',3],['〈情報収集／検索〉',4],['〈密輸ルート把握／調達〉',3],['〈回避〉',3],['〈ハンドガン〉',3],['〈隠密〉',3]]}
-  };
-  // 置き換わる所（能力値・技能・ロール）がどれも初期のままなら、確かめずに入れる
-  function typeBlank(){
-    var q=function(f){var e=document.querySelector('[data-f="'+f+'"]');return e?String(e.value||'').trim():'';};
-    var st=Array.prototype.every.call(statInputs(),function(e){return statNorm(e)===(e.getAttribute('data-stat')==='Edge'?'0':'1');});
-    // 万能技能の3行は、はじめから Lv1 で入っている。Lv1 のままなら初期のままとみなす（2026-11-03）
-    var seen={};
-    var sk=collectList('skill-list').every(function(r){
-      var n=String(r.name||'').trim(), v=String(r.text||'').trim(), k=univKeyOf(n);
-      if(!n&&!v)return true;
-      if(k&&!seen[k]&&(parseInt(v,10)||0)<=1){seen[k]=1;return true;}
-      return false;
-    });
-    return st&&sk&&!q('rolepick_main')&&!q('rolepick_sub');
-  }
-  function typeApply(t){
-    takeUndo(); skillAutoClose(); skillAutoForget();
-    statInputs().forEach(function(e){var k=e.getAttribute('data-stat');if(k in t.stats)e.value=String(t.stats[k]);});
-    var list=el('skill-list'); list.innerHTML='';
-    t.skills.forEach(function(s){addRow('skill-list',{name:s[0],text:String(s[1])},PH.skill);});
-    // メインロールを替えたときと同じく、メインの職業スキルの印を外す。サブは新しいメインと同じときだけ外す
-    var ms=document.querySelector('[data-f="rolepick_main"]'), ss=document.querySelector('[data-f="rolepick_sub"]'), drop=['main_'], checks=readRoleChecks();
-    if(ms)ms.value=t.role;
-    if(ss&&ss.value===t.role){ss.value='';drop.push('sub_');}
-    Object.keys(checks).forEach(function(k){drop.forEach(function(p){if(k.indexOf(p)===0)delete checks[k];});});
-    writeRoleChecks(checks);
-    var rc=confirmField('role_confirmed'); if(rc)rc.value='';
-    renderRoleSkills(); recalc(); clampSkills(); growAll(); persistNow();
-    toast('型の入力完了（'+t.name+'）');
-    showUndo('型を入れる前の中身');
-  }
-  (function(){
-    var host=el('types-list'); if(!host)return;
-    Object.keys(TYPES).forEach(function(k){
-      var t=TYPES[k], b=document.createElement('button');
-      b.type='button'; b.className='type-btn'; b.setAttribute('data-type',k);
-      b.innerHTML='<b></b><span></span>'; b.querySelector('b').textContent=t.name; b.querySelector('span').textContent=t.line;
-      b.addEventListener('click',function(){
-        if(typeBlank()){typeApply(t);return;}
-        askConfirm('いまの入力を型の値で置き換えます。よろしいですか？','置き換える','やめる').then(function(ok){if(ok)typeApply(t);});
-      });
-      host.appendChild(b);
-    });
-  })();
   // 選んだ数の帯（S36）。その節が画面の真ん中に掛かっているあいだだけ出す
   (function(){
     var bars=['role-modebar','pick-modebar'].map(el).filter(Boolean);
