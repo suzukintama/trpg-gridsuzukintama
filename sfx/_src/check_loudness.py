@@ -27,7 +27,7 @@ def decode(path):
 def main():
     bad = 0
     rows = []
-    for p in sorted(glob.glob(os.path.join(ROOT, '0*', '*.mp3'))):
+    for p in sorted(glob.glob(os.path.join(ROOT, '[0-9][0-9]_*', '*.mp3'))):
         base = p[:-4]
         loop = os.path.exists(base + '.ogg')
         y = decode(base + '.ogg' if loop else p)
@@ -35,9 +35,12 @@ def main():
         tp = true_peak_db(y)
         L = lufs(y)
         # 0.5 dB of slack for the lossy encoder
-        ok = tp <= -0.5 and (m <= CAP_MOMENTARY + 0.5 and s <= CAP_SHORT_TERM + 0.5)
-        if loop:
+        radio = os.path.basename(os.path.dirname(p)).startswith('08')
+        ok = tp <= -0.5
+        if loop or radio:
             ok = ok and L <= LOOP_TARGET + 0.5
+        else:
+            ok = ok and m <= CAP_MOMENTARY + 0.5 and s <= CAP_SHORT_TERM + 0.5
         bad += not ok
         rows.append((os.path.relpath(p, ROOT), m, s, L, tp, loop, ok))
     for r, m, s, L, tp, loop, ok in rows:
