@@ -412,7 +412,14 @@ def compress(x, thresh_db=-18, ratio=4, att=0.002, rel=0.08, makeup_db=0.0):
 def limiter(x, ceiling_db=-1.0, lookahead=0.003, rel=0.06):
     ceil = 10 ** (ceiling_db / 20)
     st = x if x.ndim == 2 else x[:, None]
-    pk = np.max(np.abs(st), axis=1)
+    # true-peak aware: detect peaks on a 4x oversampled copy, so limiting a sharp
+    # transient does not leave inter-sample overs behind
+    up = signal.resample_poly(st, 4, 1, axis=0)
+    n4 = (len(up) // 4) * 4
+    pk = np.max(np.abs(up[:n4]), axis=1).reshape(-1, 4).max(axis=1)
+    if len(pk) < len(st):
+        pk = np.concatenate([pk, np.max(np.abs(st[len(pk):]), axis=1)])
+    pk = np.maximum(pk[:len(st)], np.max(np.abs(st), axis=1))
     la = ns(lookahead)
     # gain needed per sample
     need = np.minimum(1.0, ceil / (pk + 1e-12))

@@ -168,31 +168,59 @@ def tech_guns():
     whine = env(whine, [(0, 0), (0.3, 0.3), (T, 1)])
     arc = env(window(raw('spark/spark-jacobs-ladder-03.mp3'), T), [(0, 0), (T * 0.6, 0.3), (T, 0.8)])
     shot = shot_list('firearm_library/tikka-W_29P.flac')[0]
-    ring = window(raw('bullet_metal/bullet-metal-steel-plate-01.mp3'), 2.0, 9.5)
     vent = fx.fade(raw('steam/steam-safety-valve-02.mp3'), 0.05, 0.6)
     y = seq([(0, whine * 0.7), (0, arc * 0.6), (T, shot), (T, lv('bang_cannon_02', 0.8)),
-             (T, spark(0.35, 0.9, 'spark/spark-130kv-short-02.mp3')), (T + 0.02, ring * 0.35), (T + 0.9, fx.fade(vent[ns(1.5):ns(3.3)], 0.05, 0.6) * 0.3)])
+             (T, spark(0.35, 0.9, 'spark/spark-130kv-short-02.mp3')), (T + 0.9, fx.fade(vent[ns(1.5):ns(3.3)], 0.05, 0.6) * 0.3)])
     export(D1 + 'レールガン_チャージ射撃', y, drive=1)
-    # distant firefight: real outdoor takes with their echoes, a few blocks away
+    # distant firefight: real outdoor takes with their own echoes. Distance is only level and a gentle
+    # (first-order) loss of highs, as air does; no artificial reverb.
     g = Gen(6130)
-    pool = (shot_list('firearm_library/ak-47-C_28P.flac') + shot_list('firearm_library/walther-ppq-X_39P.flac') +
-            shot_list('firearm_library/ppsh-P_30P.flac') + shot_list('firearm_library/ar-15-D_32P.flac'))
+    pool = (shot_list('firearm_library/ak-47-C_28P.flac') + shot_list('firearm_library/ak-47-C_27P.flac') +
+            shot_list('firearm_library/walther-ppq-X_39P.flac') + shot_list('firearm_library/ppsh-P_30P.flac') +
+            shot_list('firearm_library/ar-15-D_32P.flac'))
     parts, t = [], 0.2
     while t < 9.0:
-        s = pool[g.r.integers(len(pool))]
-        parts.append((t, s * g.u(0.3, 0.8)))
-        t += g.u(0.4, 1.6)
-    y = seq(parts)
-    y = lp(y, 1600, 4)
-    y = space(y, street_ir(g, 2.5, 4.0), wet=0.8, dry_gain=0.6, width=0)
+        s_ = pool[g.r.integers(len(pool))]
+        parts.append((t, pan(s_ * g.u(0.3, 0.8), g.u(-0.6, 0.6))))
+        t += g.u(0.5, 1.6)
+    y = lp(seq(parts), 2500, 1)
     export(D1 + '遠くの銃撃戦', y, -22)
 
 
 # ================================================================ 02 hits: cyber flavour
+def first_hit(y, sec=0.3):
+    y = y[:ns(sec)].copy()
+    k = ns(0.04)
+    y[-k:] *= np.cos(np.linspace(0, np.pi / 2, k))[:, None] ** 2
+    return y
+
+
+def zing(g, k=None):
+    """The air of a real swung object (Organic Wooshes 'Whistle'), sped up and slowing as it trails off."""
+    src = lv(f'woosh_Whistle{k or 1 + g.r.integers(6)}')
+    e = np.convolve(np.mean(src ** 2, axis=1), np.ones(ns(0.05)), mode='same')
+    c = int(np.argmax(e))
+    w = src[max(0, c - ns(0.12)):c + ns(0.25)]
+    z = varispeed(w, lambda t: 1.8 - 0.6 * np.clip(t / 0.3, 0, 1))
+    return fx.fade(z, 0.004, 0.08)
+
+
+def ricochet(g, surface):
+    if surface == 'metal':
+        hit = seq([(0, lv('bfh1_metal_hit_03')), (0.001, first_hit(lv('mi_metal_interaction1', 0.5), 0.25))])
+    else:
+        hit = seq([(0, lv('bfh1_rock_hit_01')), (0.002, lv(['bfh1_hit_04', 'bfh1_hit_01'][g.r.integers(2)], 0.7)),
+                   (0.004, lv('bfh1_rock_breaking_03', 0.4))])
+    p0 = g.u(-0.5, 0.5)
+    z = zing(g)
+    zp = fx.st(z) * np.stack([np.linspace(1 - p0, 1 + p0, len(z)), np.linspace(1 + p0, 1 - p0, len(z))], 1) / 2
+    return seq([(0, pan(hit, p0)), (0.008, zp * 0.55)])
+
+
 def cyber_hits():
-    sh = shots(raw('bullet_metal/bullet-metal-steel-plate-01.mp3'), gap=0.35, maxlen=4.0)
-    plate = sh[0][2][:ns(2.5)]
-    export(D2 + '被弾_サイバーウェア1', seq([(0, plate), (0.008, spark(0.22, 0.3))]), -15, max_gr=6)
+    # cyberware 1: a round on a metal limb - sheet-metal ring and impact, with the body's thud under it
+    export(D2 + '被弾_サイバーウェア1', seq([(0, lv('wm_metal_sheet_06')), (0.001, lv('bfh1_metal_hit_05', 0.8)),
+                                         (0.003, kn('impactPunch_heavy_002', 0.45))]), -15, max_gr=6)
     glitch = grains(window(raw('servo/servo-sg90-close-02.mp3'), 1.5), 0.5, Gen(6201), 0.02, 0.06, repeat=0.6)
     y = seq([(0, lv('bfh1_metal_hit_05', 0.8)), (0.002, lv('wm_metal_sheet_06')), (0.003, lv('knife_BigKnifeTap3', 0.4)),
              (0.01, spark(0.2, 0.3)), (0.12, glitch * 0.3)])
@@ -200,26 +228,34 @@ def cyber_hits():
     y = seq([(0, S('more/fpv_metal_clank.mp3')), (0.003, lv('mi_metal_interaction2', 0.5)),
              (0.01, spark(0.4, 0.35, 'spark/spark-jacobs-ladder-03.mp3'))])
     export(D2 + '被弾_サイバーウェア3', y, -15, max_gr=6)
-    # ricochets: the three real ricochets of one recording, one per file
-    ric = S('more/fpv_bullet_ricochet.mp3')
-    rics = [seg for _, t0, seg in shots(ric, gap=0.3, maxlen=1.2) if t0 > 0.3]
-    for i in range(min(2, len(rics))):
-        export(D2 + f'跳弾{i + 1}', rics[i], -16, max_gr=6)
+    # misses on metal: three broadband metal hits
+    export(D2 + '着弾_金属', seq([(0, lv('wm_metal_sheet_06')), (0.001, lv('bfh1_metal_hit_05', 0.7)),
+                                (0.38, pan(first_hit(lv('mi_metal_interaction1', 0.85)), -0.4)),
+                                (0.72, pan(S('more/fpv_metal_clank.mp3')[:ns(0.5)] * 0.8, 0.4))]), -16, max_gr=6)
+    # misses on concrete: real rock hits and chips (no pickaxe ring)
+    export(D2 + '着弾_コンクリート', seq([(0, lv('bfh1_rock_hit_01')), (0.002, lv('bfh1_rock_breaking_03', 0.7)),
+                                       (0.42, pan(lv('bfh1_hit_04'), 0.4)), (0.425, pan(lv('bfh1_rock_falling_05', 0.6), 0.4))]),
+           -16, max_gr=6)
+    # ricochets: a real hit plus the air of a real swung object (no whine tone)
+    g = Gen(6210)
+    export(D2 + '跳弾1', ricochet(g, 'metal'), -16, max_gr=6)
+    export(D2 + '跳弾2', ricochet(g, 'concrete'), -16, max_gr=6)
+    export(D2 + '跳弾_連続', seq([(0, ricochet(g, 'metal')), (0.45, ricochet(g, 'concrete')), (1.0, ricochet(g, 'metal'))]),
+           -16, max_gr=6)
     # pinned down: distant rifle bursts, rounds smacking cover close by
-    g = Gen(6213)
     far = shot_list('firearm_library/ak-47-C_34P.flac')
-    imp = [window(raw('bullet_metal/bullet-metal-steel-plate-01.mp3'), 0.6, 7.6), kn('impactMining_000'), kn('impactMining_002'),
-           kn('impactMining_004'), lv('bfh1_rock_breaking_02')]
+    imp = [seq([(0, lv('bfh1_rock_hit_01')), (0.003, lv('bfh1_rock_breaking_03', 0.5))]), lv('bfh1_hit_04'),
+           seq([(0, lv('bfh1_rock_hit_01')), (0.003, lv('bfh1_rock_falling_05', 0.5))]), lv('bfh1_rock_breaking_02'),
+           lv('bfh1_metal_hit_04', 0.7)]
     parts, t = [], 0.0
     while t < 4.5:
-        s = far[g.r.integers(len(far))]
-        parts.append((t, lp(s, 3500) * 0.3))
+        s_ = far[g.r.integers(len(far))]
+        parts.append((t, lp(s_, 3000, 1) * 0.3))
         for k in range(int(g.u(2, 4))):
             land = t + 0.09 + k * 0.08
-            x = imp[g.r.integers(len(imp))] * g.u(0.5, 0.9)
-            parts.append((land, pan(x, g.u(-0.8, 0.8))))
+            parts.append((land, pan(imp[g.r.integers(len(imp))] * g.u(0.5, 0.9), g.u(-0.8, 0.8))))
         if g.u() < 0.4:
-            parts.append((t + 0.15, pan(rics[0] * 0.4, g.u(-0.8, 0.8))))
+            parts.append((t + 0.15, ricochet(g, 'concrete' if g.u() < 0.5 else 'metal') * 0.5))
         t += g.u(0.7, 1.3)
     export(D2 + '制圧射撃を受ける', seq(parts), -15, max_gr=6)
 
