@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>リプレイ</title>
+<!--
+  リプレイ（2026-11-05 先生の依頼「ノベルリプレイは、完全に単品物としてツール自体を分けて出してほしい」）。
+  VTT の「完全書き出し」（E48）のファイルを読み、卓で起きたことを行ごとに見返す 1 ファイルの道具。
+  仕様は _drafts/リプレイ単体ツール_仕様_2026-11-05.md。読むだけで、何も書き込まない（通信なし・localStorage なし）。
+  見え方の判定は VTT の template.html の _canSeeSecret・_sysPlSees・_seeSecrets・_whHintRows・_sdiceStubOk、
+  舞台の組み方は _rplBuild・_rplSlotVM・_rplVals、判定の要約は _judgeSum、駒の見た目は renderVals の駒の部分を写した。
+  行の場面の見た目（sc の k・tn・vg・ft）は _rplSceneRef、駒と HP・状態・背景と立ち絵の差し替えの記録（doc.evlog）は _evTrack の形を読む（2026-11-05 lane-rplfull）。
+  VTT の側を直したら、ここの写しも合わせる。
+-->
+<style>
+  :root {
+    --bg-0: #0b0e14; --bg-1: #10141c; --bg-2: #161b25;
+    --sf-1: #1b212c; --sf-2: #232b39;
+    --ln-1: #242c3a; --ln-2: #333d4e; --ln-3: #62738d;
+    --tx-1: #e8ecf4; --tx-2: #b7c0d0; --tx-3: #8b96a8; --tx-disabled: #6e7990;
+    --ac: #3aa0a6; --ac-ink: #06171a; --ac-tx: #6fdbe2; --ac-sf: #17303a; --ac-ln: #2f4a5a;
+    --ok: #6fe3a6; --warn: #e6b243; --warn-sf: #241c08; --bad: #ef8177; --gm: #e0a13a; --secret: #ff5c8a;
+    --wh: #d4b3cd; --wh-sf: #231a24; --wh-ln: #7a5576;
+    --rd-1: 4px;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg-0); color: var(--tx-1);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif; font-size: 13px; }
+  body { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+  button, select, input { font: inherit; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 28px; padding: 0 11px; background: var(--sf-1);
+    border: 1px solid var(--ln-2); border-radius: var(--rd-1); color: var(--tx-2); font-size: 12.5px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+  .btn:hover:not(:disabled) { border-color: var(--ln-3); color: var(--tx-1); }
+  .btn:disabled { color: var(--tx-disabled); border-style: dashed; cursor: default; }
+  .btn[aria-pressed="true"] { background: var(--ac-sf); border-color: var(--ac); color: var(--ac-tx); }
+  .btn-pri { background: var(--ac); border-color: var(--ac); color: var(--ac-ink); }
+  .select { height: 28px; padding: 0 6px; background: var(--bg-1); border: 1px solid var(--ln-2); border-radius: var(--rd-1); color: var(--tx-1); font-size: 12.5px; max-width: 240px; }
+  .lbl { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--tx-3); white-space: nowrap; }
+  .mono { font-family: "DM Mono", Consolas, monospace; }
+
+  header { flex: none; display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--bg-1); border-bottom: 1px solid var(--ln-1); flex-wrap: wrap; }
+  header .title { font-size: 15px; font-weight: 900; letter-spacing: .06em; color: var(--tx-1); margin-right: 4px; }
+  header .file { font-size: 11.5px; color: var(--tx-3); max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  header .gap { flex: 1; }
+  header .note { font-size: 11.5px; color: var(--tx-3); }
+  .seg { display: inline-flex; }
+  .seg .btn { border-radius: 0; }
+  .seg .btn:first-child { border-radius: var(--rd-1) 0 0 var(--rd-1); }
+  .seg .btn:last-child { border-radius: 0 var(--rd-1) var(--rd-1) 0; }
+  .seg .btn + .btn { border-left-width: 0; }
+
+  main { flex: 1; min-height: 0; display: flex; }
+  #pane { flex: 1; min-width: 0; position: relative; display: flex; flex-direction: column; }
+  #side { flex: none; width: 320px; border-left: 1px solid var(--ln-1); background: var(--bg-1); display: flex; flex-direction: column; min-height: 0; }
+  #side[hidden] { display: none; }
+  #side .head { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--ln-1); font-size: 12px; color: var(--tx-2); font-weight: 700; }
+  #lines { flex: 1; overflow-y: auto; padding: 4px 0; }
+  .ln { display: flex; gap: 6px; width: 100%; padding: 4px 10px; background: none; border: 0; border-left: 3px solid transparent; text-align: left; color: var(--tx-2); font-size: 12px; line-height: 1.45; cursor: pointer; }
+  .ln:hover { background: var(--sf-1); }
+  .ln[aria-current="true"] { background: var(--ac-sf); border-left-color: var(--ac); color: var(--tx-1); }
+  .ln .n { flex: none; width: 34px; color: var(--tx-3); font-size: 11px; }
+  .ln .w { flex: none; max-width: 86px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+  .ln .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--tx-3); }
+  .ln .tag { flex: none; color: var(--warn); font-size: 10.5px; }
+
+  footer { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--bg-1); border-top: 1px solid var(--ln-1); flex-wrap: wrap; }
+  footer input[type=range] { flex: 1; min-width: 160px; accent-color: var(--ac); }
+  footer .pos { min-width: 86px; text-align: right; color: var(--tx-2); font-size: 12px; }
+  footer .src { font-size: 11.5px; color: var(--tx-3); }
+
+  /* 読み込み前 */
+  #drop { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 30px; }
+  #drop .box { max-width: 640px; width: 100%; padding: 30px 34px; background: var(--bg-1); border: 1px dashed var(--ln-3); border-radius: 8px; line-height: 1.85; color: var(--tx-2); }
+  #drop .box h1 { margin: 0 0 10px; font-size: 18px; color: var(--tx-1); }
+  #drop .box p { margin: 0 0 10px; font-size: 13px; }
+  #drop .err { color: var(--bad); font-weight: 700; white-space: pre-wrap; }
+  body.dragging #drop .box, body.dragging #pane { outline: 2px solid var(--ac); outline-offset: -6px; }
+
+  /* ノベルの舞台 */
+  #stage { position: absolute; inset: 0; overflow: hidden; background: var(--bg-0); }
+  #stage .bgph { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 10%, #1a2030 0%, #0a0d13 75%); }
+  #stage .layer { position: absolute; inset: 0; pointer-events: none; }
+  #stage[data-dark="1"] [data-bkhide], #stage[data-dark="1"] .slot { opacity: 0 !important; transition: opacity .45s; }
+  .slot { position: absolute; bottom: var(--nvbot); display: flex; align-items: flex-end; pointer-events: none; transition: opacity .2s; }
+  .slot .ph { width: 200px; height: 88%; border-radius: 6px 6px 0 0; border-bottom: none; background: repeating-linear-gradient(135deg,#171c26 0 13px,#141922 13px 26px);
+    display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: 900; }
+  .chip { position: absolute; z-index: 6; padding: 5px 12px; background: rgba(16,19,26,.82); border: 1px solid var(--ln-2); border-radius: var(--rd-1); font-size: 12px; color: var(--tx-2); }
+  .say { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; padding: 0 4% 18px; }
+  .say .plate { position: relative; display: inline-flex; align-items: center; gap: 10px; padding: 8px 20px; background: rgba(10,12,17,.85); border-left: 4px solid var(--tx-3); border-radius: var(--rd-1) var(--rd-1) 0 0; }
+  .say .nm { font-size: 22px; font-weight: 900; letter-spacing: .03em; }
+  .say .role { font-size: 12px; color: var(--tx-2); }
+  .say .sec { font-size: 11px; color: var(--warn); padding: 1px 8px; background: #3a2f12; border: 1px solid var(--warn-sf); border-radius: var(--rd-1); }
+  .say .body { position: relative; background: rgba(10,12,17,.85); border-radius: 0 var(--rd-1) var(--rd-1) var(--rd-1); padding: 18px 28px; min-height: 110px; backdrop-filter: blur(3px); }
+  .say .reply { display: flex; gap: 5px; align-items: center; margin-bottom: 6px; font-size: 12px; color: var(--tx-3); }
+  .say .reply b { color: #8fa0b4; }
+  .say .fill { margin-top: 6px; color: var(--tx-3); letter-spacing: .1em; filter: blur(1.4px); user-select: none; }
+  .stamps { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+  .stamps span { padding: 1px 8px; border: 1px solid; border-radius: var(--rd-1); font-size: 11px; font-weight: 700; line-height: 1.6; }
+  details.jd { margin-top: 6px; font-size: 12.5px; color: var(--tx-2); }
+  details.jd summary { cursor: pointer; color: var(--ac-tx); width: max-content; }
+  details.jd pre { margin: 6px 0 0; white-space: pre-wrap; font-family: inherit; line-height: 1.7; color: var(--tx-2); }
+  .scr { position: absolute; inset: 0; z-index: 7; background: rgba(4,6,10,.62); padding: 7% 9%; overflow-y: auto; }
+  .scr div { max-width: 46em; font-size: 21px; line-height: 2.1; color: #eef2f8; white-space: pre-wrap; text-shadow: 0 1px 3px rgba(0,0,0,.9); }
+  .empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--tx-3); font-size: 14px; padding: 20px; text-align: center; line-height: 1.8; }
+
+  /* ログの表示 */
+  #log { position: absolute; inset: 0; overflow-y: auto; padding: 14px 22px 40px; }
+  .msg { display: flex; gap: 10px; margin-top: 10px; padding: 4px 6px; border: 1px solid transparent; border-radius: var(--rd-1); cursor: pointer; }
+  .msg:hover { background: rgba(27,33,44,.5); }
+  .msg[aria-current="true"] { border-color: var(--ac); background: rgba(23,48,58,.35); }
+  .msg .av { position: relative; flex: none; width: 34px; height: 34px; border-radius: var(--rd-1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--ac-ink); overflow: hidden; background-size: cover; background-position: center; }
+  .msg .mb { flex: 1; min-width: 0; }
+  .msg .hd { display: flex; align-items: baseline; gap: 8px; margin-bottom: 3px; }
+  .msg .hd .nm { font-size: 13px; font-weight: 700; }
+  .msg .hd .rl { font-size: 11px; color: var(--tx-3); }
+  .msg .hd .tm { margin-left: auto; font-size: 11px; color: var(--tx-3); }
+  .msg .bub { font-size: 14px; line-height: 1.65; color: var(--tx-1); background: var(--bg-1); border: 1px solid var(--ln-1); border-left: 3px solid var(--tx-3); border-radius: var(--rd-1); border-top-left-radius: 2px; padding: 8px 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.nar .bub { background: transparent; border: 0; border-left: 3px solid #5a6478; font-style: normal; color: var(--tx-2); }
+  .msg.sys .bub { background: transparent; border: 0; padding: 2px 0; font-size: 12px; color: var(--tx-3); }
+  .msg .sectag { display: inline-flex; padding: 1px 8px; margin-bottom: 4px; background: #3a2f12; border: 1px solid var(--warn-sf); border-radius: var(--rd-1); font-size: 11px; font-weight: 700; color: var(--warn); }
+  .msg .rq { font-size: 11px; color: var(--tx-3); margin-bottom: 3px; }
+  .msg .rq b { color: #8fa0b4; }
+  .msg .dim { color: var(--tx-3); }
+  .badge { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: var(--rd-1); font-size: 11px; font-weight: 700; }
+
+  /* マップ */
+  #mapv { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  #mapv .bar { flex: none; display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--ln-1); background: var(--bg-1); flex-wrap: wrap; }
+  #mapv .warn { flex: none; padding: 6px 14px; font-size: 12px; color: var(--warn); background: var(--warn-sf); border-bottom: 1px solid var(--ln-1); }
+  #mapv .wrap { flex: 1; min-height: 0; overflow: auto; position: relative; }
+  .board { position: relative; transform-origin: 0 0; background-color: #0e1218; }
+  .board .grid { position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(to right, rgba(98,115,141,.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(98,115,141,.22) 1px, transparent 1px); background-size: 56px 56px; }
+  .tok { position: absolute; display: flex; align-items: center; justify-content: center; }
+  .tok .face { position: relative; width: 92%; height: 92%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid; background: var(--bg-1); font-weight: 700; font-size: 15px; }
+  .tok .obj { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid; font-size: 11px; font-weight: 700; text-align: center; line-height: 1.1; padding: 2px; }
+  .tok .nmtag { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; max-width: 112px; padding: 0 5px; background: rgba(10,12,17,.86); border: 1px solid var(--ln-2); border-radius: var(--rd-1); font-size: 11px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tx-1); pointer-events: none; }
+  .tok .hid { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 2px; padding: 0 5px; background: var(--warn-sf); border: 1px solid var(--warn); border-radius: var(--rd-1); font-size: 10px; color: var(--warn); white-space: nowrap; }
+  .tok[data-speak="1"]::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 3px solid var(--ac-tx); box-shadow: 0 0 14px var(--ac); pointer-events: none; }
+  .tok[data-out="1"] { filter: grayscale(1) brightness(.55); }
+  .tok .hpb { position: absolute; left: 4%; right: 4%; bottom: 2px; height: 12px; background: rgba(10,12,17,.82); border: 1px solid var(--ln-2); border-radius: 2px; overflow: hidden; pointer-events: none; }
+  .tok .hpb span { position: absolute; left: 0; top: 0; bottom: 0; }
+  .tok .hpb b { position: relative; display: block; font-size: 9.5px; line-height: 10px; text-align: center; color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000; font-weight: 700; }
+  .tok .cond { position: absolute; top: -2px; right: -10px; max-width: 90px; padding: 0 4px; background: #3a2a10; border: 1px solid #7a5c2a; border-radius: var(--rd-1); font-size: 10px; line-height: 14px; color: #ffd27d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; z-index: 2; }
+@keyframes pov-card { 0%,18% { opacity:0 } 45%,100% { opacity:1 } }
+</style>
+</head>
+<body>
+<header>
+  <span class="title">リプレイ</span>
+  <button class="btn btn-pri" id="pick" type="button" title="VTT の「完全書き出し」で作ったファイルを選ぶ">ファイルを開く</button>
+  <input type="file" id="fileIn" accept=".json,application/json" hidden>
+  <span class="file" id="fileName"></span>
+  <label class="lbl" id="povWrap" hidden>誰の視点で読むか
+    <select class="select" id="pov" aria-label="誰の視点で読むか"></select>
+  </label>
+  <span id="povLocked" hidden></span>
+  <span class="seg" id="viewSeg" hidden>
+    <button class="btn" type="button" data-view="novel" aria-pressed="true">ノベル</button>
+    <button class="btn" type="button" data-view="log" aria-pressed="false">ログ</button>
+    <button class="btn" type="button" data-view="map" aria-pressed="false">マップ</button>
+  </span>
+  <button class="btn" type="button" id="sideBtn" aria-pressed="true" hidden title="右の行の一覧を出す・しまう">行の一覧</button>
+  <span class="gap"></span>
+  <span class="note">読むだけの道具。部屋にはつながず、何も書き込まない</span>
+</header>
+<main>
+  <div id="pane">
+    <div id="drop">
+      <div class="box">
+        <h1>セッションファイルを開く</h1>
+        <p>VTT のヘッダーの「GM」から「完全書き出し」で保存したファイル（.json）を、上の「ファイルを開く」で選ぶか、この画面へドラッグする。</p>
+        <p>開いたら「誰の目で見るか」を選ぶ。GM の目ではすべての行が出る。PL や観戦者の目では、その人が卓で見られた行だけが出る。</p>
+        <p>マップは自動では切り替わらない。「マップ」を押して、見たいマップを一覧から選ぶ。</p>
+        <p class="err" id="err" hidden></p>
+      </div>
+    </div>
+  </div>
+  <aside id="side" hidden>
+    <div class="head">行の一覧<span style="flex:1"></span><span id="lineCount" class="mono" style="font-weight:400;color:var(--tx-3)"></span></div>
+    <div id="lines" role="list"></div>
+  </aside>
+</main>
+<footer id="ctl" hidden>
+  <button class="btn" type="button" id="bFirst" title="いちばん最初の行へ">はじめへ</button>
+  <button class="btn" type="button" id="bBack" title="1 つ前の行へ（←）">戻る</button>
+  <button class="btn" type="button" id="bPlay" aria-pressed="false" title="自動で送る・止める（スペース）">再生</button>
+  <button class="btn" type="button" id="bFwd" title="1 つ先の行へ（→）">進む</button>
+  <label class="lbl">速さ
+    <select class="select" id="speed" aria-label="速さ">
+      <option value="0.5">0.5倍</option><option value="1" selected>1倍</option><option value="2">2倍</option><option value="4">4倍</option>
+    </select>
+  </label>
+  <input type="range" id="seek" min="0" max="0" value="0" aria-label="再生位置">
+  <span class="pos mono" id="pos">0 / 0</span>
+  <span class="src" id="src"></span>
+</footer>
+<script>
+(() => {
+'use strict';
+/* ============================== 共通 ============================== */
+const CELL = 56;
+const SPEEDS = [0.5, 1, 2, 4];
+const VOLT_STAMPS = ['燃える', 'エモい', '最高', 'しね！', 'キモイ', 'えぐいて'];
+const VOLT_STAMP_POS = 3;
+const NV_TONES = { none: 'rgba(0,0,0,0)', night: 'rgba(18,32,92,.40)', alert: 'rgba(200,20,44,.28)', net: 'rgba(0,214,160,.20)' };
+const NV_VIGS = { none: 0, weak: 0.5, strong: 1 };
+const TOK_CLIP = { triangle: 'polygon(50% 0%, 100% 100%, 0% 100%)', diamond: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' };
+const ITEM_DEFAULT_COLOR = '#e6b243';
+const STAGE_T = /^(say|narration|dice|rolesk)$/;
+const SHOW_T = /^(say|narration|dice|rolesk|system|bgm|announce|item)$/;
+const $ = (id) => document.getElementById(id);
+const arr = (v) => Array.isArray(v) ? v.filter(x => x != null) : (v && typeof v === 'object' ? Object.values(v).filter(x => x != null) : []);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : String(v));
+  }
+  for (const c of kids.flat()) { if (c == null || c === false) continue; el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+  return el;
+}
+// 画像の URL として使ってよい文字列か（data: と blob: と http(s): だけ）。CSS の url("…") に入れるので引用符を逃がす
+function safeUrl(v) {
+  if (typeof v !== 'string' || !v) return null;
+  if (!/^(data:image\/|blob:|https?:)/i.test(v)) return null;
+  return v.replace(/"/g, '%22').replace(/\\/g, '%5C').replace(/[\r\n]/g, '');
+}
+const urlCss = (u) => 'url("' + u + '")';
+const hm = (ts) => { const d = new Date(ts || 0); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const initialOf = (s) => { const t = String(s == null ? '' : s); return t ? (Array.from(t)[0] || '') : ''; };
+
+/* 名前の色の見やすさ（VTT の _nameColor と同じ。背景とのコントラスト比が 3 未満なら明るくする） */
+const lum = (rgb) => { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }; return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]); };
+const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+function rgb2hsv(r, g, b) { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let hh = 0;
+  if (d) { if (mx === r) hh = ((g - b) / d) % 6; else if (mx === g) hh = (b - r) / d + 2; else hh = (r - g) / d + 4; hh *= 60; if (hh < 0) hh += 360; }
+  return [hh, mx ? d / mx : 0, mx]; }
+function hsv2rgb(hh, s, v) { const c = v * s, x = c * (1 - Math.abs((hh / 60) % 2 - 1)), m = v - c; let r = 0, g = 0, b = 0;
+  if (hh < 60) [r, g, b] = [c, x, 0]; else if (hh < 120) [r, g, b] = [x, c, 0]; else if (hh < 180) [r, g, b] = [0, c, x]; else if (hh < 240) [r, g, b] = [0, x, c]; else if (hh < 300) [r, g, b] = [x, 0, c]; else [r, g, b] = [c, 0, x];
+  return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)]; }
+const ncMemo = {};
+function nameColor(col) {
+  if (typeof col !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(col)) return col || 'var(--tx-2)';
+  const bg = [10, 12, 17], key = col.toLowerCase();
+  if (ncMemo[key]) return ncMemo[key];
+  const rgb = [1, 3, 5].map(i => parseInt(col.slice(i, i + 2), 16));
+  let out = col;
+  if (contrast(rgb, bg) < 3) {
+    const [hh, s, v0] = rgb2hsv(rgb[0], rgb[1], rgb[2]); let v = v0, cand = rgb;
+    for (let i = 0; i < 60; i++) { v = Math.min(1, v + 0.02); cand = hsv2rgb(hh, s, v); if (contrast(cand, bg) >= 3.5 || v >= 1) break; }
+    out = '#' + cand.map(n => n.toString(16).padStart(2, '0')).join('');
+  }
+  return (ncMemo[key] = out);
+}
+const isHex6 = (c) => /^#[0-9a-fA-F]{6}$/.test(c || '');
+
+/* 文字の調子（VTT の toneStyleObj と同じ） */
+function toneStyle(tone, basePx, baseColor, lh) {
+  const T = { normal: {}, shout: { scale: 1.24, weight: 800, ls: '0.04em' }, anger: { scale: 1.08, weight: 800, color: '#ff7a6b' },
+    whisper: { scale: 0.82, opacity: 0.62, italic: true }, thought: { italic: true, opacity: 0.78, color: '#b9c2d6' } };
+  const t = T[tone] || {};
+  const o = { fontSize: Math.round(basePx * (t.scale || 1)) + 'px', lineHeight: String(lh || 1.9), color: t.color || baseColor, whiteSpace: 'pre-wrap', position: 'relative', zIndex: '1', overflowWrap: 'anywhere' };
+  if (t.weight) o.fontWeight = String(t.weight);
+  if (t.italic) o.fontStyle = 'italic';
+  if (t.opacity != null) o.opacity = String(t.opacity);
+  if (t.ls) o.letterSpacing = t.ls;
+  return o;
+}
+
+/* ============================== 読み込み ============================== */
+const S = {
+  file: '', doc: null, media: {}, missing: new Set(), all: [], byId: new Map(), chars: new Map(), maps: [], gmUids: new Set(),
+  povs: [], pov: 'gm', frames: [], idx: 0, play: false, speed: 1, view: 'novel', mapSel: '', side: true, timer: null, nextTs: [],
+};
+// '@m:<鍵>' の参照を media の実体へ戻す（VTT の _internalize と同じ）。無い鍵は null にして、無いことを数える
+function internalize(o) {
+  if (typeof o === 'string') { if (o.indexOf('@m:') === 0) { const k = o.slice(3); const d = S.media[k]; if (typeof d === 'string') return d; S.missing.add(k); return null; } return o; }
+  if (Array.isArray(o)) return o.map(internalize);
+  if (o && typeof o === 'object') { const r = {}; for (const k in o) r[k] = internalize(o[k]); return r; }
+  return o;
+}
+// 断りの文。読み込む前は案内の箱に、読み込んだあとは画面の上に出す（押すと閉じる）
+function showErr(msg) {
+  const e = $('err');
+  if (e) { e.hidden = false; e.textContent = msg; return; }
+  const old = document.querySelector('[data-errtoast]'); if (old) old.remove();
+  document.body.appendChild(h('div', { 'data-errtoast': '1', role: 'alert', onclick: (ev) => ev.currentTarget.remove(), title: '押すと閉じる',
+    style: { position: 'fixed', top: '56px', left: '50%', transform: 'translateX(-50%)', zIndex: '50', maxWidth: '640px', padding: '10px 16px', background: 'var(--bg-1)', border: '1px solid var(--bad)', borderRadius: 'var(--rd-1)', color: 'var(--bad)', fontWeight: '700', whiteSpace: 'pre-wrap', cursor: 'pointer' }, text: msg }));
+}
+async function readFile(file) {
+  if (!file) return;
+  let text;
+  try { text = await file.text(); } catch (e) { showErr('ファイルを読めませんでした：' + file.name); return; }
+  let parsed;
+  try { parsed = JSON.parse(text); } catch (e) { showErr('JSON として読めないファイルです：' + file.name + '\nVTT の「完全書き出し」で保存したファイルを選んでください。'); return; }
+  text = null;
+  let doc = null, media = {}, rplV = 0;
+  if (parsed && parsed._meta && parsed._meta.app === 'trpg-vtt-full' && parsed.doc && typeof parsed.doc === 'object') { doc = parsed.doc; media = (parsed.media && typeof parsed.media === 'object') ? parsed.media : {}; rplV = Number(parsed._meta.rpl) || 0; }
+  else if (parsed && typeof parsed === 'object' && ((parsed._meta && parsed._meta.app === 'trpg-vtt') || (parsed.characters && parsed.maps))) doc = parsed;
+  if (!doc) { showErr('VTT のセッションファイルではないようです：' + file.name + '\nVTT の「完全書き出し」で保存したファイルを選んでください。'); return; }
+  S.media = media; S.missing = new Set(); S.rplV = rplV;
+  S.standLayout = parsed._meta && parsed._meta.standLayout || null;
+  S.stageCast = parsed._meta && parsed._meta.stageCast || null;
+  S.povOnly = parsed._meta && parsed._meta.pov || null;
+  S.fullGM = !!(parsed._meta && parsed._meta.app === 'trpg-vtt-full' && doc._gm && !S.povOnly);
+  S.holo = parsed.holo || null;
+  standTrimCache.clear();
+  try { load(doc, file.name); }
+  catch (e) { console.error(e); showErr('ファイルの中身を組み立てられませんでした：' + file.name + '\n（' + (e && e.message || e) + '）'); }
+}
+function load(rawDoc, name) {
+  // 生のマップの欄を控える（記録した行の背景に鍵が無いとき、マップの今の背景が鍵を持たない画像か URL かを見分けるため）
+  S._rawMaps = new Map();
+  arr(rawDoc.maps).forEach(m => { if (m && m.id != null) { S._rawMaps.set(String(m.id) + '|bg', m.bg); S._rawMaps.set(String(m.id) + '|novelBg', m.novelBg); } });
+  const doc = internalize(rawDoc);
+  S.doc = doc; S.file = name;
+  S.chars = new Map(); arr(doc.characters).forEach(c => { if (c && c.id) S.chars.set(String(c.id), normChar(c)); });
+  S.maps = arr(doc.maps).filter(m => m && m.id).map(m => ({ ...m, id: String(m.id), tokens: arr(m.tokens) }));
+  const msgs = arr(doc.messages).filter(m => m && m._id != null && !m.local).map(m => ({ ...m, _id: String(m._id) }));
+  msgs.sort((x, y) => ((x._ts || 0) - (y._ts || 0)) || String(x._id).localeCompare(String(y._id)));
+  S.all = msgs; S.byId = new Map(msgs.map(m => [m._id, m]));
+  S.ev = parseEv(rawDoc.evlog);
+  // GM の uid（返信の相手を前に出す判定・PL の描写の名札に使う）。書き出した GM・GM が振ったシークレットダイス・NPC の名義で話した人
+  const gm = new Set();
+  if (doc._gm && doc._uid) gm.add(String(doc._uid));
+  msgs.forEach(m => {
+    if (!m.uid) return;
+    if (m.sdiceGM) gm.add(m.uid);
+    const c = m.cid && m.cid !== 'gm' ? S.chars.get(String(m.cid)) : null;
+    if (c && (c.type === 'npc' || c.type === 'mob') && /^(say|narration)$/.test(m.t || '')) gm.add(m.uid);
+  });
+  S.gmUids = gm;
+  S.povs = [{ id: 'spec', label: '全体（秘密の行を除く）' }];
+  S.chars.forEach(c => { if (!c.mob && (c.type || 'pc') === 'pc' && c.id !== 'gm') S.povs.push({ id: 'pc:' + c.id, label: c.name || '名前のないキャラ' }); });
+  if (S.fullGM) S.povs.push({ id: 'gm', label: 'GM（全部）' });
+  if (S.povOnly) S.povs = [{ id: 'pc:' + S.povOnly.cid, label: S.povOnly.name }];
+  S.pov = S.povOnly ? S.povs[0].id : S.fullGM ? 'gm' : 'spec'; S.mapSel = '';
+  const sel = $('pov'); sel.textContent = '';
+  S.povs.forEach(p => sel.appendChild(h('option', { value: p.id, text: p.label })));
+  sel.value = S.pov;
+  $('fileName').textContent = name + '（' + msgs.length + '行・マップ ' + S.maps.length + '枚' + (S.missing.size ? '・ファイルに無い画像 ' + S.missing.size + '件' : '') + '）';
+  $('fileName').title = $('fileName').textContent;
+  ['povWrap', 'viewSeg', 'sideBtn', 'ctl'].forEach(id => { $(id).hidden = false; });
+  $('povWrap').hidden = !!S.povOnly;
+  $('povLocked').hidden = !S.povOnly;
+  $('povLocked').textContent = S.povOnly ? S.povOnly.name + 'の視点だけのファイル' : '';
+  $('side').hidden = !S.side;
+  const d = $('drop'); if (d) d.remove();
+  const et = document.querySelector('[data-errtoast]'); if (et) et.remove();
+  rebuild();
+}
+function normChar(c) { return { ...c, id: String(c.id), expressions: arr(c.expressions) }; }
+const charById = (id) => (id == null ? null : S.chars.get(String(id)) || null);
+
+/* ============================== 移り変わりの記録（doc.evlog。VTT の _evTrack が GM の端末で積む） ============================== */
+// 1 件は「時刻（36 進）|種類|…」。種類ごとに、駒・キャラ・画像の鍵で引ける列へ分ける。古いファイル（evlog の無いもの）では全部が空
+function parseEv(raw) {
+  const E = { n: 0, pos: new Map(), tokHp: new Map(), tokCs: new Map(), chHp: new Map(), chCs: new Map(), img: new Map(), bg: new Map(), info: new Map() };
+  const put = (mp, k, e) => { let a = mp.get(k); if (!a) mp.set(k, a = []); a.push(e); };
+  const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+  const list = arr(raw).filter(x => typeof x === 'string' && x.indexOf('|') > 0);
+  list.forEach(s => {
+    const p = s.split('|'), t = parseInt(p[0], 36) || 0, k = p[1];
+    if (!t) return;
+    E.n++;
+    if (k === 'a' || k === 'd') {
+      const id = p[3]; put(E.pos, id, { t, k, m: p[2], x: num(p[4]), y: num(p[5]) });
+      if (!E.info.has(id)) E.info.set(id, { m: p[2], c: p[6] || '', kind: p[7] || 'char', n: p[8] || '', x: num(p[4]), y: num(p[5]) });
+    } else if (k === 'p') put(E.pos, p[2], { t, k, x: num(p[3]), y: num(p[4]), ox: p.length > 6 ? num(p[5]) : undefined, oy: p.length > 6 ? num(p[6]) : undefined });
+    else if (k === 'H') put(E.tokHp, p[2], { t, to: p[3] || '', from: p[4] || '' });
+    else if (k === 'S') put(E.tokCs, p[2], { t, to: p[3] || '', from: p[4] || '' });
+    else if (k === 'h') put(E.chHp, p[2], { t, to: p[3] || '', from: p[4] || '' });
+    else if (k === 's') put(E.chCs, p[2], { t, to: p[3] || '', from: p[4] || '' });
+    else if (k === 'i') put(E.img, p[2] + '|' + (p[3] || ''), { t, to: p[4] || '', from: p[5] || '' });
+    else if (k === 'b') put(E.bg, p[2] + '|' + (p[3] || 'b'), { t, to: p[4] || '', from: p[5] || '' });
+  });
+  return E;
+}
+// 時刻 T の値。T までの最後の 1 件の「後」、無ければ T より後の最初の 1 件の「前」、どちらも無ければ undefined（書き出し時点の値を使う）
+function valAt(list, T) {
+  if (!list || !list.length) return undefined;
+  let last = null; for (const e of list) { if (e.t <= T) last = e; else break; }
+  return last ? last.to : list[0].from;
+}
+// 駒の時刻 T の居場所。{ on:false } はその時点で盤面に無い。null は記録が無い（書き出し時点のまま）
+function tokAt(id, T, fin) {
+  const L = S.ev && S.ev.pos.get(id); if (!L || !L.length) return null;
+  // 盤面にあるかとマップ。T までの最後の「現れた・消えた」、無ければ T より後の最初の 1 件の逆、どちらも無ければ書き出し時点
+  const ex = L.filter(e => e.k === 'a' || e.k === 'd');
+  let lastEx = null; for (const e of ex) { if (e.t <= T) lastEx = e; else break; }
+  let on, m;
+  if (lastEx) { on = lastEx.k === 'a'; m = lastEx.m; }
+  else if (ex.length) { on = ex[0].k === 'd'; m = ex[0].m; }
+  else { on = !!fin; m = fin ? fin.m : null; }
+  // 位置。T までの最後の 1 件の位置、無ければ最初の 1 件の前の位置（動いた記録なら前の x・y、それが無ければ動いた先）
+  let last = null; for (const e of L) { if (e.t <= T) last = e; else break; }
+  let x, y;
+  if (last) { x = last.x; y = last.y; }
+  else { const f = L[0]; x = f.k === 'p' && f.ox !== undefined ? f.ox : f.x; y = f.k === 'p' && f.oy !== undefined ? f.oy : f.y; }
+  return { on, m, x, y };
+}
+const evOn = () => !!(S.ev && S.ev.n);
+// 時刻 T の立ち絵の画像。差し替えの記録があり、その画像がファイルにあるときだけ返す（無ければ書き出し時点の画像）
+function standAt(cid, eid, T) {
+  if (!evOn()) return null;
+  const k = valAt(S.ev.img.get(cid + '|' + (eid || '')), T);
+  return k ? safeUrl(S.media[k]) : null;
+}
+// 時刻 T のマップの背景（w は b＝盤面・n＝ノベル）。記録が無い・画像がファイルに無いときは undefined
+function mapBgAt(mpId, w, T) {
+  if (!evOn()) return undefined;
+  const L = S.ev.bg.get(mpId + '|' + w); if (!L) return undefined;
+  const k = valAt(L, T);
+  if (k === undefined) return undefined;
+  if (!k) return null;
+  return safeUrl(S.media[k]) || undefined;
+}
+// HP の行（VTT の _tokHpRow と同じ選び方）を「値/最大」に
+function hpOf(rows) {
+  const a = arr(rows);
+  const r = a.find(x => x && String(x.label || '').replace(/[Ａ-Ｚａ-ｚ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim().toUpperCase() === 'HP') || a[0];
+  return (r && r.label) ? (Number(r.value) || 0) + '/' + (Number(r.max) || 0) : '';
+}
+const condOf = (c) => String((c && (c.condText != null ? c.condText : arr(c.conditions).join('・'))) || '').trim();
+
+/* ============================== 見え方（VTT と同じ決まり） ============================== */
+function meOf(pov) {
+  if (pov === 'gm') return { id: (S.doc && S.doc._gm && S.doc._uid) ? String(S.doc._uid) : '__gm', isGM: true, spectator: false };
+  if (pov === 'spec') return { id: '__spectator', isGM: false, spectator: true };
+  const c = pov.indexOf('pc:') === 0 ? charById(pov.slice(3)) : null;
+  return { id: c ? c.owner || '' : pov.slice(3), cid: c && c.id, isGM: false, spectator: false };
+}
+const seeSecrets = (u) => !!(u && u.isGM);
+const seeHidden = (u) => seeSecrets(u);
+const uidIsGM = (uid) => !!uid && S.gmUids.has(uid);
+const charHiddenNpc = (c) => !!(c && c.type === 'npc' && c.hidden);
+function sysKindOf(m) {
+  if (!m) return '';
+  if (m.sysKind) return m.sysKind;
+  if (m.roundMark) return 'round';
+  const tx = String(m.text || '');
+  if (/^戦闘を終えた/.test(tx)) return 'combatEnd';
+  if (/のため番を飛ばした$/.test(tx)) return 'turn';
+  return '';
+}
+function sysKeepKind(m) {
+  if (!m || m.local || m.sceneNotice || m.sfxPl === true || m.pub === true) return true;
+  if (m.t === 'bgm') return false;
+  const k = sysKindOf(m);
+  return k === 'combatEnd' || k === 'turn' || k === 'round';
+}
+function sysOwnerOf(m) { const id = m && (m.sysCid || m.cid); const c = id && id !== 'gm' ? charById(id) : null; return c && c.owner && !c.mob ? c.owner : ''; }
+function sysPlSees(m, u) {
+  if (!m || (m.t !== 'system' && m.t !== 'bgm') || m.secret) return true;
+  if (sysKeepKind(m)) return true;
+  const o = sysOwnerOf(m);
+  return !!(o && u && o === u.id);
+}
+function canSee0(m, u) {
+  if (m && m.gm) return seeSecrets(u);
+  if (m && (m.t === 'system' || m.t === 'bgm') && !m.secret && !seeSecrets(u) && !sysPlSees(m, u)) return false;
+  const to = arr(m.to);
+  return !m.secret || m.from === u.id || to.includes(u.id) || !!u.cid && (m.cid === u.cid || m.from === u.cid || to.includes(u.cid) || arr(m.whPair).includes(u.cid)) || seeSecrets(u);
+}
+function canSee(m, u) {
+  if (!canSee0(m, u)) return false;
+  if (m && !m.secret && !m.gm && m.replyTo && m.replyTo.id && !seeSecrets(u) && m.uid !== u.id) {
+    const o = S.byId.get(String(m.replyTo.id));
+    if (o ? ((o.secret || o.gm) && !canSee0(o, u)) : m.replyTo.text === '（秘話）') return false;
+  }
+  return true;
+}
+const sdiceStubOk = (m) => !!(m && m.sdice && m.t === 'dice' && !m.sdiceGM && !uidIsGM(m.from || m.uid));
+function whHintOk(m) {
+  if (!m || !m.secret || !m.whisper || !m.whLive || m.local || (m.t !== 'say' && m.t !== 'narration')) return false;
+  const pr = arr(m.whPair); return pr.length === 2 && !!pr[0] && !!pr[1];
+}
+// 職業スキルの「示す」でマップを絞った行（rskMap）。VTT は見ている人の今のマップで決めるが、再生ではその人の駒がそのマップにあるかで決める（書き出し時点）
+function rskHidden(m, u) {
+  if (!(m && m.t === 'rolesk' && m.rskMap) || seeSecrets(u) || u.spectator === false && m.uid === u.id) return false;
+  if (u.spectator) return true;
+  const mp = S.maps.find(x => x.id === String(m.rskMap)); if (!mp) return true;
+  return !mp.tokens.some(t => t && t.kind === 'char' && !t.mob && (charById(t.charId) || {}).owner === u.id);
+}
+function secretToName(m, u) {
+  const to = arr(m.to).filter(id => id && id !== m.from);
+  const saved = arr(m.toNames);
+  const names = to.map((id, i) => {
+    if (saved[i]) return saved[i];
+    const c = [...S.chars.values()].find(c => c.owner === id && !c.mob);
+    if (c && c.name) return c.name;
+    if (id === u.id) return 'あなた';
+    return uidIsGM(id) ? 'GM' : '相手';
+  });
+  if (!names.length) return '相手';
+  return names.length > 3 ? names.slice(0, 3).join('・') + 'ほか' + (names.length - 3) + '人' : names.join('・');
+}
+// GM が返信として送った行の、返信先のキャラ（VTT の _gmFocusCid と同じ）
+function gmFocusCid(m, u) {
+  if (!m || m.local || !m.replyTo || !m.replyTo.id) return null;
+  if (m.t !== 'say' && m.t !== 'narration') return null;
+  if (!uidIsGM(m.uid)) return null;
+  const o = S.byId.get(String(m.replyTo.id));
+  if (!o || !o.cid || o.cid === 'gm' || o.t === 'system' || o.cid === m.cid) return null;
+  if (!canSee(o, u)) return null;
+  const c = charById(o.cid);
+  if (!c || c.id === 'gm') return null;
+  if (charHiddenNpc(c) && !seeHidden(u)) return null;
+  return c.id;
+}
+
+/* ============================== 再生の列を組む ============================== */
+// 直近に話した最大 4 人（VTT の _rplStageAt と同じ）
+function stageAt(list, i) {
+  const out = [], seen = new Set();
+  for (let k = i; k >= 0 && k > i - 400 && out.length < 4; k--) {
+    const mm = list[k]; if (!mm || mm._kind || mm._holo || !STAGE_T.test(mm.t || '')) continue;
+    const ch = mm.cid && mm.cid !== 'gm' ? charById(mm.cid) : null;
+    if (!ch || seen.has(ch.id)) continue;
+    seen.add(ch.id);
+    let pin = '';
+    for (let j = k; j >= 0 && j > k - 400; j--) { const x = list[j]; if (!x || x._kind || x._holo || String(x.cid) !== ch.id) continue; if (x.expr !== undefined) { pin = x.expr || ''; break; } if (x.t === 'say') break; }
+    let ex = pin || ch.activeExpr || '';
+    if (ex && !ch.expressions.some(e => e && e.id === ex)) ex = '';
+    out.push({ cid: ch.id, expr: ex });
+  }
+  return out;
+}
+// POV_TIMELINE_BEGIN: keep the body identical to VTT _povTimeline.
+function povTimeline(doc, cid, canRead, holo) {
+    const arr = v => Array.isArray(v) ? v : Object.values(v || {});
+    const chars = arr(doc.characters), maps = arr(doc.maps), byId = new Map(chars.map(c => [c.id, c]));
+    const ch = byId.get(cid), uid = ch && ch.owner, gm = cid === '__gm';
+    const idsOf = m => [...new Set([m.mapId, ...arr(m.whMaps), m.sc && m.sc.m].filter(Boolean))];
+    const own = m => !!ch && m.cid === cid && !m._holo;
+    const involved = m => !!ch && (m.cid === cid || m.from === cid || arr(m.to).includes(cid)
+      || arr(m.whPair).includes(cid) || !!uid && (m.from === uid || arr(m.to).includes(uid)));
+    const only = new Set(chars.filter(c => uid && c.owner === uid && (c.type || 'pc') === 'pc').flatMap(c => arr(c.mapOnly)));
+    const mapOK = id => { const mp = maps.find(m => m.id === id); return !!mp && (gm || (only.size ? only.has(id) : !mp.hidden || mp.home && mp.home.ownerId === cid)); };
+    const rows = arr(doc.messages).filter(m => m && m._id != null && !m.local);
+    for (const [tid, talk] of Object.entries(holo && holo.talk || {})) {
+      const members = Object.keys(talk.mem || {}), memberUids = arr(talk.memUid);
+      if (!gm && (!ch || !members.includes(cid) || uid && !memberUids.includes(uid))) continue;
+      for (const [id, m] of Object.entries(talk.msg || {})) {
+        if (!m || !Number(m.t) || m.kind === 'call' || !gm && m.as && m.cid === cid) continue;
+        const anon = !gm && talk.anon && m.uid && m.uid === talk.fromUid;
+        rows.push({ _id: 'holo:' + tid + ':' + id, _ts: Number(m.t), t: 'say', cid: anon ? '' : m.cid || '', uid: anon ? '' : m.uid || '',
+          cname: anon ? '（発信者不明）' : m.pubName || '', text: String(m.text == null ? '' : m.text), secret: true, from: anon ? '__holo_anon' : m.uid || m.cid || '',
+          to: anon ? [cid, uid].filter(Boolean) : memberUids.concat(members), _holo: true });
+      }
+    }
+    rows.sort((a, b) => (Number(a._ts) || 0) - (Number(b._ts) || 0) || String(a._id).localeCompare(String(b._id)));
+    const events = [];
+    for (const raw of arr(doc.evlog)) {
+      const p = String(raw).split('|');
+      if (ch && p[6] === cid && p[7] === 'char' && (p[1] === 'a' || p[1] === 'd')) events.push({ t: parseInt(p[0], 36), k: p[1], map: p[2], token: p[3] });
+    }
+    // Removals precede appearances at the same timestamp, including cross-map moves.
+    events.sort((a, b) => a.t - b.t || Number(a.k === 'a') - Number(b.k === 'a'));
+    const tokens = new Map();
+    // A first removal proves presence before the retained history starts.
+    const first = new Map();
+    for (const e of events) if (!first.has(e.token)) { first.set(e.token, e); if (e.k === 'd') tokens.set(e.token, e.map); }
+    let ei = 0, lastOwn = '', current = '', located = false;
+    const out = [];
+    for (const m of rows) {
+      const ts = Number(m._ts) || 0;
+      while (ei < events.length && events[ei].t <= ts) { const e = events[ei++]; located = true; if (e.k === 'a') { tokens.set(e.token, e.map); current = e.map; } else { tokens.delete(e.token); if (current === e.map) current = [...tokens.values()].pop() || ''; } }
+      const ids = idsOf(m);
+      if (own(m) && ids.length) { lastOwn = m.mapId || ids[0]; current = lastOwn; located = true; }
+      const where = m._povMap != null ? m._povMap : located ? current : [...tokens.values()].pop() || lastOwn;
+      const priv = !!(m.secret || m.whisper || m._holo);
+      if (!gm && (m.gm || m.logDel || priv && !involved(m))) continue;
+      const speaker = byId.get(m.cid);
+      if (!gm && !priv && speaker && speaker.type === 'npc' && speaker.hidden) continue;
+      if (!gm && ids.length && !ids.some(mapOK)) continue;
+      if (!gm && ch && !priv && ids.length && !ids.includes(where)) continue;
+      const map = gm || !ch ? ids.find(mapOK) || '' : priv ? where || ids.find(mapOK) || '' : where;
+      if (canRead && !canRead(m, map)) continue;
+      out.push({ ...m, _povMap: map });
+    }
+    return out;
+}
+// POV_TIMELINE_END
+function setPov(p) {
+  if (S.povOnly) p = 'pc:' + S.povOnly.cid;
+  if (p.indexOf('pl:') === 0) { const c = [...S.chars.values()].find(c => c.owner === p.slice(3) && (c.type || 'pc') === 'pc'); p = c ? 'pc:' + c.id : 'spec'; }
+  if (!S.povs.some(x => x.id === p)) return;
+  S.pov = p; $('pov').value = p; rebuild();
+}
+// null means legacy fallback; an empty exported array is an authoritative empty stage.
+function resolveStageCast(casts, pov, id) {
+  const rows = casts && casts[pov] && casts[pov][id];
+  if (!Array.isArray(rows)) return null;
+  const seat = { LI: null, RI: null, LO: null, RO: null }, ex = {}, light = {}, dim = {}, waiting = {};
+  for (const row of rows) {
+    const [cid, s, expr, bits] = String(row).split('|');
+    if (!cid || !Object.prototype.hasOwnProperty.call(seat, s)) continue;
+    // Saved casts cannot override the export's hidden-NPC visibility.
+    if (pov !== 'gm' && charHiddenNpc(charById(cid))) continue;
+    seat[s] = cid; ex[cid] = expr || '';
+    const flags = Number(bits) || 0;
+    light[cid] = !!(flags & 1); dim[cid] = !!(flags & 2); waiting[cid] = !!(flags & 4);
+  }
+  return { seat, ex, light, dim, waiting, cast: true };
+}
+function rebuild() {
+  stopTimer();
+  const u = meOf(S.pov);
+  const doc = S.doc || { characters: [...S.chars.values()], maps: S.maps, messages: S.all };
+  // Only redacted cards use public-line map rules; original private rows keep all timeline checks.
+  const messages = arr(doc.messages).map(m => {
+    if (seeSecrets(u) || !m || m._id == null || canSee(m, u)) return m;
+    if (sdiceStubOk(m)) return { ...m, secret: false, whisper: false, _kind: 'stub' };
+    if (!whHintOk(m)) return m;
+    const pr = arr(m.whPair), k = pr.slice().sort().join('|');
+    const nm = (id) => { const c = charById(id); return (c && c.name && !charHiddenNpc(c)) ? c.name : '誰か'; };
+    return { _id: m._id, _kind: 'whhint', t: 'whhint', _ts: m._ts, mapId: m.mapId,
+      cid: m.cid === u.cid ? m.cid : undefined, _povMap: m._povMap,
+      whMaps: m.whMaps, sc: m.sc && { m: m.sc.m }, gm: m.gm, logDel: m.logDel, local: m.local,
+      whHint: { key: k, names: [nm(pr[0]), nm(pr[1])], n: 1, len: String(m.text == null ? '' : m.text).length } };
+  });
+  const timeline = povTimeline({ ...doc, messages }, u.isGM ? '__gm' : u.cid || '',
+    (m, map) => (SHOW_T.test(m.t || '') || m._kind === 'whhint') && canSee(m, u) && !rskHidden(m, u)
+      && !(m.t === 'rolesk' && m.rskMap && m.uid !== u.id && !u.isGM && m.rskMap !== map), S.holo);
+  const list = [];
+  for (const row of timeline) {
+    const m = row._kind === 'whhint' ? { ...row, _id: 'whh_' + row._id } : row;
+    const prev = list[list.length - 1];
+    if (m._kind === 'whhint' && prev && prev._kind === 'whhint' && prev._povMap === m._povMap && prev.whHint.key === m.whHint.key) {
+      prev.whHint.n += m.whHint.n; prev.whHint.len += m.whHint.len;
+    } else list.push(m);
+  }
+  // 席の割り当て（VTT の _rplBuild と同じ）
+  const seeSec = seeSecrets(u);
+  const ORDER = ['LI', 'RI', 'LO', 'RO'], seats = { LI: null, RI: null, LO: null, RO: null }, spoken = new Set();
+  const frames = [];
+  const stageList = list.filter(m => !m._holo);
+  let stageIndex = -1;
+  let previousLegacy = null;
+  let previousMap = '';
+  const addFrame = (legacy) => {
+    if (legacy.m._holo) { frames.push(legacy); return; }
+    const map = legacy.m._povMap || legacy.m.mapId || legacy.m.sc && legacy.m.sc.m || previousMap;
+    if (!u.isGM && previousMap && map && previousMap !== map) {
+      const mp = mapById(map);
+      frames.push({ m: { _id: 'scene:' + legacy.m._id, _ts: legacy.m._ts, t: 'narration', _kind: 'scene', mapId: map, text: mp && mp.name || '' }, sceneBreak: true, seat: {}, ex: {} });
+    }
+    previousMap = map;
+    const saved = resolveStageCast(S.stageCast, u.cid ? 'pl:' + u.id : S.pov, legacy.m._id);
+    frames.push(saved ? { ...legacy, ...saved } : legacy);
+    previousLegacy = legacy;
+  };
+  list.forEach(m => {
+    if (!m._holo) stageIndex++;
+    const map = m._povMap || m.mapId || m.sc && m.sc.m || previousMap;
+    if (!m._holo && !u.isGM && previousMap && map && map !== previousMap) {
+      ORDER.forEach(s => { seats[s] = null; }); spoken.clear(); previousLegacy = null;
+    }
+    if (m._holo || m._kind || !STAGE_T.test(m.t || '')) {
+      const pf = m._holo ? frames[frames.length - 1] : previousLegacy;
+      addFrame({ m, rec: false, sys: true, seat: pf ? { ...pf.seat } : { ...seats }, ex: pf ? pf.ex : {}, sceneF: pf ? (pf.sceneF || pf) : null });
+      return;
+    }
+    if (m.cid && m.cid !== 'gm') spoken.add(String(m.cid));
+    const rec = !!(m.sc && typeof m.sc === 'object');
+    let stand;
+    if (rec) stand = arr(m.sc.st).map(s => { const p = String(s).split('|'); return { cid: p[0], expr: p[1] || '' }; });
+    else stand = stageAt(stageList, stageIndex);
+    const seen = new Set();
+    stand = stand.filter(e => { if (!e.cid || seen.has(e.cid) || !spoken.has(e.cid)) return false; const c = charById(e.cid); if (!c || (!seeSec && charHiddenNpc(c))) return false; seen.add(e.cid); return true; });
+    const want = stand.map(e => e.cid);
+    ORDER.forEach(s => { if (seats[s] && want.indexOf(seats[s]) < 0) seats[s] = null; });
+    stand.slice().reverse().forEach(e => { if (ORDER.every(s => seats[s] !== e.cid)) { const f = ORDER.find(s => !seats[s]); if (f) seats[f] = e.cid; } });
+    const cid = m.cid ? String(m.cid) : null;
+    const so = cid ? ORDER.find(s => seats[s] === cid) : null;
+    if (so === 'LO' || so === 'RO') { const inn = so === 'LO' ? 'LI' : 'RI'; const t = seats[inn]; seats[inn] = cid; seats[so] = t; }
+    const ex = {}; stand.forEach(e => { ex[e.cid] = e.expr; });
+    addFrame({ m, rec, seat: { ...seats }, ex });
+  });
+  S.frames = frames;
+  // スタンプは「次の行が送られるまでに押された分」を数える。次の行の時刻は、見え方に関係なく全部の行から取る
+  const tsAll = S.all.map(m => m._ts || 0);
+  S.nextTs = frames.map(f => { const t = f.m._ts || 0; let lo = 0, hi = tsAll.length; while (lo < hi) { const mid = (lo + hi) >> 1; if (tsAll[mid] <= t) lo = mid + 1; else hi = mid; } return lo < tsAll.length ? tsAll[lo] : Infinity; });
+  S.idx = 0; S.play = false;
+  // 選んでいたマップが、この目では見られないマップなら外す
+  if (S.mapSel && !mapsFor(u).some(mp => mp.id === S.mapSel)) S.mapSel = '';
+  renderLines();
+  render();
+}
+
+/* ============================== 1 行の材料 ============================== */
+const SKILL_ABBR_RE = /[（(][^（）()]*(?:Strength|Constitution|Intelligence|Ego|Nerve|Chance|Edge|Firearms|Interface|Craft|Techmed|Influence|Operations|Neural|無印|★)[^（）()]*[）)]/gi;
+function skillShort(name) {
+  let s = String(name == null ? '' : name).trim(); if (!s) return s;
+  s = s.split(/\s*(?:[―—]+|─{2,}|-{2,}|－{2,})\s*/)[0];
+  s = s.replace(SKILL_ABBR_RE, '');
+  return s.replace(/^[・･\-*\s　]+/, '').replace(/[\s　]*Lv\s*\d+\s*$/i, '').trim();
+}
+const isSkillCard = (m) => { const t = m && m.tbl; return !!(t && t.verb === 'の判定' && /^[〈【]/.test(String(t.name || ''))); };
+function judgeSum(m) {
+  const t = m && m.tbl;
+  if (!t || m.dhHidden || !t.chk || t.noRoll || t.sum == null || !Number.isFinite(Number(t.sum))) return null;
+  const lines = String(t.text || '').split(/\r?\n/);
+  let tn = '';
+  for (const l of lines) { let r; if ((r = /^目標値　([0-9]+)/.exec(l))) { tn = '目標値 ' + r[1]; break; } if (/^目標値　伏せています/.test(l)) { tn = ''; break; } if (/^目標値なし/.test(l)) { tn = '目標値なし'; break; } }
+  const ok = t.ok === true ? '成功' : t.ok === false ? '失敗' : '';
+  const inner = tn + (tn && ok ? '・' : '') + ok;
+  const proxy = lines.some(l => /^GMが代わりに振りました/.test(l));
+  return { line: skillShort(t.name) + ' 合計 ' + Number(t.sum) + (inner ? '（' + inner + '）' : '') + (proxy ? ' GM代行' : ''), detail: lines.slice(1).join('\n').trim(), ok };
+}
+function diceMeta(count, sides, rolls, mod, cmp, target) {
+  const total = rolls.reduce((a, b) => a + b, 0) + (mod || 0);
+  const under = cmp === '<=' || cmp === '<';
+  const crit = under ? rolls.every(r => r === 1) : rolls.every(r => r === sides);
+  const fumble = under ? rolls.every(r => r === sides) : rolls.every(r => r === 1);
+  const okf = (c, t) => c === '<=' ? total <= t : c === '>=' ? total >= t : c === '<' ? total < t : c === '>' ? total > t : total === t;
+  let tag = '';
+  if (cmp && target != null) { const s = okf(cmp, target); tag = crit && s ? 'クリティカル' : fumble && !s ? 'ファンブル' : s ? '成功' : '失敗'; }
+  else if (crit) tag = 'クリティカル'; else if (fumble) tag = 'ファンブル';
+  return { total, tag };
+}
+// ダイスの行の 1 行の文（VTT の _nbDiceText と同じ。技能の判定のカードは _judgeSum の要約）
+function diceText(m) {
+  const rolls = arr(m.rolls).map(Number);
+  if (m.dhHidden) {
+    const meta = m.sides && rolls.length ? diceMeta(m.count || 1, m.sides, rolls, m.mod || 0, m.cmp, m.target) : null;
+    const label = m.dhLabel || String(m.label || '').replace(/\d+d\d+.*$/i, '').replace(/[0-9０-９]+/g, '').trim() || '判定';
+    const tag = m.dhTag || m.tag || (meta && meta.tag) || '';
+    return m.tbl ? (m.tbl.name || '判定') + '　' + String(m.tbl.text || '').replace(/\r?\n/g, '／') : label + (tag ? '　' + tag : '');
+  }
+  if (m.tbl) {
+    const js = judgeSum(m); if (js) return js.line;
+    const tbl = m.tbl, text = String(tbl.text || '');
+    if (tbl.sum != null && Number.isFinite(Number(tbl.sum))) {
+      const sum = Number(tbl.sum), add = sum - rolls.reduce((a, x) => a + x, 0);
+      const nm = isSkillCard(m) ? '〈' + skillShort(tbl.name).replace(/[〈〉【】]/g, '') + '〉' : (tbl.name || '判定');
+      const tg = /目標値[\s　]+([0-9]+)/.exec(text);
+      const ok = tbl.ok === true ? '成功' : tbl.ok === false ? '失敗' : '';
+      return nm + ' 出目 ' + rolls.join('＋') + (add ? (add > 0 ? '＋' : '−') + Math.abs(add) : '') + ' ＝ ' + sum + (tg ? ' 目標値 ' + tg[1] : '') + (ok ? ' ' + ok : '');
+    }
+    if (tbl.noRoll) return (tbl.name || '') + (tbl.hit && text ? ' ' + text.split(/\r?\n/)[0] : '');
+    return (tbl.name || '表') + ' ' + rolls.join('＋') + ' → ' + (tbl.hit ? text.replace(/\r?\n/g, '／') : '該当なし');
+  }
+  if (m.formula) return (m.label ? '〈' + m.label + '〉 ' : '') + m.formula + ' ＝ ' + m.total + (m.tag ? ' ' + m.tag : '');
+  const meta = (m.sides && rolls.length) ? diceMeta(m.count || 1, m.sides, rolls, m.mod || 0, m.cmp, m.target) : null;
+  const total = meta ? meta.total : rolls.reduce((a, x) => a + x, 0) + (Number(m.mod) || 0);
+  return (m.label ? '〈' + m.label + '〉 ' : '') + '出目 ' + rolls.join('＋') + (m.mod ? (m.mod > 0 ? '＋' : '−') + Math.abs(m.mod) : '') + ' ＝ ' + total
+    + (m.target != null ? ' 目標値 ' + m.target : '') + (meta && meta.tag ? ' ' + meta.tag : '');
+}
+function whHintVals(hh, id) {
+  const w = hh.whHint, text = w.names[0] + 'と' + w.names[1] + 'が声をひそめて話している';
+  let s = 0; for (let i = 0; i < id.length; i++) s = (s * 31 + id.charCodeAt(i)) >>> 0;
+  const units = ['……', '―', '・・・', '……', '――', '、', '…'];
+  const want = Math.max(8, Math.min(60, Math.round(w.len * 0.8))), parts = []; let len = 0;
+  while (len < want) { s = (s * 1103515245 + 12345) >>> 0; const un = units[(s >>> 8) % units.length]; parts.push(un); len += un.length; }
+  return { text: text + (w.n > 1 ? '　×' + w.n : ''), fill: parts.join('') };
+}
+// 行の名札・本文・札
+class DiceHideProjection {
+  _dhIsPL(cid) {
+    const c = cid && this.charById(cid);
+    if (!c || !c.owner || (c.type || 'pc') !== 'pc') return false;
+    const s = this.state || {}, u = (s.fbUsers || {})[c.owner] || (s.users || {})[c.owner];
+    const gm = this.me && typeof this._uidIsGM === 'function' ? this._uidIsGM(c.owner) : !!(u && u.isGM);
+    return !gm;
+  }
+  _dhView(m, me) {
+    if (!m || m.t !== 'dice' || m.dhHidden || m.sdice || m.sdiceOpen || this.state.diceHide === false || this._seeSecrets(me || this.me)) return m;
+    // 2026-11-14 先生「PL の数字をほかの PL に隠す」。伏せるのは PL が振った判定の数字と、PL が受けた側（回避など）の数字だけ。
+    // NPC だけの判定は今のまま描く（NPC の数字は今までどおり GM 専用の2枚目にだけある）
+    const rollerPL = this._dhIsPL(m.cid), otherPL = this._dhIsPL(m.dhOther);
+    if (!rollerPL && !otherPL) return m;
+    const u = me || this.me || {}, own = rollerPL ? (!u.spectator && !!u.id && ((this.charById(m.cid) || {}).owner === u.id)) : true;
+    const other = otherPL && !u.spectator && !!u.id && ((this.charById(m.dhOther) || {}).owner === u.id);
+    if (!m.tbl) return own ? m : { ...m, dhHidden: 1 };
+    // 描き分けは、みんなに届いている今の文だけで行う（NPC の式は入っていない）。古い行に残る dhFull は読まない
+    const t = m.tbl, original = String(t.text || '');
+    if (own && !m.dhOther && !/回避の判定　|^(反応|踏ん張り)　|^目標値　.*6＋[^　]+?の(?:【|〈)/m.test(original)) return m;
+    const dodgeCard = t.name === '回避判定';
+    const lines = original.split(/\r?\n/).map(line => {
+      const dodge = /^回避判定　.*＝/.test(line);
+      const comparison = /^回避の判定　/.test(line);
+      if (comparison) { const result = /→\s*(回避|命中のまま)/.exec(line); return result ? '回避の判定　' + result[1] : ''; }
+      if (dodge) return (dodgeCard ? own : other) ? line : '';
+      if (/^(反応|踏ん張り)　/.test(line)) {
+        if (other) return line.replace(/(\d+)\s+対\s+\d+(?:（[^）]*）)?\s*→/, '$1　→');
+        const result = /→\s*(成功|失敗)/.exec(line);
+        return result ? line.split('　')[0] + '　' + result[1] : (/\d/.test(line) ? '' : line);
+      }
+      if (/^(目標値|判定|命中)　/.test(line)) {
+        if (/^目標値　/.test(line) && /6＋[^　]+?の(?:【|〈)/.test(line)) {
+          const part = /6＋[^　]+?の((?:【|〈).+?)(?:　| ／|$)/.exec(line);
+          return other && part ? '相手の判定に使った値　' + part[1] : '';
+        }
+        if (own && !dodgeCard) return line;
+        if (own && dodgeCard && !/^目標値|^判定/.test(line)) return line;
+        const result = /→\s*(成功|失敗|回避|命中のまま)/.exec(line);
+        return result ? line.split('　')[0] + '　' + result[1] : '';
+      }
+      if (/^結果　/.test(line)) return own ? line.replace(/（差\s*[＋−+-]?\d+）/g, '') : line.replace(/（差\s*[＋−+-]?\d+）/g, '').replace(/（出目\s*\d+）/g, '').replace(/合計\s*\d+/g, '').replace(/目標値\s*\d+/g, '目標値');
+      if (own || /^(実効貫通値|超過|装甲|耐久|実ダメージ|ダメージ|負傷|部位|衝撃|HP|残弾|距離|射程|状態|効果|受け|遮蔽|回避なし|回避判定　待ち)/.test(line)) return line;
+      return /\d|[０-９]/.test(line) ? '' : line;
+    }).filter(Boolean).join('\n');
+    const tbl = { ...t, text: lines };
+    return { ...m, tbl, ...(!own ? { dhHidden: 1 } : {}) };
+  }
+}
+const diceHideProjection = new DiceHideProjection();
+function lineInfo(f, u) {
+  diceHideProjection.state = S.doc || {};
+  diceHideProjection.me = u;
+  diceHideProjection.charById = charById;
+  diceHideProjection._uidIsGM = uidIsGM;
+  diceHideProjection._seeSecrets = seeSecrets;
+  let m = diceHideProjection._dhView(f.m, u);
+  if (f.sceneBreak) return { kind: 'system', name: '', color: 'var(--tx-3)', text: m.text, tag: '' };
+  if (m._kind === 'whhint') { const v = whHintVals(m, m._id); return { kind: 'whhint', name: 'ひそひそ', role: '', color: 'var(--warn)', text: v.text, fill: v.fill, tag: '' }; }
+  const c = m.cid ? charById(m.cid) : null;
+  let name = (c && c.name) || m.cname || '', role = (c && c.role) || '', color = (c && c.color) || m.ccolor || 'var(--tx-3)';
+  let text = String(m.text == null ? '' : m.text);
+  if (m.roundMark) text = text.replace(/(\d+)周目/g, '$1ターン目');
+  let kind = m.t;
+  const plNar = m.t === 'narration' && !!c && m.cid !== 'gm' && !!c.owner && !uidIsGM(m.uid) && c.type !== 'npc' && c.type !== 'mob';
+  if (m.t === 'narration' && !plNar) { name = '地の文'; role = ''; color = 'var(--tx-3)'; }
+  else if (plNar) role = '描写';
+  if (m.t === 'system' || m.t === 'item') { name = 'システム'; role = ''; color = 'var(--tx-3)'; kind = 'system'; }
+  if (m.t === 'bgm') { name = '曲'; role = ''; color = 'var(--tx-3)'; kind = 'system'; }
+  if (m.t === 'announce') { name = 'お知らせ'; role = ''; color = 'var(--gm)'; kind = 'system'; }
+  if (m.t === 'say' && m.tone === 'thought') text = '（' + text + '）';
+  let judge = null;
+  if (m._kind === 'stub') { text = 'シークレットダイスを振った'; role = 'ダイス'; }
+  else if (m.t === 'dice') { judge = judgeSum(m); text = diceText(m); role = judge ? '判定' : 'ダイス'; if (!name) name = 'ダイス'; }
+  if (m.t === 'rolesk') { role = '職業スキル'; const ef = String((m.rsk && m.rsk.effect) || '').trim(); if (ef) text += '\n' + ef; }
+  const tag = m.gm ? 'GM用' : m.secret ? ((m.whisper ? '耳打ち ' : '秘話 ') + (m.fromName || '') + ' → ' + secretToName(m, u)) : '';
+  let reply = null;
+  if (m.replyTo && m.replyTo.id) {
+    const o = S.byId.get(String(m.replyTo.id));
+    const hidden = o ? !canSee(o, u) : false;
+    reply = { name: hidden ? '' : (m.replyTo.name || ''), text: hidden ? '（非公開）' : String(m.replyTo.text || '').slice(0, 60) };
+  }
+  return { kind, name, role, color, text, tag, reply, judge, whDim: !!(m.secret && m.whisper), screen: m.t === 'narration' && !!m.screen, tone: (m.t === 'narration' || kind === 'system') ? 'normal' : (m.tone || 'normal') };
+}
+function stampsFor(i) {
+  const f = S.frames[i]; if (!f) return [];
+  const m = f.m; if (m._kind || !(m.t === 'say' || m.t === 'narration')) return [];
+  const v = S.doc && S.doc.voltage; const src = v && v.s && typeof v.s === 'object' ? v.s : {};
+  const lim = S.nextTs[i], cnt = [0, 0, 0, 0, 0, 0], latest = {};
+  for (const key in src) {
+    const x = src[key]; if (!x || String(x.m) !== m._id || !x.u) continue;
+    const t = Number(x.t) || 0; if (t >= lim) continue;
+    const o = latest[x.u]; if (!o || t > o.t) latest[x.u] = { t, on: !!x.on, k: Number(x.k) };
+  }
+  for (const u in latest) { const r = latest[u]; if (r.on && r.k >= 0 && r.k < cnt.length) cnt[r.k]++; }
+  return VOLT_STAMPS.map((label, k) => ({ k, label, n: cnt[k] })).filter(x => x.n > 0);
+}
+function stampsEl(i) {
+  const st = stampsFor(i); if (!st.length) return null;
+  return h('div', { class: 'stamps', 'data-stamps': '1' }, st.map(s => h('span', { 'data-stamp': s.k, text: s.label + ' ' + s.n,
+    style: { background: s.k < VOLT_STAMP_POS ? '#2a1a12' : '#161c26', borderColor: s.k < VOLT_STAMP_POS ? '#6b3a1f' : '#3a4a66', color: s.k < VOLT_STAMP_POS ? '#ffb27a' : '#9fb4d8' } })));
+}
+
+/* ============================== 描画 ============================== */
+const mapById = (id) => (id == null ? null : S.maps.find(x => x.id === String(id)) || null);
+const activeMap = () => mapById(S.doc && S.doc.activeMapId) || S.maps[0] || null;
+function mapsFor(u) {
+  const only = new Set([...S.chars.values()].filter(c => !u.spectator && c.owner === u.id && (c.type || 'pc') === 'pc').flatMap(c => arr(c.mapOnly)));
+  return S.maps.filter(mp => seeHidden(u) || (only.size ? only.has(mp.id) : !mp.hidden || mp.home && mp.home.ownerId === u.cid));
+}
+function frameMapId(f) { if (!f) return null; if (f.m._povMap) return f.m._povMap; const sf = f.sys ? (f.sceneF || f) : f; const sc = sf.rec ? sf.m.sc : null; return (sc && sc.m) || sf.m.mapId || f.m.mapId || null; }
+function render() {
+  const n = S.frames.length;
+  if (S.idx > n - 1) S.idx = Math.max(0, n - 1);
+  const pane = $('pane'); pane.textContent = '';
+  if (S.view === 'novel') pane.appendChild(renderNovel());
+  else if (S.view === 'log') { pane.appendChild(renderLog()); requestAnimationFrame(() => { const el = document.querySelector('#log .msg[aria-current="true"]'); if (el) el.scrollIntoView({ block: 'center' }); }); }
+  else pane.appendChild(renderMap());
+  // 操作の帯
+  $('seek').max = String(Math.max(0, n - 1)); $('seek').value = String(S.idx);
+  $('pos').textContent = n ? (S.idx + 1) + ' / ' + n : '0 / 0';
+  $('bFirst').disabled = $('bBack').disabled = !n || S.idx <= 0;
+  $('bFwd').disabled = !n || S.idx >= n - 1;
+  $('bPlay').disabled = !n;
+  $('bPlay').textContent = S.play ? '止める' : '再生'; $('bPlay').setAttribute('aria-pressed', S.play ? 'true' : 'false');
+  $('speed').value = String(S.speed);
+  const f = S.frames[S.idx];
+  const sf = f ? (f.sys ? (f.sceneF || f) : f) : null;
+  $('src').textContent = !f ? '' : (sf && sf.rec ? '記録した場面' : '記録なし（書き出し時点の場面で再生）');
+  $('src').setAttribute('data-src', !f ? '' : (sf && sf.rec ? 'rec' : 'now'));
+  document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-view') === S.view ? 'true' : 'false'));
+  // 行の一覧の今の行
+  const box = $('lines'), prev = box.querySelector('[aria-current="true"]');
+  if (prev) prev.setAttribute('aria-current', 'false');
+  const now = box.children[S.idx];
+  if (now) { now.setAttribute('aria-current', 'true'); const r = now.getBoundingClientRect(), br = box.getBoundingClientRect(); if (r.top < br.top || r.bottom > br.bottom) now.scrollIntoView({ block: 'nearest' }); }
+}
+function renderLines() {
+  const u = meOf(S.pov), box = $('lines'); box.textContent = '';
+  S.frames.forEach((f, i) => {
+    const li = lineInfo(f, u);
+    box.appendChild(h('button', { type: 'button', class: 'ln', role: 'listitem', 'data-line': i, 'data-mid': f.m._id, 'aria-current': 'false', onclick: () => seek(i), title: li.name + '：' + li.text.slice(0, 200) },
+      h('span', { class: 'n mono', text: String(i + 1) }),
+      h('span', { class: 'w', text: li.name || '　', style: { color: li.kind === 'system' ? 'var(--tx-3)' : nameColor(li.color) } }),
+      h('span', { class: 't', text: li.text.replace(/\s+/g, ' ') }),
+      li.tag ? h('span', { class: 'tag', text: li.tag.split(' ')[0] }) : null));
+  });
+  $('lineCount').textContent = S.frames.length + '行';
+}
+
+// Stand geometry shared with the VTT novel. Keep the marked block byte-identical.
+function replayStandGeometry() {
+// BEGIN STANDGEO CORE
+return {
+  ar: 1.08,
+  num(v, d) { const n = parseFloat(v); return isNaN(n) ? d : n; },
+  box(height) { return { w: height * this.ar, h: height }; },
+  sanitize(o) {
+    let x = this.num(o && o.x, 0), y = this.num(o && o.y, 0), sc = this.num(o && o.scale, 1);
+    if (x < -100 || x > 100 || y < -100 || y > 100 || !(sc >= 0.4 && sc <= 3)) { x = 0; y = 0; sc = 1; }
+    return { x, y, scale: sc };
+  },
+  baseFit(c) {
+    const sc = this.num(c && c.standScale, 1);
+    return { x: this.num(c && c.standX, 0), y: this.num(c && c.standY, 0), scale: sc > 0 ? sc : 1, flip: false };
+  },
+  fit(ch, ex) {
+    const base = { x: ch.standX, y: ch.standY, scale: ch.standScale }, fit = {};
+    for (const k of ['x', 'y', 'scale']) fit[k] = ex && ex[k] != null ? ex[k] : base[k];
+    return { ...this.sanitize(fit), flip: !!ch.flipBase !== !!(ex && ex.flip === true) };
+  },
+  flip(ch, fit, side) { return ch.noFlip ? 1 : (side === 'L' ? -1 : 1) * (fit.flip ? -1 : 1); },
+  transform(fit, flipX) {
+    return 'translate(' + fit.x + '%, ' + (-fit.y) + '%) scale(' + (fit.scale * flipX) + ', ' + fit.scale + ')';
+  },
+  wrap(fit, flipX) {
+    return 'width:auto; aspect-ratio:' + this.ar + '; flex-shrink:0; container-type:size; transform:' + this.transform(fit, flipX) + '; transform-origin: bottom center;';
+  },
+  alphaBox(data, w, h) {
+    let l = w, t = h, r = -1, b = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (data[(y * w + x) * 4 + 3] > 8) {
+      l = Math.min(l, x); t = Math.min(t, y); r = Math.max(r, x); b = Math.max(b, y);
+    }
+    return r < l ? null : { iw: w, ih: h, x: l, y: t, w: r - l + 1, h: b - t + 1 };
+  },
+  trimGeometry(trim, height) {
+    const scale = height / trim.h;
+    return { width: trim.iw * scale, height: trim.ih * scale,
+      left: height * this.ar / 2 - (trim.x + trim.w / 2) * scale,
+      top: height - (trim.y + trim.h) * scale };
+  },
+  imageStyle(url, trim) {
+    const style = { height: '100%', width: '100%', backgroundRepeat: 'no-repeat', backgroundSize: 'contain', backgroundPosition: 'bottom center', backgroundImage: 'url("' + url + '")' };
+    if (trim) {
+      const g = this.trimGeometry(trim, 1);
+      style.backgroundSize = (g.width * 100) + 'cqh ' + (g.height * 100) + 'cqh';
+      style.backgroundPosition = 'left calc(50cqw + ' + ((g.left - this.ar / 2) * 100) + 'cqh) top ' + (g.top * 100) + 'cqh';
+    }
+    return style;
+  },
+  rankScale(rank) { return rank <= 0 ? 1 : rank === 1 ? 0.778 : rank === 2 ? 0.689 : 0.622; },
+  standHeight(stage, rank) { return Math.max(0, Math.floor((stage - 64) * rank)); },
+  novelSplit(total, composer, savedBox, overhead, naturalBox, boxLimit) {
+    total = Math.max(0, total); composer = Math.max(0, composer); overhead = Math.max(0, overhead);
+    const minimum = Math.max(260, composer + 120 + overhead);
+    let lower = savedBox > 0 ? Math.max(minimum, Math.min(boxLimit, savedBox) + overhead + composer) : Math.max(Math.round(total * 0.382), minimum);
+    if (naturalBox > 0) {
+      const room = Math.max(120, total - composer - overhead - 96);
+      lower = composer + overhead + Math.min(room, Math.max(lower - composer - overhead, naturalBox));
+    }
+    const frame = lower - composer;
+    return { stage: Math.max(naturalBox > 0 ? 96 : 0, total - lower), lower, composer, frame, box: frame - overhead };
+  },
+  seats(viewHeight, paneBottom, saved) {
+    if (saved && saved.viewportHeight > 0 && [saved.height, saved.foot].every(Number.isFinite) && saved.height >= 0) {
+      const p = saved.layout;
+      if (viewHeight !== saved.viewportHeight && p && [p.top, p.totalInset, p.composer, p.overhead, p.savedBox, p.boxLimit].every(Number.isFinite)) {
+        const layout = this.novelSplit(viewHeight - p.totalInset, p.composer, p.savedBox, p.overhead, 0, p.boxLimit);
+        return { height: this.standHeight(layout.stage, 1), bottom: paneBottom - (p.top + layout.stage) };
+      }
+      const ratio = viewHeight / saved.viewportHeight;
+      return { height: saved.height * ratio, bottom: paneBottom - saved.foot * ratio };
+    }
+    // Legacy exports have no local layout preferences. Use the audited default GM novel layout.
+    const layout = this.novelSplit(viewHeight - 99, 137, 0, 91, 0, 0);
+    return { height: this.standHeight(layout.stage, 1), bottom: paneBottom - (99 + layout.stage) };
+  }
+};
+// END STANDGEO CORE
+}
+const STAND_GEO = replayStandGeometry();
+const standTrimCache = new Map();
+function replayStandTrim(url) {
+  if (standTrimCache.has(url)) return standTrimCache.get(url);
+  standTrimCache.set(url, null);
+  try {
+    if (!/^data:image\//i.test(url) && !(url.startsWith('blob:') && new URL(url).origin === window.location.origin)) return null;
+    const img = new Image();
+    img.onload = () => {
+      try {
+        if (!img.naturalWidth || !img.naturalHeight) return;
+        const h = Math.min(256, img.naturalHeight), w = Math.max(1, Math.round(img.naturalWidth * h / img.naturalHeight));
+        const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, w, h);
+        const trim = STAND_GEO.alphaBox(ctx.getImageData(0, 0, w, h).data, w, h);
+        standTrimCache.set(url, trim);
+        if (trim && S.doc && S.view === 'novel') render();
+      } catch (e) { /* Keep contain/bottom-center for unavailable pixels. */ }
+      img.onload = img.onerror = null;
+    };
+    img.onerror = () => { img.onload = img.onerror = null; };
+    img.src = url;
+  } catch (e) { /* Keep the same fallback as the VTT. */ }
+  return null;
+}
+function replayStandImageStyle(url) { return STAND_GEO.imageStyle(url, replayStandTrim(url)); }
+function slotEl(ch, seat, exprId, lit, dimmed, T, waiting) {
+  const side = seat[0], front = seat[1] === 'I';
+  exprId = exprId === '' ? '' : (exprId || ch.activeExpr || '');
+  const ex = exprId ? ch.expressions.find(x => x && x.id === exprId) : null;
+  // その行の時点の画像（立ち絵の差し替えの記録があり、前の画像がファイルにあるとき）。差分の画像が無ければ立ち絵そのもの
+  const atEx = exprId ? standAt(ch.id, exprId, T) : null, atBase = atEx ? null : standAt(ch.id, '', T);
+  const useEx = !!(atEx || (ex && ex.stand));
+  const fit = STAND_GEO.fit(ch, ex), flipX = STAND_GEO.flip(ch, fit, side);
+  const stand = atEx || (useEx ? safeUrl(ex.stand) : (atBase || safeUrl(ch.stand)));
+  const seatHeight = front ? 'var(--nvh0)' : 'calc(var(--nvh0) * ' + STAND_GEO.rankScale(1) + ')';
+  const V = !front ? { h: seatHeight, o: '0.5', f: 'grayscale(0.5) brightness(0.55)' } : dimmed ? { h: seatHeight, o: '1', f: 'grayscale(0.45) brightness(0.5)' } : { h: seatHeight, o: '1', f: 'none' };
+  let filter = V.f;
+  if (lit && ch.color) { const g = 'drop-shadow(0 0 10px ' + (isHex6(ch.color) ? ch.color + '99' : ch.color) + ')'; filter = filter === 'none' ? g : filter + ' ' + g; }
+  const box = h('div', { class: 'slot', 'data-slot': seat, 'data-cid': ch.id, 'data-expr': exprId || '', 'data-lit': lit ? '1' : '0',
+    style: { height: V.h, opacity: waiting ? '0.55' : V.o, filter, zIndex: front ? '3' : '1', [side === 'L' ? 'left' : 'right']: front ? 'max(72px, 8%)' : '72px' } });
+  const wrap = h('div', { style: 'position:relative; height:100%; ' + STAND_GEO.wrap(fit, flipX) });
+  if (stand) wrap.appendChild(h('div', { 'data-standimg': '1', style: replayStandImageStyle(stand) }));
+  else wrap.appendChild(h('div', { class: 'ph', text: initialOf(ch.name), style: { border: '1px solid ' + (ch.color || '#888'), borderBottom: 'none', color: ch.color || '#888' } }));
+  box.appendChild(wrap);
+  return box;
+}
+function renderNovel() {
+  const u = meOf(S.pov), f = S.frames[S.idx];
+  const stage = h('div', { id: 'stage', 'data-dark': '0' });
+  const seats = STAND_GEO.seats(window.innerHeight, $('pane').getBoundingClientRect().bottom, S.standLayout);
+  stage.style.setProperty('--nvh0', seats.height + 'px');
+  stage.style.setProperty('--nvbot', seats.bottom + 'px');
+  if (!f) { stage.appendChild(h('div', { class: 'bgph' })); stage.appendChild(h('div', { class: 'empty', text: 'この目で再生できる行がありません' })); return stage; }
+  if (f.sceneBreak) {
+    stage.style.background = '#000';
+    stage.appendChild(h('div', { 'data-map-card': f.m.mapId, style: { position: 'absolute', inset: '0', display: 'grid', placeItems: 'center', color: 'var(--tx-1)', fontSize: '28px', animation: 'pov-card .9s both' }, text: f.m.text }));
+    return stage;
+  }
+  const m = f.m, sf = f.sys ? (f.sceneF || f) : f;
+  const sc = sf.rec && (!u.cid || !sf.m.sc.m || sf.m.sc.m === frameMapId(f)) ? sf.m.sc : null;
+  const mapId = frameMapId(f);
+  const mp = mapById(mapId) || activeMap();
+  const kind = sc ? sc.v : '';
+  const novel = sc ? (kind === 'n' || !!(mp && mp.novel)) : !!(mp && (mp.novel || safeUrl(mp.novelBg)));
+  // 背景。記録した行は鍵から引く。鍵が無いのに、マップの今の背景が鍵を持たない小さな画像か URL なら、それを使う（VTT は鍵にしないため）
+  let bgData = null, bgMiss = false;
+  const curBg = mp ? (novel ? mp.novelBg : mp.bg) : null;
+  const rawCur = mp ? rawMapField(mp.id, novel ? 'novelBg' : 'bg') : undefined;
+  if (sc) {
+    if (sc.bg) { bgData = safeUrl(S.media[sc.bg]); if (!bgData) bgMiss = true; }
+    else if (typeof rawCur === 'string' && rawCur.indexOf('@m:') !== 0) bgData = safeUrl(curBg);
+  } else {
+    // 記録の無い行でも、背景の差し替えの記録（evlog の b）があれば、その時点の背景にする
+    const at = mp ? mapBgAt(mp.id, novel ? 'n' : 'b', m._ts || 0) : undefined;
+    bgData = at !== undefined ? at : safeUrl(curBg);
+  }
+  // 見た目の鍵（k・tn・vg・ft）を刻む版の書き出し（_meta.rpl が 2 以上）では、記録した行の鍵が無いのは既定の値。古い書き出しと記録の無い行は、書き出し時点のマップの値
+  const look = S.rplV >= 2 && !!sc;
+  const fit = novel ? ((look ? sc.ft === 'c' : !!(mp && mp.novelFit === 'cover')) ? 'cover' : 'contain') : 'cover';
+  stage.setAttribute('data-bgkey', sc && sc.bg ? sc.bg : '');
+  stage.setAttribute('data-kind', kind || 'now');
+  if (bgData) {
+    if (fit === 'contain') stage.appendChild(h('div', { 'data-bkhide': '1', class: 'layer', style: { inset: '-6%', backgroundImage: urlCss(bgData), backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(24px) brightness(.75)' } }));
+    stage.appendChild(h('div', { 'data-bkhide': '1', 'data-bg': '1', class: 'layer', style: { backgroundImage: urlCss(bgData), backgroundSize: fit, backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } }));
+  } else stage.appendChild(h('div', { class: 'bgph', 'data-bkhide': '1' }));
+  // 色味と周辺の暗さ（行の記録。無ければ書き出し時点のマップの値）
+  const tone = look ? (NV_TONES[sc.tn] !== undefined ? sc.tn : 'none') : (mp && NV_TONES[mp.novelTone] !== undefined ? mp.novelTone : 'none');
+  const vig = look ? (NV_VIGS[sc.vg] !== undefined ? sc.vg : 'none') : (mp && NV_VIGS[mp.novelVig] !== undefined ? mp.novelVig : 'none');
+  stage.setAttribute('data-fit', fit);
+  stage.appendChild(h('div', { class: 'layer', 'data-tone': tone, style: { backgroundColor: NV_TONES[tone] } }));
+  stage.appendChild(h('div', { class: 'layer', 'data-vig': vig, style: { background: 'radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 40%, rgba(0,0,0,.72) 100%)', opacity: String(NV_VIGS[vig]) } }));
+  // 暗転。行の記録（k）があればそれで決める。古い書き出しと記録の無い行は、書き出し時点の状態から（暗転したまま書き出していれば、暗転した時刻より後の行で消す）
+  const bk = S.doc && S.doc.blackout;
+  const dark = look ? (sc.k === 1 || sc.k === true) : !!(bk && bk.on === true && Number(bk.t) > 0 && (m._ts || 0) >= Number(bk.t));
+  stage.setAttribute('data-dark', dark ? '1' : '0');
+  // 立ち絵
+  const lit = !f.sys && m.cid && m.cid !== 'gm' ? String(m.cid) : null;
+  const seat = { ...f.seat };
+  const fcid = f.cast || f.sys ? null : gmFocusCid(m, u);
+  const fcLit = fcid && Object.keys(seat).some(s => seat[s] === fcid) ? fcid : null;
+  if (fcLit) { const so = Object.keys(seat).find(s => seat[s] === fcLit); if (so === 'LO' || so === 'RO') { const inn = so === 'LO' ? 'LI' : 'RI'; const t = seat[inn]; seat[inn] = fcLit; seat[so] = t; } }
+  const litSet = new Set(f.cast ? Object.keys(f.light).filter(cid => f.light[cid]) : [lit, fcLit].filter(Boolean));
+  const litFront = Object.keys(seat).some(s => s[1] === 'I' && litSet.has(seat[s]));
+  ['LO', 'RO', 'LI', 'RI'].forEach(s => {
+    const ch = seat[s] ? charById(seat[s]) : null; if (!ch) return;
+    stage.appendChild(slotEl(ch, s, f.cast ? f.ex[ch.id] : (f.ex[ch.id] || undefined), litSet.has(ch.id),
+      f.cast ? f.dim[ch.id] : s[1] === 'I' && litFront && !litSet.has(ch.id), m._ts || 0, f.cast && f.waiting[ch.id]));
+  });
+  // 場面の札・曲の札
+  const sceneName = (mp && mp.name) || '';
+  const kindText = !sc ? '書き出し時点の場面' : kind === 'n' ? 'ノベル' : kind === 'b' ? 'バトルノベル' : 'マップ';
+  stage.appendChild(h('div', { class: 'chip', 'data-scene': '1', style: { top: '12px', left: '14px' }, text: kindText + (sceneName ? '　' + sceneName : '') + '　' + hm(m._ts) }));
+  const right = [];
+  if (sc && sc.b) right.push(h('span', { 'data-bgm': '1', text: '曲：' + sc.b }));
+  if (bgMiss) right.push(h('span', { 'data-bgmiss': '1', style: { color: 'var(--warn)' }, text: '背景の画像がファイルにありません' }));
+  if (dark) right.push(h('span', { 'data-darknote': '1', style: { color: 'var(--gm)' }, text: '暗転中' }));
+  if (right.length) stage.appendChild(h('div', { class: 'chip', style: { top: '12px', right: '14px', display: 'flex', gap: '12px', color: 'var(--tx-3)' } }, right));
+  // 文
+  const li = lineInfo(f, u);
+  if (li.screen) {
+    stage.appendChild(h('div', { class: 'scr', 'data-screen': '1' }, h('div', { text: li.text })));
+    return stage;
+  }
+  const ts = toneStyle(li.tone, 20, '#f1f4f9', 1.9);
+  if (li.whDim) ts.color = 'var(--tx-3)';
+  Object.assign(ts, { display: 'block', maxHeight: '30vh', overflowY: 'auto' });
+  const col = li.kind === 'system' || li.kind === 'whhint' ? li.color : nameColor(li.color);
+  const body = h('div', { class: 'body' },
+    li.reply ? h('div', { class: 'reply', 'data-reply': '1' }, h('span', { style: { color: '#5cb8c4' }, text: '↳' }), li.reply.name ? h('b', { text: li.reply.name }) : null, h('span', { text: li.reply.text })) : null,
+    h('div', { 'data-text': '1', style: ts, text: li.text }),
+    li.fill ? h('div', { class: 'fill', 'aria-hidden': 'true', text: li.fill }) : null,
+    li.judge && li.judge.detail ? h('details', { class: 'jd', 'data-jd': '1' }, h('summary', { text: '内訳' }), h('pre', { text: li.judge.detail })) : null,
+    stampsEl(S.idx));
+  stage.appendChild(h('div', { class: 'say' },
+    h('div', { class: 'plate', style: { borderLeftColor: col } },
+      h('span', { class: 'nm', 'data-name': '1', style: { color: col }, text: li.name }),
+      li.tag ? h('span', { class: 'sec', 'data-tag': '1', text: li.tag }) : null,
+      li.role ? h('span', { class: 'role', text: li.role }) : null),
+    body));
+  return stage;
+}
+// マップの欄の生の値（'@m:' のままか）を見る。internalize の前の doc から引く
+function rawMapField(id, key) { return S._rawMaps ? S._rawMaps.get(id + '|' + key) : undefined; }
+
+function renderLog() {
+  const u = meOf(S.pov), box = h('div', { id: 'log' });
+  if (!S.frames.length) { box.appendChild(h('div', { class: 'empty', text: 'この目で再生できる行がありません' })); return box; }
+  // いまの行まで。長い卓でも重くならないよう、いまの行の前 400 行までを出す
+  const from = Math.max(0, S.idx - 400);
+  if (from > 0) box.appendChild(h('div', { style: { color: 'var(--tx-3)', fontSize: '12px', margin: '4px 0 10px' }, text: 'これより前の ' + from + ' 行は、右の行の一覧から開ける' }));
+  for (let i = from; i <= S.idx; i++) {
+    const f = S.frames[i], li = lineInfo(f, u), m = f.m;
+    const c = m.cid && m.cid !== 'gm' ? charById(m.cid) : null;
+    const cls = li.kind === 'system' || li.kind === 'whhint' ? 'msg sys' : (m.t === 'narration' && li.name === '地の文') ? 'msg nar' : 'msg';
+    const col = li.kind === 'system' || li.kind === 'whhint' ? li.color : nameColor(li.color);
+    const icon = c ? safeUrl(c.icon) : null;
+    const av = cls === 'msg' ? h('div', { class: 'av', style: { background: icon ? urlCss(icon) + ' center / cover' : (isHex6(li.color) ? li.color : 'var(--sf-2)') }, text: icon ? '' : initialOf(li.name) }) : null;
+    const ts = toneStyle(li.tone, 14, li.whDim ? 'var(--tx-3)' : 'var(--tx-1)', 1.65);
+    const bub = h('div', { class: 'bub', style: { borderLeftColor: cls === 'msg' ? col : undefined } }, h('span', { style: ts, text: li.text }),
+      li.judge && li.judge.ok ? h('span', { class: 'badge', style: { background: li.judge.ok === '成功' ? 'var(--ok)' : '#c0504a', color: li.judge.ok === '成功' ? 'var(--bg-0)' : '#fff' }, text: li.judge.ok }) : null);
+    box.appendChild(h('div', { class: cls, 'data-logrow': i, 'data-mid': m._id, 'aria-current': i === S.idx ? 'true' : 'false', onclick: () => seek(i) },
+      av || h('div', { style: { width: '34px', flex: 'none' } }),
+      h('div', { class: 'mb' },
+        li.reply ? h('div', { class: 'rq' }, '↳ ', li.reply.name ? h('b', { text: li.reply.name + ' ' }) : null, li.reply.text) : null,
+        h('div', { class: 'hd' }, h('span', { class: 'nm', style: { color: col }, text: li.name }), li.role ? h('span', { class: 'rl', text: li.role }) : null, h('span', { class: 'tm mono', text: hm(m._ts) })),
+        li.tag ? h('div', { class: 'sectag', 'data-tag': '1', text: li.tag }) : null,
+        bub,
+        li.fill ? h('div', { class: 'dim', 'aria-hidden': 'true', style: { filter: 'blur(1.2px)', fontSize: '12px' }, text: li.fill }) : null,
+        li.judge && li.judge.detail ? h('details', { class: 'jd', onclick: (e) => e.stopPropagation() }, h('summary', { text: '内訳' }), h('pre', { text: li.judge.detail })) : null,
+        stampsEl(i))));
+  }
+  return box;
+}
+
+function renderMap() {
+  const u = meOf(S.pov), wrap = h('div', { id: 'mapv' });
+  const list = mapsFor(u);
+  const sel = h('select', { class: 'select', id: 'mapSel', 'aria-label': '見るマップ', onchange: (e) => { S.mapSel = e.target.value; render(); } },
+    h('option', { value: '', text: '― マップを選ぶ ―' }), list.map(mp => h('option', { value: mp.id, text: (mp.name || '無題のマップ') + (mp.novel ? '（ノベル場面）' : '') + (mp.hidden ? '（非公開）' : '') })));
+  sel.value = S.mapSel || '';
+  const f = S.frames[S.idx], fmid = frameMapId(f), fmp = fmid ? list.find(x => x.id === String(fmid)) : null;
+  wrap.appendChild(h('div', { class: 'bar' },
+    h('label', { class: 'lbl' }, '見るマップ', sel),
+    h('span', { class: 'lbl', 'data-linemap': fmp ? fmp.id : '' }, 'この行の場面：', h('b', { style: { color: 'var(--tx-1)' }, text: fmp ? (fmp.name || '無題のマップ') : 'マップに結び付かない行' })),
+    fmp && fmp.id !== S.mapSel ? h('button', { class: 'btn', type: 'button', 'data-gomap': fmp.id, onclick: () => { S.mapSel = fmp.id; render(); }, text: 'このマップを出す' }) : null));
+  const rec = evOn();
+  wrap.appendChild(h('div', { class: 'warn', 'data-mapnote': rec ? 'rec' : 'now', text: rec
+    ? '駒の位置・HP・状態は、この行の時点のもの（GM の端末が記録した移り変わりから組んだ）。記録より前のことは、記録の最初の時点の盤面で出す。マップは自動では切り替わらない'
+    : '駒の位置・HP・状態は、ファイルを書き出した時点のもの。駒の動きの記録はファイルに無いので、再生の位置を動かしても盤面は変わらない。マップは自動では切り替わらない' }));
+  const area = h('div', { class: 'wrap' });
+  wrap.appendChild(area);
+  const mp = S.mapSel ? list.find(x => x.id === S.mapSel) : null;
+  if (!mp) { area.appendChild(h('div', { class: 'empty', text: list.length ? '上の一覧から、見たいマップを選んでください。' : 'この目で見られるマップがありません。' })); return wrap; }
+  const T = f ? (f.m._ts || 0) : 0;
+  const cols = Math.max(1, Number(mp.cols) || 14), rows = Math.max(1, Number(mp.rows) || 10);
+  const W = cols * CELL, H = rows * CELL;
+  const board = h('div', { class: 'board', 'data-board': mp.id, 'data-at': String(T), style: { width: W + 'px', height: H + 'px' } });
+  const bgAt = mapBgAt(mp.id, 'b', T);
+  const bg = bgAt !== undefined ? bgAt : safeUrl(mp.bg);
+  if (bg) { const fit = mp.bgFit || 'fill'; board.appendChild(h('div', { 'data-mapbg': '1', class: 'layer', style: { position: 'absolute', inset: '0', backgroundImage: urlCss(bg), backgroundSize: fit === 'fill' ? '100% 100%' : fit, backgroundPosition: 'center', backgroundRepeat: 'no-repeat' } })); }
+  board.appendChild(h('div', { class: 'grid' }));
+  const isGM = seeHidden(u);
+  const speak = f && !f.sys && f.m.cid && f.m.cid !== 'gm' ? String(f.m.cid) : null;
+  const vis = tokensAt(mp, T).filter(t => {
+    if (!t) return false;
+    if (t.evOut && !isGM) return false;
+    if (t.kind !== 'char') return true;
+    const ch = charById(t.charId);
+    return !(ch && ch.type === 'npc' && ch.hidden && !isGM);
+  });
+  // 重なった駒は少しずらす（VTT と同じ。物とアイテムはずらさない）
+  const cellKey = (t) => Math.round(((Number(t.x) || 0) + (Number(t.w) || 1) * CELL / 2) / CELL) + ',' + Math.round(((Number(t.y) || 0) + (Number(t.h) || 1) * CELL / 2) / CELL);
+  const groups = {}; vis.forEach(t => { if (t.kind === 'object' || t.kind === 'item') return; const k = cellKey(t); (groups[k] = groups[k] || []).push(t.id); });
+  vis.forEach(t => {
+    const w = (Number(t.w) || 1) * CELL, hh = (Number(t.h) || 1) * CELL;
+    const grp = (t.kind === 'object' || t.kind === 'item') ? [t.id] : (groups[cellKey(t)] || [t.id]);
+    const si = grp.indexOf(t.id), n = grp.length;
+    const fan = n > 1 ? 'translate(' + (si * 9 - (n - 1) * 4.5) + 'px, ' + (si * -9 + (n - 1) * 4.5) + 'px)' : 'none';
+    const z = (t.kind === 'item' ? 70 : t.kind === 'object' ? 60 : 20) + si;
+    const el = h('div', { class: 'tok', 'data-tok': t.id, 'data-kind': t.kind || 'char', style: { left: (Number(t.x) || 0) + 'px', top: (Number(t.y) || 0) + 'px', width: w + 'px', height: hh + 'px', zIndex: String(z), transform: fan } });
+    if (t.kind === 'item') {
+      const col = t.color || ITEM_DEFAULT_COLOR;
+      el.appendChild(h('div', { class: 'obj', style: { borderColor: col, color: col, background: (isHex6(col) ? col + '24' : 'var(--bg-1)'), borderRadius: '50%' }, text: String(t.name || '').slice(0, 2) || '？' }));
+      el.title = t.name || 'アイテム';
+    } else if (t.kind === 'object') {
+      const shape = shapeId(t.tokShape, true), col = t.color || '#8b96a8', img = safeUrl(t.img);
+      const nm = Array.from(String(t.name || '')), cap = Math.max(4, Math.floor((w - 6) / 11) * Math.floor((hh - 6) / 14));
+      const o = h('div', { class: 'obj', 'data-shape': shape, style: { borderColor: col, color: col, background: img ? urlCss(img) + ' center / cover no-repeat' : (isHex6(col) ? col + '26' : 'var(--bg-1)'),
+        borderRadius: shape === 'circle' ? '50%' : 'var(--rd-1)', clipPath: TOK_CLIP[shape] || 'none', paddingTop: shape === 'triangle' ? '26%' : '2px' }, text: img ? '' : nm.slice(0, cap).join('') });
+      el.appendChild(o); el.title = t.name || '';
+      if (t.evOut) el.setAttribute('data-out', '1');
+    } else {
+      const ch0 = charById(t.charId) || { name: '?', color: '#888' };
+      const ch = t.mob ? { name: t.name || ch0.name, color: t.color || ch0.color, icon: ch0.icon } : ch0;
+      const shape = shapeId(ch0.tokShape, false), icon = safeUrl(ch.icon), col = ch.color || 'var(--ac)';
+      const face = h('div', { class: 'face', 'data-shape': shape, style: { borderColor: col, color: col, borderRadius: shape === 'square' ? '16%' : shape === 'circle' ? '50%' : '0', clipPath: TOK_CLIP[shape] || 'none',
+        background: icon ? urlCss(icon) + ' ' + (50 + (Number(ch0.iconX) || 0)) + '% ' + (50 + (Number(ch0.iconY) || 0)) + '% / cover no-repeat' : 'var(--bg-1)', paddingTop: shape === 'triangle' ? '26%' : '0' }, text: icon ? '' : (t.mob && t.name ? (Array.from(t.name).slice(-1)[0] || '') : initialOf(ch.name)) });
+      el.appendChild(face);
+      const hiddenNpc = !t.mob && ch0.type === 'npc' && ch0.hidden;
+      if (hiddenNpc) { face.style.opacity = '0.45'; el.appendChild(h('span', { class: 'hid', text: '隠し' })); el.setAttribute('data-hidden', '1'); }
+      if (t.evOut) el.setAttribute('data-out', '1');
+      const nm = Array.from(String(ch.name || ''));
+      if (nm.length) el.appendChild(h('span', { class: 'nmtag', 'data-tokname': '1', title: nm.join(''), text: nm.length > 9 ? nm.slice(0, 8).join('') + '…' : nm.join('') }));
+      if (speak && !t.mob && String(t.charId) === speak) el.setAttribute('data-speak', '1');
+      // HP と状態。VTT と同じく、GM は全部、PL は自分のキャラだけ、観戦者には出さない
+      const hpSee = isGM || (!t.mob && !!ch0.owner && ch0.owner === u.id && !u.spectator);
+      const hpm = hpSee && /^-?\d+\/\d+$/.test(String(t._hp || '')) ? String(t._hp).split('/').map(Number) : null;
+      if (hpm && hpm[1] > 0) {
+        const pct = Math.max(0, Math.min(100, Math.round(hpm[0] / hpm[1] * 100)));
+        el.appendChild(h('span', { class: 'hpb', 'data-hp': hpm[0] + '/' + hpm[1], title: 'HP ' + hpm[0] + '/' + hpm[1] },
+          h('span', { style: { width: pct + '%', background: hpm[0] / hpm[1] <= 0.3 ? 'var(--bad)' : (ch.color || 'var(--ac)') } }),
+          h('b', { text: hpm[0] + '/' + hpm[1] })));
+      }
+      if (hpSee && t._cs) el.appendChild(h('span', { class: 'cond', 'data-cond': t._cs, title: t._cs, text: Array.from(t._cs).length > 8 ? Array.from(t._cs).slice(0, 7).join('') + '…' : t._cs }));
+      if (t._gone) el.setAttribute('data-gone', '1');
+    }
+    board.appendChild(el);
+  });
+  area.appendChild(board);
+  // 盤面を枠に収める（大きいときだけ縮める）
+  requestAnimationFrame(() => {
+    const aw = area.clientWidth - 24, ah = area.clientHeight - 24;
+    const k = Math.min(1, aw / W, ah / H);
+    if (k > 0 && k < 1) { board.style.transform = 'scale(' + k + ')'; board.style.margin = '12px'; board.parentElement.style.overflow = 'hidden'; }
+    else board.style.margin = '12px';
+  });
+  return wrap;
+}
+// 時刻 T にこのマップにあった駒。書き出し時点の駒に記録をなぞって位置と HP・状態を当て、その後に消えた駒は記録から組み直す
+function tokensAt(mp, T) {
+  if (!evOn()) return mp.tokens.map(t => tokDecor(t, T));
+  const fin = new Map();
+  S.maps.forEach(m => m.tokens.forEach(t => { if (t && t.id != null) fin.set(String(t.id), { t, m: m.id }); }));
+  const out = [];
+  const ids = [...fin.keys()]; S.ev.info.forEach((_, id) => { if (!fin.has(id)) ids.push(id); });
+  ids.forEach(id => {
+    const f0 = fin.get(id), at = tokAt(id, T, f0 ? { m: f0.m } : null);
+    if (!at) { if (f0 && f0.m === mp.id) out.push(tokDecor(f0.t, T)); return; }
+    if (!at.on || at.m !== mp.id) return;
+    let base = f0 ? f0.t : null;
+    if (!base) {
+      const inf = S.ev.info.get(id); if (!inf) return;
+      base = { id, kind: inf.kind || 'char', charId: inf.c || null, name: inf.n || '', w: 1, h: 1, mob: (inf.kind || 'char') === 'char' && !!inf.n, _gone: true };
+    }
+    out.push(tokDecor({ ...base, x: at.x, y: at.y }, T));
+  });
+  return out;
+}
+// 駒に、その時点の HP と状態を添える（_hp・_cs）。キャラはキャラの記録、モブは駒の記録。記録が無ければ書き出し時点の値
+function tokDecor(t, T) {
+  if (!t || t.kind !== 'char') return t;
+  const pick = (v, d) => v !== undefined ? v : d;
+  if (t.mob) return { ...t, _hp: pick(evOn() ? valAt(S.ev.tokHp.get(String(t.id)), T) : undefined, hpOf(t.status)), _cs: pick(evOn() ? valAt(S.ev.tokCs.get(String(t.id)), T) : undefined, condOf(t)) };
+  const ch = charById(t.charId);
+  const cid = t.charId != null ? String(t.charId) : '';
+  return { ...t, _hp: pick(evOn() ? valAt(S.ev.chHp.get(cid), T) : undefined, ch ? hpOf(ch.status) : ''), _cs: pick(evOn() ? valAt(S.ev.chCs.get(cid), T) : undefined, condOf(ch)) };
+}
+function shapeId(v, isObj) { return (v === 'circle' || v === 'triangle' || v === 'square' || v === 'diamond') ? v : (isObj ? 'square' : 'circle'); }
+
+/* ============================== 操作 ============================== */
+function seek(i) { const n = S.frames.length; if (!n) return; S.idx = Math.max(0, Math.min(n - 1, Number(i) || 0)); render(); arm(); }
+function step(d) { seek(S.idx + d); }
+function stopTimer() { clearTimeout(S.timer); S.timer = null; }
+function togglePlay() {
+  const n = S.frames.length; if (!n) return;
+  S.play = !S.play;
+  if (S.play && S.idx >= n - 1) S.idx = 0;
+  render(); arm();
+}
+// 自動送りの次の一手。文の長さに応じて待ち、速さで割る（VTT の _rplArm と同じ）
+function arm() {
+  stopTimer();
+  if (!S.play || !S.frames.length) return;
+  const f = S.frames[S.idx];
+  const len = f ? String(f.m.text || '').length : 0;
+  const wait = f && f.sceneBreak ? 1100 : Math.min(7000, 1600 + len * 70) / (S.speed || 1);
+  S.timer = setTimeout(() => {
+    S.timer = null;
+    if (!S.play) return;
+    if (S.idx >= S.frames.length - 1) { S.play = false; render(); return; }
+    S.idx++; render(); arm();
+  }, wait);
+}
+$('pick').addEventListener('click', () => { $('fileIn').value = ''; $('fileIn').click(); });
+$('fileIn').addEventListener('change', (e) => { const f = e.target.files && e.target.files[0]; if (f) readFile(f); });
+$('pov').addEventListener('change', (e) => setPov(e.target.value));
+document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { S.view = b.getAttribute('data-view'); render(); }));
+$('sideBtn').addEventListener('click', () => { S.side = !S.side; $('side').hidden = !S.side; $('sideBtn').setAttribute('aria-pressed', S.side ? 'true' : 'false'); render(); });
+$('bFirst').addEventListener('click', () => seek(0));
+$('bBack').addEventListener('click', () => step(-1));
+$('bFwd').addEventListener('click', () => step(1));
+$('bPlay').addEventListener('click', () => togglePlay());
+$('speed').addEventListener('change', (e) => { const x = Number(e.target.value); if (SPEEDS.indexOf(x) >= 0) { S.speed = x; arm(); } });
+$('seek').addEventListener('input', (e) => seek(e.target.value));
+document.addEventListener('keydown', (e) => {
+  if (!S.doc || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+  const t = e.target, tag = t && t.tagName;
+  if (e.key === 'Escape') {
+    if (S.play) { e.preventDefault(); S.play = false; stopTimer(); render(); }
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    if (tag === 'SELECT' || (tag === 'INPUT' && t.type !== 'range')) return;
+    e.preventDefault(); step(e.key === 'ArrowLeft' ? -1 : 1);
+  } else if (e.key === ' ' && tag !== 'SELECT' && tag !== 'INPUT' && tag !== 'SUMMARY') { e.preventDefault(); togglePlay(); }
+});
+// ドラッグで読む
+let dragN = 0;
+document.addEventListener('dragenter', (e) => { e.preventDefault(); dragN++; document.body.classList.add('dragging'); });
+document.addEventListener('dragleave', () => { dragN = Math.max(0, dragN - 1); if (!dragN) document.body.classList.remove('dragging'); });
+document.addEventListener('dragover', (e) => { e.preventDefault(); });
+document.addEventListener('drop', (e) => {
+  e.preventDefault(); dragN = 0; document.body.classList.remove('dragging');
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+window.addEventListener('resize', () => { if (S.doc) render(); });
+// 試験用の入口（読むだけ。状態を返す）
+window.__RPL = { S, readText: (text, name) => readFile(new File([text], name || 'session.json', { type: 'application/json' })), seek, step, togglePlay, setPov, setView: (v) => { S.view = v; render(); } };
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>関係図</title>
+<style>
+:root{color-scheme:dark;--cyan:#05d9e8;--mag:#ff2a6d;--bg:#1e1e1e;--fg:#e2e2e2;--stage:#1e1e1e;--surface:#292929e8;--input:#202020;--border:#555;--muted:#aaa;--node:#444;--halo:#1e1e1e;--tone-none:#888;--tone-like:#16833f;--tone-hate:#ff0000;--tone-mixed:#be9aff}
+:root[data-bg="white"]{color-scheme:light;--cyan:#006b76;--mag:#a40042;--bg:#f2f2f0;--fg:#18212b;--stage:#f2f2f0;--surface:#ffffffeb;--input:#fff;--border:#617581;--muted:#435866;--node:#e3edf1;--halo:#fff;--tone-none:#355d68;--tone-like:#16833f;--tone-hate:#ff0000;--tone-mixed:#67409c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.65 "Yu Gothic UI",Meiryo,sans-serif;width:100dvw;height:100dvh;overflow:hidden}
+header{position:fixed;top:20px;left:24px;z-index:3;max-width:280px;pointer-events:none}h1{font-size:15px;font-weight:500;margin:0}h2{font-size:1.1rem}
+#home{position:fixed;inset:90px 20px 40px;overflow:auto}#uid{position:fixed;bottom:8px;left:20px;font-size:12px}
+#mode{font-size:11px;color:var(--muted);margin:5px 0}#mode:empty{display:none}#message{font-size:12px}
+button,input,textarea{font:inherit;color:inherit}button{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 14px;cursor:pointer;min-height:44px}
+button:hover{border-color:var(--cyan)}button:disabled{opacity:.5;cursor:wait}button.danger{border-color:var(--mag)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}[hidden]{display:none!important}
+#graph .node:focus,#graph .node:focus-visible{outline:none}#graph .node:focus-visible .ring{stroke:var(--cyan);stroke-width:3}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}.card{border-bottom:1px solid #263946;padding:10px 0;overflow-wrap:anywhere}.card span{flex:1;min-width:100px}
+.face{width:44px;height:44px;border-radius:50%;object-fit:cover}.hint{color:var(--muted);font-size:.88rem}#message{white-space:pre-wrap}#message:empty{display:none}
+#graph{display:block;width:100dvw;height:100dvh;background:var(--stage);touch-action:none}
+#controls{position:fixed;top:16px;right:20px;z-index:6;display:flex;align-items:center;gap:2px;flex-wrap:wrap;max-width:calc(100dvw - 340px);padding:5px;background:var(--surface);backdrop-filter:blur(16px);border:1px solid #8883;border-radius:10px}
+#controls button,#controls select,#controls input{font-size:12px;min-height:32px;border-color:transparent;background:transparent;padding:5px 8px}#controls label{margin:0;font-size:12px;display:flex;align-items:center}#controls input{width:120px;border-left:1px solid #8883}#controls button:hover{background:#8882}
+#more-menu{position:fixed;right:20px;top:66px;z-index:7;width:280px;padding:16px;background:var(--surface);backdrop-filter:blur(16px);border:1px solid #8884;border-radius:8px}#more-menu>button:first-child{float:right}#more-menu button{font-size:12px}#more-menu .hint{font-size:12px}
+#empty{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:min(90vw,600px);text-align:center;font-size:12px;color:var(--muted);pointer-events:none}
+#graph .node,#graph .relation-line,#graph .line-caption{transition:opacity 160ms ease}#graph .node{opacity:1}#graph .unconnected{opacity:.35}#graph .unconnected image{filter:grayscale(1)}#graph .node.dim{opacity:.2}#graph .relation-line{opacity:.45}#graph .relation-line.dim,#graph .line-caption.dim{opacity:.09}
+#graph .node .body{fill:var(--node);stroke:#888;stroke-width:1.2}#graph .node .ring{fill:none;stroke:#999;stroke-width:1.2;pointer-events:none}#graph .centre .ring{stroke:var(--mag);stroke-width:2}#graph .active .ring{stroke:var(--cyan);stroke-width:2}#graph .node.active,#graph .node.arriving{opacity:1}#graph .active image,#graph .arriving image{filter:none}
+#graph .relation-line.active{opacity:1;stroke:var(--line-tone,var(--cyan))!important}#graph .line-caption.active{opacity:1}#graph .node-name{paint-order:stroke;stroke:var(--stage);stroke-width:4px;stroke-linejoin:round;filter:url(#name-backing)}
+#graph .incoming-node .ring{stroke:var(--cyan)}
+#graph .node.dim:not(.active){opacity:.2}#graph .active .node-name{fill:var(--cyan)}
+#graph.animating .arriving .ring{animation:incoming-pulse .7s ease-in-out 3}
+@keyframes flow{to{stroke-dashoffset:-22}}@keyframes incoming-pulse{50%{stroke:var(--cyan);stroke-width:4}}
+@media(prefers-reduced-motion:reduce){#graph .node,#graph .relation-line,#graph .line-caption{transition:none}}
+ #graph .node{cursor:pointer}
+#graph text{fill:var(--fg);text-anchor:middle;pointer-events:none;font-size:13px}#graph .initial{font-size:24px}#graph .note{fill:var(--muted);font-size:12px}#graph line{stroke:var(--border);stroke-width:1.5}
+dialog{color:var(--fg);background:var(--surface);border:1px solid var(--border);border-radius:6px;width:min(520px,calc(100% - 24px));max-height:85dvh;overflow:auto;padding:20px}dialog::backdrop{background:#0009}
+label{display:block;margin:12px 0}input:not([type=checkbox]):not([type=range]),textarea{display:block;width:100%;background:var(--input);border:1px solid var(--border);border-radius:3px;padding:8px}textarea{min-height:110px;resize:vertical}input[type=range]{width:100%}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);padding:8px 20px;z-index:9;pointer-events:none}footer{overflow-wrap:anywhere}
+#graph .line-short{font-size:12px;paint-order:stroke;stroke:var(--halo);stroke-width:5px;stroke-linejoin:round}#panel .field-text{white-space:pre-wrap;overflow-wrap:anywhere}select{font:inherit;color:inherit;background:var(--surface);padding:8px} .over-limit{color:var(--mag)}
+#panel.drawer{position:fixed;inset:0 0 0 auto;margin:0;width:min(380px,90dvw);height:100dvh;max-height:100dvh;border-radius:0;border-width:0 0 0 1px;backdrop-filter:blur(18px);z-index:8;padding:76px 24px 24px}#close{position:sticky;bottom:0;float:right}#panel.drawer #close{position:absolute;top:18px;right:18px;bottom:auto}
+#node-card,#line-editor{position:fixed;z-index:8;width:min(330px,calc(100dvw - 16px));max-height:calc(100dvh - 16px);overflow:auto;padding:16px;background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:8px;backdrop-filter:blur(18px);overflow-wrap:anywhere;box-shadow:0 5px 24px #0003}
+#node-card h2{margin:0 32px 12px 0}#card-close{position:absolute;right:5px;top:5px;min-height:32px;padding:0 10px}#node-card label{margin:8px 0}#node-card input:not([type=checkbox]):not([type=range]),#node-card textarea{padding:4px 6px}#node-card textarea{min-height:54px;max-height:160px}#node-card .hint{font-size:11px}#node-card .field-text{white-space:pre-wrap}#node-card .field-text[data-field=note]{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}#node-card button,#line-editor button{font-size:12px;min-height:32px;padding:4px 10px}.gauge-warning{color:var(--mag);font-size:12px}.gauge-number{font-variant-numeric:tabular-nums}#graph .line-hit{stroke:transparent;stroke-width:14px;pointer-events:stroke;cursor:context-menu}#graph .reverse-line{pointer-events:none}
+@media(max-width:900px){header{top:12px;left:14px;max-width:45vw}#controls{top:62px;left:12px;right:12px;max-width:none;gap:0}#controls button,#controls select,#controls input{font-size:11px;padding:4px 6px}#controls input{width:105px}#more-menu{top:150px;right:12px}#panel.drawer{padding-top:160px}#panel.drawer #close{top:118px}}
+</style>
+<style id="polish">
+/* Design pass (2026-11-11): one token set, one surface style, clear primary/secondary/danger actions. Overrides the base block above. */
+:root{--radius:10px;--radius-s:6px;--line:#ffffff1f;--line-strong:#ffffff3d;--surface:#252527f2;--surface-2:#303034;--input:#19191b;--muted:#a3a3ab;--border:var(--line-strong);--accent:var(--cyan);--on-accent:#04191b;--shadow:0 14px 40px #00000080,0 2px 8px #00000059}
+:root[data-bg="white"]{--line:#18212b1f;--line-strong:#18212b47;--surface:#fffffff5;--surface-2:#edf0f0;--input:#fff;--muted:#51626e;--border:var(--line-strong);--on-accent:#fff;--shadow:0 14px 40px #18212b2b,0 2px 8px #18212b21}
+body{font:14px/1.65 "BIZ UDPGothic","Yu Gothic UI","Hiragino Sans",Meiryo,sans-serif;-webkit-font-smoothing:antialiased}
+
+/* Buttons and fields */
+button{border:1px solid var(--line-strong);border-radius:var(--radius-s);background:var(--surface-2);font-weight:600;min-height:40px;transition:background .12s,border-color .12s,opacity .12s}
+button:hover{border-color:var(--accent)}
+button[type=submit]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+button[type=submit]:hover{filter:brightness(1.08)}
+button.danger{background:transparent;border-color:transparent;color:var(--mag)}
+button.danger:hover{border-color:var(--mag)}
+#close,#card-close,#more-close,#legend-close{position:absolute;top:12px;right:12px;bottom:auto;float:none;width:32px;min-height:32px;padding:0;border-radius:50%;border-color:transparent;background:transparent;font-size:18px;line-height:1;font-weight:400}
+#close:hover,#card-close:hover,#more-close:hover,#legend-close:hover{background:var(--surface-2);border-color:var(--line)}
+label{font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 0}
+input,textarea,select{color:var(--fg)}
+input:not([type=checkbox]):not([type=range]),textarea,select{margin-top:4px;border:1px solid var(--line-strong);border-radius:var(--radius-s);background:var(--input);padding:8px 10px;font-weight:400;transition:border-color .12s}
+input:not([type=checkbox]):not([type=range]):focus,textarea:focus,select:focus{border-color:var(--accent);outline:none}
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:.75}
+input[type=checkbox],input[type=range]{accent-color:var(--accent)}
+label:has(>input[type=checkbox]){display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius-s);font-size:13px;font-weight:500;color:var(--fg);cursor:pointer}
+label{position:relative}
+label>output.hint{position:absolute;top:0;right:0;margin:0;font-size:11px;font-weight:400;font-variant-numeric:tabular-nums}
+.hint{font-size:11.5px;line-height:1.55;margin:5px 0 0}
+[role=status]:empty{display:none}
+#pl-key-error,#pl-pass-error,#gm-key-error{color:var(--mag);font-size:12px;margin:6px 0 0}
+h2{font-size:16px;font-weight:700;line-height:1.4}
+h3{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin:14px 0 2px}
+.field-text{margin:0}
+
+/* Title card and tool bar */
+#title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#back-home{pointer-events:auto;color:var(--fg);font-size:12px;text-decoration:none;border:1px solid var(--line-strong);border-radius:var(--radius-s);padding:6px 10px;min-height:34px;background:var(--surface-2)}
+#back-home:hover{border-color:var(--accent)}
+header{top:16px;left:20px;max-width:min(360px,calc(100dvw - 40px));padding:10px 16px 11px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(16px);box-shadow:var(--shadow)}
+h1{font-size:16px;font-weight:700;letter-spacing:.02em;line-height:1.4}
+#mode{display:inline-block;margin:6px 0 0;padding:1px 9px;border:1px solid var(--line-strong);border-radius:999px;font-size:11px}
+#message{margin:6px 0 0;color:var(--muted);line-height:1.55}
+#controls{top:16px;right:20px;gap:4px;padding:6px;max-width:calc(100dvw - 420px);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+#controls button,#controls select{min-height:34px;padding:6px 10px;border-radius:var(--radius-s);font-weight:600;margin-top:0}
+#controls select{background:transparent;border-color:transparent}
+#controls label{margin:0 0 0 10px;padding-left:12px;border-left:1px solid var(--line);color:var(--muted);gap:2px}
+#controls #motion{margin-left:10px}
+#controls #search{width:160px;min-height:34px;margin:0 6px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:var(--input)}
+#controls #search:focus{border-color:var(--accent)}
+#controls #add-npc{background:var(--accent);color:var(--on-accent)}
+#controls #add-npc:hover{background:var(--accent);filter:brightness(1.08)}
+#controls #more{border:1px solid var(--line)}
+#more-menu{top:72px;right:20px;width:300px;padding:18px 18px 16px;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+#more-menu button{min-height:36px}
+#more-menu>button:first-child{float:none}
+#more-menu>*:not(#more-close){margin-top:12px}
+#more-menu #shape-choice{margin-right:36px}
+#more-menu #shape-choice label{margin:0}
+#more-menu form{padding-top:12px;border-top:1px solid var(--line)}
+#more-menu form label{margin:0}
+#more-menu form button{margin-top:10px;width:100%}
+#more-menu #show-key,#more-menu #legend-open,#more-menu #unlist-pc{width:100%}
+#more-menu #unlist{padding-top:12px;border-top:1px solid var(--line)}
+#more-menu #unlist-pc{color:var(--mag);background:transparent}
+
+/* Graph */
+#graph .node .body{stroke:none}
+#graph .node-name{font-size:13px;font-weight:600;stroke-width:5px}
+#graph .centre .node-name{font-size:16px;font-weight:700}
+#graph .centre .ring{stroke-width:3}
+#graph .centre{filter:drop-shadow(0 0 14px color-mix(in srgb,var(--mag) 42%,transparent))}
+#graph:not(.large) .node:not(.centre):not(.unconnected){filter:drop-shadow(0 3px 7px #00000066)}
+#graph .line-short{font-weight:600}
+#graph .initial{font-weight:700;fill:var(--muted)}
+
+/* Card on a piece, line editor, drawer, dialogs */
+dialog,#node-card,#line-editor{border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+dialog{padding:22px 24px 24px}
+dialog h2,#node-card h2{margin:0 40px 14px 0;padding-bottom:12px;border-bottom:1px solid var(--line)}
+dialog>p{margin:0 0 4px;font-size:13px;line-height:1.7}
+#node-card{width:min(340px,calc(100dvw - 16px));padding:16px 16px 14px}
+#node-card h2{font-size:15px;margin-bottom:4px;padding-bottom:10px}
+#node-card label{margin:10px 0 0}
+#panel.drawer{width:min(400px,92dvw);padding:22px 24px 28px;border-width:0 0 0 1px;border-radius:0;border-color:var(--line)}
+#panel.drawer #close{top:16px;right:16px}
+form>div:has(>#relation-gauge-slider){display:grid;grid-template-columns:1fr 96px;grid-template-areas:"l o" "h h" "s n" "w w";gap:6px 12px;align-items:center;margin-top:14px;padding:12px 12px 14px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface-2)}
+form>div:has(>#relation-gauge-slider)>label{grid-area:l;margin:0}
+form>div:has(>#relation-gauge-slider)>.hint{grid-area:h;margin:0}
+form>div:has(>#relation-gauge-slider)>#relation-gauge{grid-area:n;margin:0;text-align:right;font-variant-numeric:tabular-nums}
+form>div:has(>#relation-gauge-slider)>output{grid-area:o;text-align:right;font-size:20px;font-weight:700;line-height:1}
+form>div:has(>#relation-gauge-slider)>.gauge-warning{grid-area:w;margin:0;line-height:1.55}
+#relation-gauge-slider{grid-area:s;appearance:none;-webkit-appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--tone-hate),var(--tone-none) 50%,var(--tone-like));cursor:pointer}
+#relation-gauge-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--fg);border:3px solid var(--input);box-shadow:0 1px 4px #0008}
+#relation-gauge-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--fg);border:3px solid var(--input)}
+form>.row{justify-content:space-between;margin:2px 0 0;font-size:11px;color:var(--muted)}
+form>.row span{flex:none;min-width:0}
+form>.row output{font-size:14px;font-weight:700;color:var(--fg)}
+form #relation-save{position:sticky;bottom:0;z-index:1;width:100%;min-height:40px;margin-top:14px;font-size:14px;box-shadow:0 0 0 8px var(--surface),0 -14px 14px 4px var(--surface)}
+form #relation-details,form #relation-delete{margin-top:8px;background:transparent}
+form #relation-details{float:right}
+#relation-reverse{clear:both;margin-top:18px;padding-top:2px;border-top:1px solid var(--line)}
+#relation-reverse>h3:first-child{font-size:12px;color:var(--fg);letter-spacing:0;margin-top:12px}
+#line-editor{width:min(320px,calc(100dvw - 16px));padding:12px}
+#line-editor form{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#line-editor #line-short{flex:1 1 100%;margin:0}
+#line-editor output{margin:0 auto 0 0}
+#pl-key-form,#pl-pass-form{margin-top:16px;padding-top:2px;border-top:1px solid var(--line)}
+#pl-key-form button,#pl-pass-form button{margin-top:10px}
+#pl-public-open{margin-top:18px}
+#map-key{font-family:ui-monospace,Consolas,monospace;letter-spacing:.08em}
+#map-key-copy{margin-top:10px}
+
+/* First screen */
+#home{inset:0;padding:112px max(20px,calc(50dvw - 360px)) 64px}
+#home h2{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin:30px 0 8px}
+#pl-entry{padding:16px 18px 18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+#pl-entry-form{display:flex;align-items:flex-end;gap:10px}
+#pl-entry-form label{flex:1;margin:0}
+#pl-results h2{margin-top:18px}
+#pl-results>p{margin:14px 0 0;color:var(--muted);font-size:13px}
+.card{margin:6px 0;padding:8px 12px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface-2);transition:border-color .12s}
+.card:hover{border-color:var(--line-strong)}
+.card span{font-weight:600}
+.card .face{flex:none;min-width:0;display:inline-grid;place-items:center;border:1px solid var(--line-strong);background:var(--node);color:var(--muted)}
+.card button{min-height:36px}
+.card label{margin:0;display:flex;align-items:center;gap:8px}
+.card select{margin:0}
+#uid{color:var(--muted);font-size:11px;opacity:.7}
+
+/* Notices */
+#toast{bottom:28px;max-width:min(90vw,560px);padding:10px 22px;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);font-weight:600;text-align:center}
+#empty{bottom:28px;width:auto;max-width:min(90vw,600px);padding:10px 18px;background:var(--surface);border:1px solid var(--line);border-radius:14px;font-size:12.5px}
+#legend{position:fixed;left:20px;bottom:20px;z-index:4;width:270px;padding:12px 44px 12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(16px);box-shadow:var(--shadow)}
+#legend-close{top:6px;right:6px}
+.legend-scale{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700}
+.legend-scale i{flex:1;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--tone-hate),var(--tone-none) 50%,var(--tone-like))}
+.legend-scale span:first-child{color:var(--tone-hate)}.legend-scale span:last-child{color:var(--tone-like)}
+@media(max-width:900px){header{top:12px;left:12px;max-width:calc(100dvw - 24px);padding:8px 12px}#controls{top:64px;left:12px;right:12px;max-width:none}#controls #search{width:120px}#controls label{margin-left:4px;padding-left:8px}#controls #motion{margin-left:4px}#more-menu{top:156px;right:12px}#legend{left:12px;bottom:12px;width:min(270px,calc(100dvw - 24px))}#home{padding-top:120px}}
+</style>
+<style id="text-size">
+#node-card,#panel{overflow-y:auto;overscroll-behavior:contain}
+#node-card form{max-height:calc(100dvh - 150px);overflow-y:auto;padding:0 8px 12px}
+#panel.drawer[open]{display:flex;flex-direction:column;overflow:hidden}
+#panel.drawer>form{flex:1;min-height:0;overflow-y:auto;padding:0 8px 12px}
+#panel.drawer>h2{flex-shrink:0}
+#node-card #card-close{position:sticky;top:0;float:right;z-index:3;background:var(--surface)}
+.relation-field{margin:10px 0;border-bottom:1px solid var(--border);padding-bottom:8px}
+.relation-field>summary{cursor:pointer;font-weight:600;padding:6px 0}
+.relation-field>summary::marker{content:''}
+.relation-field>summary>output.hint{float:right;margin:0;font-weight:400;color:var(--muted)}
+.relation-field:not([open])>summary{font-weight:400;text-decoration:underline}
+.relation-field .field-text{white-space:pre-wrap;overflow-wrap:anywhere}
+:root{--graph-font-scale:1;--ui-font-scale:1}
+body{font-size:calc(14px * var(--ui-font-scale))}
+h1,h2{font-size:calc(16px * var(--ui-font-scale))}
+h3{font-size:calc(11px * var(--ui-font-scale))}
+label{font-size:calc(12px * var(--ui-font-scale))}
+label:has(>input[type=checkbox]){font-size:calc(13px * var(--ui-font-scale))}
+.hint{font-size:calc(11.5px * var(--ui-font-scale))}
+label>output.hint{font-size:calc(11px * var(--ui-font-scale))}
+#controls button,#controls select,#controls input,#controls label,#more-menu button,#more-menu .hint,#message,#back-home,.gauge-warning,#pl-key-error,#pl-pass-error,#gm-key-error{font-size:calc(12px * var(--ui-font-scale))}
+#mode,#uid,.legend-scale,#node-card .hint{font-size:calc(11px * var(--ui-font-scale))}
+#close,#card-close,#more-close,#legend-close{font-size:calc(18px * var(--ui-font-scale))}
+dialog>p,#pl-results>p{font-size:calc(13px * var(--ui-font-scale))}
+#node-card h2{font-size:calc(15px * var(--ui-font-scale))}
+#node-card button,#line-editor button{font-size:calc(12px * var(--ui-font-scale))}
+form>div:has(>#relation-gauge-slider)>output{font-size:calc(20px * var(--ui-font-scale))}
+form>.row{font-size:calc(11px * var(--ui-font-scale))}
+form>.row output,form #relation-save{font-size:calc(14px * var(--ui-font-scale))}
+#relation-reverse>h3:first-child,#home h2{font-size:calc(12px * var(--ui-font-scale))}
+#empty{font-size:calc(12.5px * var(--ui-font-scale))}
+#graph text{font-size:calc(13px * var(--graph-font-scale))}
+#graph .node-name{font-size:calc(15px * var(--graph-font-scale))}
+#graph .centre .node-name{font-size:calc(16px * var(--graph-font-scale))}
+#graph .initial{font-size:calc(24px * var(--graph-font-scale))}
+#graph .note{font-size:calc(12px * var(--graph-font-scale))}
+#graph .line-short{font-size:calc(16px * var(--graph-font-scale));stroke-width:6px}
+#more-menu{max-width:calc(100dvw - 24px);max-height:calc(100dvh - 84px);overflow:auto}
+#more-menu .text-size-choice label{margin:0}
+#more-menu .text-size-choice select{max-width:100%}
+#more-menu #shape-choice label+label{display:block;margin-top:8px}
+@media(max-width:900px){#controls button,#controls select,#controls input{font-size:calc(11px * var(--ui-font-scale))}#more-menu{max-height:calc(100dvh - 168px)}}
+</style>
+<script id="relmap-text-size">
+// Apply preferences before any visible content is parsed, including on the home screen.
+const textSizeSettings={
+  graph:{key:'relmap-graph-font',scales:{s:.85,m:1,l:1.25,xl:1.5}},
+  ui:{key:'relmap-ui-font',scales:{s:.9,m:1,l:1.15,xl:1.3}}
+};
+const textSizeValues={};
+function applyTextSize(kind,value){
+  const setting=textSizeSettings[kind];
+  value=Object.hasOwn(setting.scales,value)?value:'m';
+  textSizeValues[kind]=value;
+  document.documentElement.style.setProperty('--'+kind+'-font-scale',setting.scales[value]);
+  return value;
+}
+for(const [kind,setting]of Object.entries(textSizeSettings)){
+  let value;try{value=localStorage.getItem(setting.key);}catch{}
+  applyTextSize(kind,value);
+}
+</script>
+<header><div id="title-row"><a id="back-home" href="関係図.html" hidden>最初の画面に戻る</a><h1 id="heading">関係図</h1></div><p id="mode"></p><p id="message" role="status"></p></header>
+<main>
+<section id="home" hidden></section>
+<section id="map" hidden>
+  <div id="controls"><button id="fit">全体を表示</button><button id="zoom-in">拡大</button><button id="zoom-out">縮小</button><button id="motion" type="button" aria-pressed="false">動きを止める</button><label>背景 <select id="background"><option value="soft">薄い黒</option><option value="white">白</option></select></label><input id="search" type="search" placeholder="名前で探す" aria-label="名前で探す"><button id="add-npc" hidden>NPC を足す</button><button id="more" aria-expanded="false">その他</button></div>
+  <div id="more-menu" hidden><button id="more-close" aria-label="閉じる">×</button><div id="shape-choice" hidden></div><button id="show-key" hidden>合鍵を見る</button><button id="legend-open" type="button">色と操作の説明</button><form id="gm-key-form" autocomplete="off"><label for="gm-key">GM の合鍵</label><input id="gm-key" type="text" maxlength="100" autocomplete="off" autocapitalize="off" spellcheck="false" style="-webkit-text-security:disc"><button id="gm-key-go" type="submit">GM になる</button><p id="gm-key-error" role="status"></p></form><div id="unlist" hidden><button id="unlist-pc">PC の一覧から外す</button><p class="hint">外すと、ほかの PL の『PC から選ぶ』に、このキャラが出なくなります。</p></div></div>
+  <svg id="graph" aria-label="関係図"></svg>
+  <aside id="legend" hidden><button id="legend-close" type="button" aria-label="閉じる">×</button><div class="legend-scale"><span>敵意</span><i></i><span>好意</span></div><p class="hint">線と枠の色は、好意と敵意の数で決まる。プラスが大きいほど近くに寄る。</p><p class="hint">ドラッグで動かす。右クリック（携帯は長押し）で中身を開く。</p></aside>
+  <p id="empty" hidden>まだ誰ともつながっていません。周りのキャラを押すと、関係を書いてつなげられます。</p>
+</section>
+</main>
+<footer id="uid"></footer>
+<dialog id="panel"></dialog><section id="node-card" hidden></section><section id="line-editor" hidden></section><div id="toast" role="status" hidden></div>
+<style id="phone-map">
+  :root{--tone-none:#c5c9d0;--tone-like:#63db86;--tone-hate:#ff7575}
+  :root[data-bg="white"]{--tone-none:#355d68;--tone-like:#16833f;--tone-hate:#d00000}
+  #graph .relation-line{opacity:1;stroke-opacity:1!important;stroke-width:2.5px!important;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 1px var(--stage))}
+  #graph .relation-line.dim{opacity:1}
+</style>
+<script id="relmap-core">
+// Shared with the pure Node suite; this file remains independently deployable.
+const radius = size => 18 + 10 * (size - 1);
+const centreRadius = relations => Math.max(60,...relations.filter(d=>d.connected).map(d=>radius(d.size)+14));
+async function derivePCPass(passphrase, pcId) {
+  const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(passphrase + '\n' + pcId)));
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from(bytes.slice(0, 24), byte => alphabet[byte % 32]).join('');
+}
+const faceCap = value => typeof value === 'string' && value.length < 60000 ? value : null;
+const publicOnly = (owner, gm) => !(owner || gm);
+const ringPalette = [
+  ['default','標準',null],['red','赤','#e5484d'],['orange','オレンジ','#e66010'],
+  ['yellow','黄','#b38210'],['green','緑','#2f9e5b'],['cyan','水色','#0897b5'],
+  ['blue','青','#3e63dd'],['purple','紫','#8e4ec6'],['pink','ピンク','#d6409f'],['grey','灰','#898b96']
+];
+const ringColour = value => ringPalette.find(([name])=>name===value)?.[2] ?? null;
+const textLength = value => Array.from(value).length;
+const signed = n => n>0?'+'+n:String(n);
+const gaugeTone = n => !n?'none':n>0?'like':'hate';
+const gaugeStyle = n => {
+  const strength=Math.min(100,Math.abs(n||0)),tone='var(--tone-'+gaugeTone(n)+')';
+  return {color:strength===0||strength===100?tone:'color-mix(in srgb, var(--tone-none) '+(100-strength)+'%, '+tone+' '+strength+'%)',width:Math.abs(n||0)<10?1.5:n>0?2:4,opacity:.4+.6*strength/100,dash:''};
+};
+// Reverse relations reach this helper only after the viewer's readability filter.
+// A line keeps room for its shorts between the two pieces (2026-11-14: friendly pairs sat so close the shorts became dots)
+const captionGap = (relation,reverse) => [40,140,230][(relation?.short?1:0)+(reverse?.short?1:0)];
+const roomyDistance = (relation,reverse,centreR,neighbourR,size) => 1.75*(1.3*Math.max(linkDistance(distanceGauge(relation,reverse),centreR,neighbourR,size),centreR+neighbourR+captionGap(relation,reverse)));
+const distanceGauge = (relation,reverse) => reverse?((relation.gauge||0)+(reverse.gauge||0))/2:relation.gauge;
+const linkDistance = (gauge,centreR,neighbourR,size=1) => {
+  const n=Math.max(-100,Math.min(100,gauge||0))/100,near=centreR+neighbourR+40,old=Math.max(180+12*size+Math.max(0,centreR-60)+Math.max(0,neighbourR-18-7*(size-1)),near),middle=old+.5*(old-near);
+  return n>=0?middle+(near-middle)*n:middle+1.5*(520-old)*-n;
+};
+const cloudDistance = i => 1.75*((380+(i%5)*35)*1.3);
+function fitView(nodes,w,h){
+  const included=nodes.filter(n=>n.id==='centre'||n.connected||n.incoming||n.incomingOnly);
+  const centre=nodes.find(n=>n.id==='centre')||{x:0,y:0},top=76;
+  // Include every related piece; display boosts keep the wider layout readable.
+  const boxes=included.map(n=>{const b=n.bounds||{x:-n.r-8,y:-n.r-36,width:2*n.r+16,height:2*n.r+44};return {x:n.x+b.x,y:n.y+b.y,width:b.width,height:b.height};});
+  const left=Math.min(...boxes.map(b=>b.x)),right=Math.max(...boxes.map(b=>b.x+b.width)),upper=Math.min(...boxes.map(b=>b.y)),bottom=Math.max(...boxes.map(b=>b.y+b.height));
+  const scale=boxes.length?Math.min(2,w/(right-left+80),(h-top)/(bottom-upper+60)):1;
+  const k=Math.max(.05,scale),x=scale<.05||!boxes.length?centre.x:(left+right)/2,y=scale<.05||!boxes.length?centre.y:(upper+bottom)/2;
+  return {k,x:w/2-k*x,y:top+(h-top)/2-k*y};
+}
+// Star links apply the full spring correction to the neighbour, in either direction.
+function centreLinkForce(edges,distance,strength){
+  function force(alpha){
+    for(const e of edges){
+      const c=e.source.id==='centre'?e.source:e.target,n=e.source===c?e.target:e.source;
+      let dx=n.x+n.vx-c.x-c.vx,dy=n.y+n.vy-c.y-c.vy;
+      if(dx===0&&dy===0)dx=1e-6;
+      const boost=c.fx!=null&&c.fy!=null?2.5:1;
+      const length=Math.hypot(dx,dy),correction=(length-distance(e))/length*alpha*strength(e)*boost;
+      n.vx-=dx*correction;n.vy-=dy*correction;
+    }
+  }
+  force.initialize=nodes=>{
+    const byId=new Map(nodes.map(n=>[n.id,n]));
+    for(const e of edges)for(const side of ['source','target'])if(typeof e[side]!=='object')e[side]=byId.get(e[side]);
+  };
+  // Same accessor as d3.forceLink: the line editor and highlight code read the edges through it.
+  force.links=()=>edges;
+  return force;
+}
+function preserveCentreVelocity(inner){
+  let centre;
+  function force(alpha){
+    const {vx,vy}=centre;inner(alpha);centre.vx=vx;centre.vy=vy;
+  }
+  force.initialize=(nodes,...args)=>{centre=nodes.find(n=>n.id==='centre');inner.initialize(nodes,...args);};
+  return force;
+}
+function relationPosition(d,previous,distance,angle){
+  const saved=d.connected&&Number.isFinite(d.x)&&Number.isFinite(d.y);
+  return {x:d.x??previous?.x??Math.cos(angle)*distance,y:d.y??previous?.y??Math.sin(angle)*distance,
+    prefX:saved?d.x:null,prefY:saved?d.y:null,fx:null,fy:null};
+}
+function releasePiece(d){
+  const point={x:d.fx??d.x,y:d.fy??d.y};
+  if(d.connected){d.prefX=point.x;d.prefY=point.y;}
+  d.fx=d.fy=null;
+  return point;
+}
+function preferenceForce(){
+  let nodes=[];
+  function force(alpha){for(const d of nodes)if(d.id!=='centre'&&d.fx==null&&Number.isFinite(d.prefX)&&Number.isFinite(d.prefY)){
+    d.vx+=(d.prefX-d.x)*.006*alpha;d.vy+=(d.prefY-d.y)*.006*alpha;
+  }}
+  force.initialize=value=>{nodes=value;};return force;
+}
+// Include the text halo. getBBox measurements are local, before the zoom boost.
+function pieceBounds(d,boost=1){
+  const b=d.labelBox||{x:-Array.from(d.name||'').length*8,y:-d.r-28,width:Array.from(d.name||'').length*16,height:20};
+  return {left:Math.min(-d.r-3,b.x-3)*boost,right:Math.max(d.r+3,b.x+b.width+3)*boost,
+    top:Math.min(-d.r-3,b.y-3)*boost,bottom:Math.max(d.r+3,b.y+b.height+3)*boost};
+}
+function pieceCollisionRadius(d,boost=1){
+  const b=pieceBounds(d,boost);return Math.max(d.r*boost,-b.left,b.right)+8;
+}
+// Rectangles also separate a wide name from another face, even on a diagonal.
+// Correct predicted positions using the simulation's .28 velocity decay.
+function labelSeparationForce(boost){
+  let nodes=[];
+  function force(){
+    const scale=boost(),boxes=nodes.map(d=>pieceBounds(d,scale));
+    for(let pass=0;pass<4;pass++)for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j],ab=boxes[i],bb=boxes[j],ax=a.x+a.vx*.72,ay=a.y+a.vy*.72,bx=b.x+b.vx*.72,by=b.y+b.vy*.72;
+      const left=ax+ab.right-bx-bb.left+16,right=bx+bb.right-ax-ab.left+16,
+        up=ay+ab.bottom-by-bb.top+16,down=by+bb.bottom-ay-ab.top+16;
+      if(Math.min(left,right,up,down)<=0)continue;
+      const freeA=a.id!=='centre'&&a.fx==null,freeB=b.id!=='centre'&&b.fx==null,total=Number(freeA)+Number(freeB);
+      if(!total)continue;
+      const horizontal=Math.min(left,right)<Math.min(up,down),delta=(horizontal?(left<right?-left:right):(up<down?-up:down))/.72/total,key=horizontal?'vx':'vy';
+      if(freeA)a[key]+=delta;if(freeB)b[key]-=delta;
+    }
+  }
+  force.initialize=value=>{nodes=value;};return force;
+}
+function gaugeWarning(n,random=Math.random){
+  const warnings=n>100?['好意 {n}。目盛りを振り切りました。これ以上近づけると、駒が重なって顔が見えなくなります','{n}。ここから先は関係図じゃなく、式場の受付の仕事です']:n< -100?['敵意 {n}。目盛りの外です。駒は画面の端に張り付いて、これ以上は逃げられません','{n}。そこまで嫌うなら関係図の外に出したほうが早い気もします。出せませんけど']:[];
+  return warnings.length?warnings[Math.min(1,Math.floor(random()*2))].replace('{n}',signed(n)):'';
+}
+const relationNote = d => [d.note,d.meet].filter(Boolean).join('\n');
+const writtenAmount = (d,honne='') => ['call','label','short','note'].reduce((n,k)=>n+textLength(d[k]||''),textLength(honne))+(d.extra||[]).reduce((n,f)=>n+textLength(f.text||''),0);
+const displayTier = (gauge,feel) => {
+  const base=1+Math.max(-100,Math.min(100,gauge||0))*.004;
+  const multiplier=1+(Math.max(1,Math.min(5,feel))-1)*.125,p=base*multiplier;
+  return p<.8?1:p<.95?2:p<1.15?3:p<1.5?4:5;
+};
+const normaliseExtra = rows => rows.map((f,i)=>({name:f.name||'欄'+(i+1),text:f.text})).filter((f,i)=>rows[i].name||rows[i].text);
+function readFolds(){try{const value=JSON.parse(localStorage.getItem('relmap-fold'));return value&&typeof value==='object'&&!Array.isArray(value)?value:{};}catch{return {};}}
+function writeFold(kind,open){try{localStorage.setItem('relmap-fold',JSON.stringify({...readFolds(),[kind]:!open}));}catch{}}
+const motionAllowed = (preference, reduced, hidden=false) => preference !== 'off' && !reduced && !hidden;
+const shapes=['circle','rounded','hexagon','diamond'];
+const shapeValue=value=>shapes.includes(value)?value:'circle';
+const migrateBackground=value=>value==='white'?'white':'soft';
+function shapePath(value,r){
+  switch(shapeValue(value)){
+    case 'rounded':{const a=r*.3;return `M${-r+a},${-r}H${r-a}Q${r},${-r} ${r},${-r+a}V${r-a}Q${r},${r} ${r-a},${r}H${-r+a}Q${-r},${r} ${-r},${r-a}V${-r+a}Q${-r},${-r} ${-r+a},${-r}Z`;}
+    case 'hexagon':return Array.from({length:6},(_,i)=>{const a=(i*60-30)*Math.PI/180;return (i?'L':'M')+(r*Math.cos(a))+','+(r*Math.sin(a));}).join('')+'Z';
+    case 'diamond':return `M0,${-r}L${r},0L0,${r}L${-r},0Z`;
+    default:return `M${-r},0A${r},${r} 0 1 0 ${r},0A${r},${r} 0 1 0 ${-r},0Z`;
+  }
+}
+function graphCharacters(mapId,pcs,npcs,outgoing,incoming,ownNPCs=[]){
+  const rows=new Map(),key=d=>d.kind+':'+d.target;
+  for(const [kind,cards]of [['pc',pcs],['npc',npcs]])for(const c of cards){
+    if(kind==='pc'&&(c.id===mapId||c.listed===false))continue;
+    const d={...c,kind,target:c.id,id:kind+':'+c.id,connected:false,size:1};rows.set(key(d),d);
+  }
+  for(const d of ownNPCs)rows.set('own:'+d.id,{...d,connected:false,size:1});
+  for(const d of outgoing){const k=d.target?key(d):'own:'+d.id,card=rows.get(k);rows.set(k,{...d,...(card?{name:card.name,face:card.face,shape:card.shape,ring:card.ring}:{}),connected:true});}
+  for(const d of rows.values()){
+    const back=d.kind==='pc'?reverseLink(d,incoming.get(d.target)||[],mapId):null;
+    d.incoming=back;d.incomingOnly=!!back&&!d.connected;d.r=d.connected?radius(d.size):26;
+    d.shape=shapeValue(d.shape);
+  }
+  return [...rows.values()];
+}
+function graphEdges(nodes){
+  return nodes.filter(d=>d.connected||d.incoming).map(d=>d.connected
+    ?{source:'centre',target:d.id,size:d.size,relation:d,reverse:d.incoming,incomingOnly:false}
+    :{source:d.id,target:'centre',size:1,relation:d.incoming,reverse:null,incomingOnly:true});
+}
+function highlightNeighbours(id,edges){
+  const ids=new Set([id]),key=n=>typeof n==='object'?n.id:n;
+  for(const e of edges){const a=key(e.source),b=key(e.target);if(a===id)ids.add(b);if(b===id)ids.add(a);}
+  return ids;
+}
+function edgeGeometry(edge,boost=1,fontScale=1,minOffset=0){
+  const {source,target}=edge,dx=target.x-source.x,dy=target.y-source.y,len=Math.hypot(dx,dy),ux=len?dx/len:1,uy=len?dy/len:0;
+  const offset=edge.reverse?Math.max(7*boost,minOffset):0;
+  // Parallel chords end at the displayed circles. Captions additionally clear names,
+  // their halos and the outer side of each line, at the selected text size.
+  const clearance=(piece,x,y,pad=0)=>{
+    const b=pieceBounds(piece,boost);
+    return Math.min(x?((x>0?b.right:-b.left)+Math.abs(uy)*pad)/Math.abs(x):Infinity,
+      y?((y>0?b.bottom:-b.top)+Math.abs(ux)*pad)/Math.abs(y):Infinity)+6;
+  };
+  const chord=piece=>Math.sqrt(Math.max(0,(piece.r*boost)**2-offset**2));
+  const a=Math.min(len,chord(source)),b=Math.min(len-a,chord(target)),length=Math.max(0,len-a-b);
+  const captionStart=Math.min(length,Math.max(0,clearance(source,ux,uy,32*fontScale+offset)-a));
+  const captionEnd=Math.max(captionStart,Math.min(length,len-clearance(target,-ux,-uy,32*fontScale+offset)-a));
+  let angle=Math.atan2(uy,ux)*180/Math.PI;const forward=angle>90||angle< -90?-1:1;
+  if(angle>90)angle-=180;if(angle< -90)angle+=180;
+  const start={x:source.x+ux*a,y:source.y+uy*a},end={x:target.x-ux*b,y:target.y-uy*b};
+  const shift=(point,side)=>({x:point.x-uy*offset*side,y:point.y+ux*offset*side});
+  return {start,end,outStart:shift(start,1),outEnd:shift(end,1),backStart:shift(end,-1),backEnd:shift(start,-1),offset,length,angle,forward,captionStart,captionEnd};
+}
+function shortSlots(edge,fontScale=1){
+  const middle=edge.length/2,slot=(start,end,side)=>({x:edge.forward*((start+Math.max(start,end))/2-middle),width:Math.max(0,end-start-12),
+    y:edge.reverse?side*edge.forward*edge.offset+(side*edge.forward>0?24:-8)*fontScale:-8*fontScale});
+  return {outgoing:slot(edge.reverse?Math.max(middle,edge.captionStart):edge.captionStart,edge.captionEnd,1),
+    incoming:edge.reverse?slot(edge.captionStart,Math.min(middle,edge.captionEnd),-1):null};
+}
+function truncateShort(value, length, measure=s=>textLength(s)*12) {
+  let chars=Array.from(String(value||'').replace(/\s+/g,' '));
+  if(measure(chars.join(''))<=length)return chars.join('');
+  if(measure('…')>length)return '';
+  while(chars.length&&measure(chars.join('')+'…')>length)chars.pop();
+  return chars.join('')+'…';
+}
+function reverseLink(link, rows, mapId) {
+  if(link.kind!=='pc')return null;
+  return rows.filter(d=>d.kind==='pc'&&d.target===mapId&&d.public===true).sort((a,b)=>String(a.id||'').localeCompare(String(b.id||'')))[0]||null;
+}
+const counterState = (value,max) => ({text:textLength(value)+'／'+max,over:textLength(value)>max});
+function validLink(d) {
+  const keys=['kind','target','name','face','note','size','public','t','x','y','short','tone','label','meet','shape','call','amount','gauge','extra'];
+  return Object.keys(d).every(k=>keys.includes(k)) && ['pc','npc'].includes(d.kind)
+    && typeof d.target==='string' && d.target.length<=64
+    && typeof d.name==='string' && d.name.length>=1 && d.name.length<=60
+    && (d.face===null || typeof d.face==='string' && d.face.length<60000)
+    && typeof d.note==='string' && textLength(d.note)<=2000
+    && (!('extra' in d)||Array.isArray(d.extra)&&d.extra.length<=5&&d.extra.every(f=>f&&typeof f==='object'&&!Array.isArray(f)&&Object.keys(f).every(k=>['name','text'].includes(k))&&typeof f.name==='string'&&textLength(f.name)>=1&&textLength(f.name)<=20&&typeof f.text==='string'&&textLength(f.text)<=500))
+    && (!('amount' in d) || Number.isInteger(d.amount) && d.amount>=0 && d.amount<=100000)
+    && (!('gauge' in d) || typeof d.gauge==='number' && Number.isFinite(d.gauge) && Math.abs(d.gauge)<=1000000000)
+    && ['call','short','label','meet'].every(k=>!(k in d)||typeof d[k]==='string'&&textLength(d[k])<=(k==='meet'?200:20))
+    && (!('tone' in d)||['none','like','hate','mixed'].includes(d.tone))
+    && (!('shape' in d)||shapes.includes(d.shape))
+    && Number.isInteger(d.size) && d.size>=1 && d.size<=5
+    && typeof d.public==='boolean' && Number.isInteger(d.t)
+    && ['x','y'].every(k=>!(k in d) || typeof d[k]==='number' && Number.isFinite(d[k]));
+}
+async function resizeFace(source) {
+  if(!source)return null;
+  const img=new Image(); img.src=source; await img.decode();
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=96;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#070a10';ctx.fillRect(0,0,96,96);
+  const scale=Math.max(96/img.naturalWidth,96/img.naturalHeight);
+  const w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+  ctx.drawImage(img,(96-w)/2,(96-h)/2,w,h);
+  return faceCap(canvas.toDataURL('image/jpeg',0.8));
+}
+</script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), panel=$('panel');
+const network='サーバーにつながりませんでした。少し待ってから、もう一度押してください。';
+const cid=new URLSearchParams(location.search).get('cid'),view=new URLSearchParams(location.search).get('view');
+// Give direct map links a home entry too, without changing the browser identity.
+if(cid&&location.protocol!=='file:'&&!history.state?.relmapMap){
+  const mapURL=location.href;
+  history.replaceState(null,'','関係図.html');
+  history.pushState({relmapMap:true},'',mapURL);
+}
+$('back-home').hidden=!cid;
+$('back-home').onclick=e=>{if(history.state?.relmapMap){e.preventDefault();history.back();}};
+window.addEventListener('popstate',()=>location.reload());
+let db,auth,gm=false,owner=false,editing=false,centre,links=[],simulation,zoom,svg,layer,refresh=0;
+const server={source:'server'};
+let motionPreference='on';try{motionPreference=localStorage.getItem('relmap-motion')||'on';}catch{}
+let background='soft';try{background=localStorage.getItem('relmap-bg')||'soft';}catch{}
+function updateBackground(value){background=migrateBackground(value);document.documentElement.dataset.bg=background;$('background').value=background;try{localStorage.setItem('relmap-bg',background);}catch{}}
+const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)');
+let graphFrame=0,renderGraph,refreshGraphCollision,lastGraphTime=0,focusNode=()=>{},graphNodes=[],highlighted=null,pinnedHighlight=null,cardNode=null,lineRelation=null,suppressClickUntil=0;
+for(const kind of Object.keys(textSizeSettings)){
+  const box=element('div',undefined,$('more-menu'),'text-size-choice');
+  const label=element('label',kind==='graph'?'図の文字の大きさ':'ボタンや窓の文字の大きさ',box);
+  const select=element('select',undefined,label);select.id=kind+'-font';
+  for(const [value,text]of [['s','小'],['m','標準'],['l','大'],['xl','特大']]){const option=element('option',text,select);option.value=value;}
+  select.value=textSizeValues[kind];
+  select.onchange=()=>{
+    select.value=applyTextSize(kind,select.value);
+    try{localStorage.setItem(textSizeSettings[kind].key,select.value);}catch{}
+    renderGraph?.(0);if(kind==='graph'){refreshGraphCollision?.();updateMotion(true);}positionPopups();
+  };
+}
+updateBackground(background);
+$('background').onchange=()=>{updateBackground($('background').value);try{localStorage.setItem('relmap-bg',background);}catch{}};
+// A drag always moves the graph (neighbours follow), even with motion turned off; it settles a moment after release.
+let dragging=false,dragHeld=false,dragSettle=0;
+const moving=()=>dragging||motionAllowed(motionPreference,!!reducedMotion?.matches,document.hidden);
+function setDragging(on){clearTimeout(dragSettle);dragHeld=on;if(on)dragging=true;updateMotion();if(!on)dragSettle=setTimeout(()=>{dragging=false;updateMotion(true);},1800);}
+function frameGraph(time){
+  graphFrame=0;
+  if(!moving()||!simulation)return;
+  if(time-lastGraphTime>=1000/60){simulation.tick();renderGraph?.(time);lastGraphTime=time;}
+  graphFrame=requestAnimationFrame(frameGraph);
+}
+function updateMotion(settle=false){
+  cancelAnimationFrame(graphFrame);graphFrame=0;simulation?.stop();
+  const active=moving();
+  $('motion').textContent=motionAllowed(motionPreference,!!reducedMotion?.matches)?'動きを止める':'動かす';
+  $('motion').setAttribute('aria-pressed',String(!motionAllowed(motionPreference,!!reducedMotion?.matches)));
+  if(simulation){
+    simulation.alphaTarget(dragHeld ? .3 : active ? .025 : 0);
+    if(active){simulation.alpha(Math.max(.18,simulation.alpha()));graphFrame=requestAnimationFrame(frameGraph);}
+    else if(settle&&!document.hidden){simulation.alpha(1).tick(260);renderGraph?.(0);}
+    else if(!document.hidden)renderGraph?.(0);
+  }
+  svg?.classed('animating',motionAllowed(motionPreference,!!reducedMotion?.matches,document.hidden));
+}
+function reheat(){if(moving()&&simulation){simulation.alpha(Math.max(.3,simulation.alpha()));}}
+document.addEventListener?.('visibilitychange',()=>updateMotion(true));
+reducedMotion?.addEventListener('change',()=>updateMotion(true));
+$('motion').onclick=()=>{motionPreference=motionAllowed(motionPreference,!!reducedMotion?.matches)?'off':'on';try{localStorage.setItem('relmap-motion',motionPreference);}catch{}updateMotion();};
+function element(tag,text,parent,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;if(parent)parent.append(e);return e;}
+function button(text,parent,fn,id){const e=element('button',text,parent);e.type='button';if(id)e.id=id;e.onclick=()=>run(fn,e);return e;}
+function error(e){console.error(e);$('message').textContent=network;}
+async function run(fn,b){if(b)b.disabled=true;try{await fn();}catch(e){error(e);}finally{if(b)b.disabled=false;}}
+function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').hidden=true,2200);}
+function closeCard(){cardNode=null;$('node-card').hidden=true;$('node-card').replaceChildren();liveFlush();}
+function closeLine(){lineRelation=null;$('line-editor').hidden=true;$('line-editor').replaceChildren();liveFlush();}
+// Links written from another browser (the owner, the GM) reach an open map live (2026-11-13: the GM did not see a participant's update).
+// While a card, panel or line editor is open the reload waits, so typing is never redrawn away.
+let linksOff=null,livePending=false,liveTimer=0;
+function liveBusy(){return panel.open||!$('node-card').hidden||!$('line-editor').hidden;}
+function liveFlush(){if(!livePending||liveBusy())return;livePending=false;clearTimeout(liveTimer);liveTimer=setTimeout(()=>{if(liveBusy()){livePending=true;return;}reloadLinks().catch(e=>console.debug('links live',e));},300);}
+panel.addEventListener('close',()=>liveFlush());
+function liveLinks(){linksOff?.();let first=true;linksOff=linkQuery().onSnapshot(s=>{if(first){first=false;return;}if(s.metadata.hasPendingWrites)return;livePending=true;liveFlush();},e=>console.debug('links live',e));}
+function close(){panel.close();panel.replaceChildren();panel.style.cssText='';panel.className='';delete panel.dataset.opener;closeCard();closeLine();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close();}});
+function placePopup(box,x,y){const w=box.offsetWidth||330,h=box.offsetHeight||100;box.style.left=Math.max(8,Math.min(window.innerWidth-w-8,x))+'px';box.style.top=Math.max(8,Math.min(window.innerHeight-h-8,y))+'px';}
+function positionPopups(){
+  if(!svg||!layer)return;const transform=d3.zoomTransform(svg.node());
+  if(cardNode){const n=graphNodes.find(n=>n.id===cardNode.id||(n.kind===cardNode.kind&&n.target&&n.target===cardNode.target));if(n){const [x,y]=transform.apply([n.x+n.r,n.y]);placePopup($('node-card'),x+12,y-28);}else closeCard();}
+  if(lineRelation){const edge=simulation?.force('link').links().find(e=>e.relation.id===lineRelation);if(edge?.start){const [x,y]=transform.apply([(edge.start.x+edge.end.x)/2,(edge.start.y+edge.end.y)/2]);placePopup($('line-editor'),x,y);}}
+}
+function closer(){button('×',panel,close,'close').setAttribute('aria-label','閉じる');}
+panel.addEventListener('click',e=>{if(e.target===panel){const r=panel.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close();}});
+function input(parent,label,type,value,max){const l=element('label',label,parent),e=element(type==='textarea'?'textarea':'input',undefined,l);if(type!=='textarea')e.type=type;e.value=value||'';if(max)e.maxLength=max;return e;}
+function shapeSelect(parent,value){const label=element('label','形',parent),select=element('select',undefined,label);for(const [i,text]of ['丸','角の丸い四角','六角形','ひし形'].entries()){const option=element('option',text,select);option.value=shapes[i];}select.value=shapeValue(value);return select;}
+function cardName(value){return typeof value==='string'&&value.trim()?value.slice(0,60):'名前なし';}
+function safeFace(value){return typeof value==='string'&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value)&&faceCap(value)?value:null;}
+function face(parent,data){if(safeFace(data.face)){const img=element('img',undefined,parent,'face');img.src=data.face;img.alt='';}else element('span',Array.from(data.name||'')[0]||'',parent,'face');}
+function openMap(id,mode){close();location.href='関係図.html?cid='+encodeURIComponent(id)+(mode?'&view='+mode:'');}
+function loadScript(url){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;s.onload=resolve;s.onerror=reject;document.head.append(s);});}
+async function connect(){
+  for(const f of ['firebase-app-compat.js','firebase-auth-compat.js','firebase-firestore-compat.js'])await loadScript('https://www.gstatic.com/firebasejs/10.12.2/'+f);
+  const cfg={apiKey:'AIzaSyDHn3wNCuO162prkelaeKYu4OBzf5bS0dU',authDomain:'rosf-relmap.firebaseapp.com',projectId:'rosf-relmap',appId:'1:550841104063:web:e964dc3cd132f2e213b80a',messagingSenderId:'550841104063'};
+  const em=window.__RELMAP_EMU;if(em&&typeof em==='object')cfg.projectId=em.projectId;
+  const app=firebase.initializeApp(cfg,'relmap');auth=app.auth();db=app.firestore();
+  if(em&&typeof em==='object'){auth.useEmulator('http://'+em.host+':'+em.authPort,{disableWarnings:true});db.useEmulator(em.host,em.fsPort);}
+  await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  const user=await new Promise((resolve,reject)=>{const off=auth.onAuthStateChanged(u=>{off();resolve(u);},reject);});
+  if(!user)await auth.signInAnonymously();
+  try{await db.doc('gmcheck/status').get(server);gm=true;}catch(e){if(e.code!=='permission-denied')throw e;}
+}
+async function directory(name){return (await db.collection(name).get(server)).docs.map(d=>({id:d.id,...d.data()})).filter(d=>name!=='pcdir'||d.listed!==false);}
+function playerQueries(value){
+  const name=String(value||'').trim();
+  if(!name)return [];
+  // Keep the exact lookup; also try spaced text and the VTT gate's _plNorm key.
+  const norm=name.normalize('NFKC').toLowerCase().replace(/[\s\u30fb._\-\uff1d=\u300c\u300d\u300e\u300f"\u201c\u201d]/g,'');
+  return [...new Set([name,name.replace(/\u3000/g,' ').trim(),norm])].filter(Boolean);
+}
+async function findPlayer(value){
+  const rows=new Map();
+  for(const name of playerQueries(value)){
+    const snapshot=await db.collection('pcdir').where('player','==',name).get(server);
+    for(const doc of snapshot.docs)if(doc.data().listed!==false)rows.set(doc.id,{id:doc.id,...doc.data()});
+  }
+  return [...rows.values()];
+}
+async function claimCharacter(id,key){
+  if(typeof key!=='string'||key.length!==24)throw Object.assign(new Error('Invalid key'),{code:'permission-denied'});
+  const uid=auth.currentUser.uid,batch=db.batch();
+  batch.set(db.doc('claims/'+id+'_'+uid),{key,t:Date.now()});
+  batch.update(db.doc('pcdir/'+id),{owners:firebase.firestore.FieldValue.arrayUnion(uid)});
+  await batch.commit();
+  try{localStorage.setItem('relmap-key:'+id,key);}catch{}
+  openMap(id);
+}
+function normalizeKey(value){return String(value).replace(/[！-～]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xfee0)).trim();}
+function keyField(field){
+  field.type='text';field.autocomplete='off';field.setAttribute('autocapitalize','off');field.setAttribute('spellcheck','false');field.style.webkitTextSecurity='disc';
+  const toggle=button('表示する',field.parentNode,()=>{const show=field.style.webkitTextSecurity==='disc';field.style.webkitTextSecurity=show?'none':'disc';toggle.textContent=show?'隠す':'表示する';toggle.setAttribute('aria-pressed',String(show));},field.id+'-visibility');
+  toggle.setAttribute('aria-controls',field.id);toggle.setAttribute('aria-pressed','false');
+}
+function gmRequest(promise){
+  let timer;return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Object.assign(new Error('GM request timed out'),{code:'deadline-exceeded'})),12000);})]).finally(()=>clearTimeout(timer));
+}
+async function claimGM(key){
+  const text=normalizeKey(key),uid=auth.currentUser.uid,t=Date.now();let already=false;
+  try{await gmRequest(db.doc('gmcheck/status').get(server));already=true;}
+  catch(e){if(!/(^|\/)permission-denied$/.test(e.code||''))throw e;}
+  if(!already){
+    await gmRequest(db.doc('gmclaims/'+uid).set({key:text,t}));
+    try{await gmRequest(db.doc('gms/'+uid).set({t}));}
+    catch(e){
+      if(!/(^|\/)permission-denied$/.test(e.code||''))throw e;
+      const existing=await gmRequest(db.doc('gms/'+uid).get(server));
+      if(!existing.exists)throw e;
+      already=true;
+    }
+  }
+  const message=already?'もう GM として登録されています。':'GM の登録完了';
+  toast(message);
+  try{sessionStorage.setItem('relmap-gm-toast',message);}catch{}
+}
+async function claimFromBox(id,value,passphrase=false){
+  const text=normalizeKey(value);
+  try{await claimCharacter(id,passphrase?await derivePCPass(text,id):text);return;}
+  catch(e){if(!/(^|\/)permission-denied$/.test(e.code||''))throw e;}
+  if(!gm)await claimGM(text);
+  toast('GM として開きます。');
+  try{sessionStorage.setItem('relmap-gm-toast','GM として開きます。');}catch{}
+  openMap(id);
+}
+function keyBox(data){
+  if(panel.open&&panel.dataset.opener==='claim-'+data.id){close();return;}
+  close();panel.dataset.opener='claim-'+data.id;element('h2',data.name,panel);
+  panel.style.cssText='position:fixed;top:90px;margin:0 auto;z-index:5';panel.show();
+  element('p','このキャラの関係図を書けるのは、持ち主のブラウザだけです。VTT でこのキャラを使っているブラウザで開くか、合鍵を入れてください。',panel);
+  const form=element('form',undefined,panel),key=input(form,'合鍵','text','');form.id='pl-key-form';key.id='pl-key';key.autocomplete='off';form.autocomplete='off';
+  keyField(key);
+  const status=element('p','',form);status.id='pl-key-error';status.setAttribute('role','status');
+  const submit=element('button','合鍵で開く',form);submit.type='submit';submit.id='pl-key-open';
+  form.onsubmit=e=>{e.preventDefault();run(async()=>{
+    status.textContent='';
+    try{await claimFromBox(data.id,key.value);}
+    catch(e){if(/(^|\/)permission-denied$/.test(e.code||''))status.textContent='合鍵が違います。';else throw e;}
+  },submit);};
+  const passForm=element('form',undefined,panel),pass=input(passForm,'PL の合言葉','text','');passForm.id='pl-pass-form';pass.id='pl-pass';pass.autocomplete='off';passForm.autocomplete='off';
+  keyField(pass);
+  const passStatus=element('p','',passForm);passStatus.id='pl-pass-error';passStatus.setAttribute('role','status');
+  const passSubmit=element('button','合言葉で開く',passForm);passSubmit.type='submit';passSubmit.id='pl-pass-open';
+  passForm.onsubmit=e=>{e.preventDefault();run(async()=>{
+    passStatus.textContent='';
+    try{await claimFromBox(data.id,pass.value,true);}
+    catch(e){if(/(^|\/)permission-denied$/.test(e.code||''))passStatus.textContent='合言葉が違うか、まだ登録されていません。';else throw e;}
+  },passSubmit);};
+  element('p','GM の合鍵は、この欄に入れても開けます。',panel,'hint');
+  button('観覧者用',panel,()=>openMap(data.id,'public'),'pl-public-open');
+  closer();
+}
+async function chooseCharacter(data){
+  const card=await db.doc('pcdir/'+data.id).get(server);
+  if(gm||card.exists&&(card.data().owners||[]).includes(auth.currentUser.uid)){openMap(data.id);return;}
+  keyBox(data);
+}
+function showKey(){
+  if(!owner)return;
+  if(panel.open&&panel.dataset.opener==='show-key'){close();return;}
+  close();panel.dataset.opener='show-key';element('h2','合鍵を見る',panel);closer();
+  panel.style.cssText='position:fixed;top:90px;margin:0 auto;z-index:5';panel.show();
+  let key='';try{key=localStorage.getItem('relmap-key:'+cid)||'';}catch{}
+  if(key.length!==24){element('p','このブラウザには合鍵がありません。合鍵が要るときは GM に聞いてください。',panel);return;}
+  element('p','別の端末でこのキャラの関係図を書くときは、この合鍵を入れてください。合鍵を知っている人は誰でもこのキャラの関係図を書き換えられるので、ほかの人に見せないでください。',panel);
+  const value=element('input',undefined,panel);value.id='map-key';value.value=key;value.readOnly=true;keyField(value);
+  button('コピー',panel,async()=>{await navigator.clipboard.writeText(key);$('map-key-copy').textContent='コピー完了';},'map-key-copy');
+}
+function playerEntry(){
+  const box=element('section',undefined,$('home'));box.id='pl-entry';
+  const form=element('form',undefined,box),name=input(form,'PL名','text','',60);form.id='pl-entry-form';name.id='pl-name';
+  try{name.value=localStorage.getItem('relmap-pl')||'';}catch{}
+  const submit=element('button','探す',form);submit.type='submit';submit.id='pl-search';
+  const result=element('section',undefined,box);result.id='pl-results';result.setAttribute('aria-live','polite');
+  form.onsubmit=e=>{e.preventDefault();run(async()=>{
+    result.replaceChildren();const value=name.value.trim();
+    if(!value){element('p','PL名を入れてください。',result);return;}
+    try{localStorage.setItem('relmap-pl',value);}catch{}
+    const rows=await findPlayer(value);
+    if(!rows.length){element('p','選べる PC がまだいません。VTT の部屋に PC が入ると、ここに出ます。',result);return;}
+    element('h2','この PL名のキャラがある。開くキャラを選ぶ。',result);
+    for(const data of rows){const row=element('div',undefined,result,'row card');row.dataset.cid=data.id;face(row,data);element('span',data.name,row);button('開く',row,()=>chooseCharacter(data));}
+  },submit);};
+}
+function listSection(title,rows,mode,parent=$('home')){
+  element('h2',title,parent);
+  for(const data of rows){const row=element('div',undefined,parent,'row card');row.dataset.cid=data.id;face(row,data);element('span',data.name,row);button('開く',row,()=>openMap(data.id,mode));
+    // GM は最初の画面の一覧から PC を直接消せる（2026-11-14 先生「GMは関係図の最初の画面で、一覧の中のキャラを直接削除できるように」）。
+    // 関係図の中の「PC の一覧から外す」と同じく listed を false にするだけで、中身は消さない。下の「一覧から外れている PC」から戻せる
+    if(gm)button('削除',row,()=>gmUnlist(data));}
+}
+async function gmUnlist(data){
+  if(!confirm(data.name+'を一覧から削除します。関係図の中身は残り、「一覧から外れている PC」から戻せます。よろしいですか？'))return;
+  await run(async()=>{
+    await db.doc('pcdir/'+data.id).update({listed:false,t:Date.now()});
+    for(const r of document.querySelectorAll('#home .row.card[data-cid="'+data.id+'"]'))if(!r.closest('#unlisted-pcs'))r.remove();
+    unlistedRow(data);toast(data.name+'を一覧から削除しました。');
+  });
+}
+// GM だけに見える「一覧から外れている PC」の節に1行足す（節がなければ、NPC の一覧の前に作る）
+function unlistedRow(data){
+  let off=$('unlisted-pcs');
+  if(!off){off=element('section',undefined,$('home'));off.id='unlisted-pcs';element('h2','一覧から外れている PC（GM だけに見えます）',off);const npc=$('npc-directory');if(npc)$('home').insertBefore(off,npc);}
+  const row=element('div',undefined,off,'row card');row.dataset.cid=data.id;face(row,data);element('span',data.name+(data.player?'（'+data.player+'）':''),row);
+  button('一覧に戻す',row,async()=>{await db.doc('pcdir/'+data.id).update({listed:true,t:Date.now()});row.remove();toast(data.name+'を一覧に戻しました。');});
+}
+async function home(){
+  // The same menu is available before a character has been selected.
+  document.body.append($('controls'),$('more-menu'));
+  for(const control of $('controls').children)control.hidden=control.id!=='more';
+  $('home').hidden=false;$('message').textContent='キャラが選ばれていません。PL名で探すか、下の一覧から選んでください。';
+  $('uid').textContent='このブラウザの番号：'+auth.currentUser.uid;
+  playerEntry();
+  const own=(await db.collection('pcdir').where('owners','array-contains',auth.currentUser.uid).get(server)).docs.map(d=>({id:d.id,...d.data()})).filter(d=>d.listed!==false);
+  listSection('このブラウザのキャラ',own,'');
+  listSection('ほかのキャラの関係図（公開された関係だけ）',await directory('pcdir'),'public');
+  if(gm){
+    const maps=await directory('relmaps'),cards=await directory('pcdir');
+    listSection('全員の関係図',maps.filter(d=>cards.some(c=>c.id===d.id)).map(d=>({...d,...cards.find(c=>c.id===d.id)})),'gm');
+    // GM only: PCs taken off the list can be put back (2026-11-13, all of one room were taken off by mistake).
+    const hidden=(await db.collection('pcdir').get(server)).docs.map(d=>({id:d.id,...d.data()})).filter(d=>d.listed===false);
+    for(const data of hidden)unlistedRow(data);
+    const box=element('section',undefined,$('home'));box.id='npc-directory';await npcManagement(box);
+  }
+}
+async function npcManagement(box){
+  box.replaceChildren();element('h2','GM の NPC 一覧',box);
+  button('NPC を一覧に足す',box,()=>npcForm(true),'npc-directory-add');
+  for(const d of await directory('npcdir')){const row=element('div',undefined,box,'row card');face(row,d);element('span',d.name,row);const shape=shapeSelect(row,d.shape);shape.onchange=()=>run(async()=>{await db.doc('npcdir/'+d.id).update({shape:shape.value,t:Date.now()});});button('一覧から外す',row,async()=>{if(confirm(d.name+'を一覧から外します。よろしいですか？')){await db.doc('npcdir/'+d.id).delete();toast('削除完了');await npcManagement(box);}});}
+}
+async function map(){
+  if(!/^[A-Za-z0-9-]{1,64}$/.test(cid)){$('message').textContent='このキャラの関係図はありません。';return;}
+  const card=await db.doc('pcdir/'+cid).get(server);
+  if(!card.exists){$('message').textContent='このキャラの関係図はありません。';return;}
+  centre=card.data();owner=(centre.owners||[]).includes(auth.currentUser.uid);
+  editing=(owner||gm)&&view!=='public';
+  // Marks the map as existing (the GM list reads relmaps). Wait for it as before, so its snapshot does not redraw an open card,
+  // but never longer than 4 s: a slow or refused write must not keep the map from opening.
+  if(editing){const touch=db.doc('relmaps/'+cid).set({t:Date.now()}).catch(e=>console.debug('map touch',e));await Promise.race([touch,new Promise(r=>setTimeout(r,4000))]);}
+  $('map').hidden=false;$('heading').textContent=centre.name+'の関係図';
+  $('map').dataset.mode=editing?(owner?'edit':'gm'):'public';
+  $('mode').textContent=editing?(owner?'':'GM として編集している（すべての関係）'):'見るだけ（公開された関係だけ）';
+  if(!editing&&!owner&&!(gm&&view!=='public')&&view!=='public'){
+    $('message').textContent='このキャラの関係図を書けるのは、持ち主のブラウザだけです。VTT でこのキャラを使っているブラウザで開くか、合鍵を入れてください。';
+    keyBox({...centre,id:cid});
+  }
+  $('show-key').hidden=!owner;
+  $('add-npc').hidden=!editing;$('unlist').hidden=!(owner||gm);$('unlist-pc').disabled=!editing;
+  $('shape-choice').hidden=!editing;
+  if(editing){
+    const shape=shapeSelect($('shape-choice'),centre.shape);shape.id='own-shape';shape.onchange=()=>run(async()=>{await db.doc('pcdir/'+cid).update({shape:shape.value,t:Date.now()});});
+    const label=element('label','駒の縁の色',$('shape-choice')),ring=element('select',undefined,label);ring.id='own-ring';
+    for(const [value,text]of ringPalette){const option=element('option',text,ring);option.value=value;}
+    ring.value=centre.ring||'default';
+    ring.onchange=()=>run(async()=>{await db.doc('pcdir/'+cid).update({ring:ring.value,t:Date.now()});toast('登録完了');});
+  }
+  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js');
+  const cards=await Promise.all([directory('pcdir'),directory('npcdir')]);pcs=cards[0];npcs=cards[1];
+  await reloadLinks();
+  liveLinks();
+  honneOff=honneQuery().onSnapshot(s=>{setHonne(s);refreshVisibleHonne();},e=>{honneRows.clear();refreshVisibleHonne();console.debug('honne',e);});
+  for(const name of ['pcdir','npcdir'])directoryWatch.push(db.collection(name).onSnapshot(s=>{
+    const rows=s.docs.map(d=>({id:d.id,...d.data()}));if(name==='pcdir')pcs=rows.filter(d=>d.listed!==false);else npcs=rows;
+    refreshCards();watchReverse();
+  },e=>console.debug('directory live',e)));
+}
+function linkQuery(){const q=db.collection('relmaps/'+cid+'/links');return publicOnly(editing,gm&&view!=='public')?q.where('public','==',true):q;}
+const pcLive=new Map(),pcWatch=new Map();
+const reverseRows=new Map(),reverseWatch=new Map();
+const feelRows=new Map(),honneRows=new Map(),reverseHonne=new Map(),reverseHonneWatch=new Map();let honneOff;
+function honneQuery(){const q=db.collection('relmaps/'+cid+'/honne');return publicOnly(owner&&view!=='public',gm&&view!=='public')?q.where('public','==',true):q;}
+function setHonne(s){honneRows.clear();for(const d of s.docs)honneRows.set(d.id,d.data());}
+function visibleHonne(d){return honneRows.get(d.id);}
+function refreshVisibleHonne(){
+  for(const box of [$('node-card'),panel]){const field=box.querySelector?.('[data-own-honne]');if(field){const d=links.find(d=>d.id===box.dataset.relationId);const h=d&&visibleHonne(d);field.textContent=h?.text||'';field.parentNode.hidden=!h?.text;}}
+  refreshReversePanel();
+}
+let pcs=[],npcs=[];const directoryWatch=[],incomingSeen=new Map(),ownNPCs=new Map();
+function reverseFor(d){return reverseLink(d,reverseRows.get(d.target)||[],cid);}
+function watchReverse(){
+  const targets=new Set([...pcs.filter(d=>d.id!==cid&&d.listed!==false).map(d=>d.id),...linkCopies.filter(d=>d.kind==='pc').map(d=>d.target)]);
+  for(const [id,off]of reverseWatch)if(!targets.has(id)){off();reverseWatch.delete(id);reverseRows.delete(id);reverseHonneWatch.get(id)?.();reverseHonneWatch.delete(id);reverseHonne.delete(id);}
+  for(const id of targets)if(!reverseWatch.has(id))reverseWatch.set(id,
+    db.collection('relmaps/'+id+'/links').where('target','==',cid).where('public','==',true).limit(1).onSnapshot(s=>{
+      const rows=s.docs.map(d=>({...d.data(),id:d.id}));
+      if(rows.length&&!reverseRows.get(id)?.length)incomingSeen.set(id,Date.now());
+      reverseRows.set(id,rows);draw();refreshReversePanel();
+    },e=>{reverseRows.delete(id);console.debug('reverse public link',e);draw();refreshReversePanel();}));
+  for(const id of targets)if(!reverseHonneWatch.has(id))reverseHonneWatch.set(id,
+    db.collection('relmaps/'+id+'/honne').where('public','==',true).onSnapshot(s=>{
+      reverseHonne.set(id,new Map(s.docs.map(d=>[d.id,d.data()])));refreshReversePanel();
+    },e=>{reverseHonne.delete(id);refreshReversePanel();console.debug('reverse public honne',e);}));
+}
+function refreshReversePanel(){
+  const box=$('relation-reverse');if(!box)return;
+  const d=cardNode||[...links,...graphNodes].find(d=>panel.dataset.opener==='relation-'+d.id);if(!d)return;
+  box.replaceChildren();element('h3','相手から自分への思い',box);
+  const reverse=reverseFor(d);
+  if(!reverse){element('p','相手はまだ、こちらへの思いを公開していません。',box);return;}
+  for(const [key,title]of [['call','呼び方'],['label','関係'],['short','表面上'],['honne','本音'],['note','備考']]){
+    const h=reverseHonne.get(d.target)?.get(reverse.id),value=key==='honne'?(h?.public?h.text:''):key==='note'?relationNote(reverse):reverse[key];
+    if(value){element('h3',title,box);const p=element('p',value,box,'field-text');p.dataset.field=key;}
+  }
+}
+let linkCopies=[];
+function liveCard(copy,id){
+  const live=pcLive.get(id);
+  return {...copy,...(live?.name?{name:live.name}:{}),...(live?.face===null||safeFace(live?.face)?{face:live.face}:{}),...(live?{shape:shapeValue(live.shape),ring:live.ring}:{})};
+}
+function refreshCards(){
+  centre=liveCard(centre,cid);
+  if($('own-shape'))$('own-shape').value=shapeValue(centre.shape);
+  if($('own-ring'))$('own-ring').value=centre.ring||'default';
+  $('heading').textContent=centre.name+'の関係図';
+  links=linkCopies.map(copy=>{
+    if(copy.kind!=='pc')return copy;
+    const data=liveCard(copy,copy.target);
+    if(editing&&(data.name!==copy.name||data.face!==copy.face)){
+      db.doc('relmaps/'+cid+'/links/'+copy.id).update({name:data.name,face:data.face,t:Date.now()})
+        .then(()=>{copy.name=data.name;copy.face=data.face;}).catch(e=>console.debug('pcdir copy',e));
+    }
+    return data;
+  });
+  draw();
+}
+function watchCards(){
+  const targets=new Set([cid,...linkCopies.filter(d=>d.kind==='pc').map(d=>d.target)]);
+  for(const [id,off]of pcWatch)if(!targets.has(id)){off();pcWatch.delete(id);pcLive.delete(id);}
+  for(const id of targets)if(!pcWatch.has(id)){
+    pcWatch.set(id,db.doc('pcdir/'+id).onSnapshot(s=>{
+      pcLive.set(id,s.exists?s.data():null);refreshCards();
+    },e=>{pcLive.delete(id);console.debug('pcdir live',e);refreshCards();}));
+  }
+}
+async function reloadLinks(){
+  const generation=++refresh,[snapshot,honne,feel]=await Promise.all([linkQuery().get(server),honneQuery().get(server),
+    (owner||gm)&&view!=='public'?db.collection('relmaps/'+cid+'/feel').get(server).catch(e=>{if(e.code!=='permission-denied')throw e;return null;}):null]);
+  if(generation!==refresh)return;
+  const nextFeel=new Map((feel?.docs||[]).map(d=>[d.id,d.data()]));
+  const copies=snapshot.docs.map(doc=>({...doc.data(),id:doc.id}));
+  if((owner||gm)&&view!=='public'&&feel)await Promise.all(copies.map(async d=>{
+    const feeling=nextFeel.get(d.id)?.size??d.size,size=displayTier(d.gauge,feeling);
+    if(size===d.size)return;
+    const t=Date.now(),batch=db.batch();
+    // Preserve the old fallback before replacing size, so reopening cannot reinterpret the new tier as feel.
+    if(!nextFeel.has(d.id))batch.set(db.doc('relmaps/'+cid+'/feel/'+d.id),{size:feeling,t});
+    batch.update(db.doc('relmaps/'+cid+'/links/'+d.id),{size,t});
+    await batch.commit();
+    if(!nextFeel.has(d.id))nextFeel.set(d.id,{size:feeling,t});
+    Object.assign(d,{size,t});
+  }));
+  if(generation!==refresh)return;
+  setHonne(honne);
+  feelRows.clear();for(const [id,data]of nextFeel)feelRows.set(id,data);
+  linkCopies=copies;
+  for(const d of linkCopies)if(d.kind==='npc'&&!d.target)ownNPCs.set(d.id,{id:d.id,kind:'npc',target:'',name:d.name,face:d.face,shape:d.shape});
+  watchCards();refreshCards();watchReverse();
+}
+function draw(){
+  if(!centre)return;
+  const previous=new Map((simulation?.nodes()||[]).map(n=>[n.id,n]));
+  const oldTransform=svg?d3.zoomTransform(svg.node()):null;
+  simulation?.stop();cancelAnimationFrame(graphFrame);svg=d3.select('#graph');svg.selectAll('*').remove();
+  const w=$('graph').clientWidth,h=$('graph').clientHeight,narrow=w<=600,spread=narrow?1.35:1;
+  svg.classed('phone',narrow);
+  svg.attr('viewBox',[0,0,w,h]);layer=svg.append('g');
+  let zoomLevel=oldTransform?.k||1;
+  // Zoomed out, pieces and names grow back toward a readable size (2026-11-13, the GM: 「小さすぎて読めない」)
+  const nodeBoost=()=>(narrow?.75:1)*(zoomLevel<.9?Math.min(3.15,Math.pow(.9/zoomLevel,.7)):1);
+  const nodeTransform=d=>'translate('+d.x+','+d.y+')'+(nodeBoost()!==1?' scale('+nodeBoost()+')':'');
+  const captionVisibility=()=>layer.selectAll('.line-caption').style('display',d=>zoomLevel>=.8||highlighted===d.source.id||highlighted===d.target.id?null:'none');
+  zoom=d3.zoom().scaleExtent([.05,5]).on('start',reheat).on('zoom',e=>{layer.attr('transform',e.transform);const before=nodeBoost();zoomLevel=e.transform.k;layer.selectAll('.node').attr('transform',nodeTransform);renderGraph?.(0);if(narrow||nodeBoost()!==before){refreshGraphCollision?.();updateMotion(true);}captionVisibility();positionPopups();});svg.call(zoom).on('dblclick.zoom',null);
+  let lastTap=0;
+  svg.on('dblclick',e=>{if(e.target===$('graph')){e.preventDefault();fit();}}).on('click',e=>{if(e.target===$('graph')){close();pinnedHighlight=null;highlight(null);if(e.pointerType==='touch'&&Date.now()-lastTap<350)fit();lastTap=Date.now();}});
+  const characters=graphCharacters(cid,pcs.map(c=>liveCard(c,c.id)),npcs,links,reverseRows,[...ownNPCs.values()]);
+  const nodes=[{...centre,id:'centre',r:centreRadius(characters),x:previous.get('centre')?.x||0,y:previous.get('centre')?.y||0},...characters.map((d,i)=>{
+    const prev=previous.get(d.id)||[...previous.values()].find(n=>n.kind===d.kind&&n.target===d.target&&d.target);
+    const distance=spread*(d.connected?roomyDistance(d,d.incoming,centreRadius(characters),d.r,d.size):cloudDistance(i));
+    return {...d,...relationPosition(d,prev,distance,i*2.4)};
+  })];graphNodes=nodes;
+  svg.classed('large',nodes.length>60);
+  const edges=graphEdges(nodes.slice(1));
+  const defs=svg.append('defs');
+  // Filter backing paints a band without changing the measured name or piece bounds.
+  const nameBacking=defs.append('filter').attr('id','name-backing').attr('x','-5%').attr('y','-15%').attr('width','110%').attr('height','130%');
+  nameBacking.append('feFlood').attr('flood-color','var(--stage)').attr('flood-opacity',.92).attr('result','backing');
+  const nameMerge=nameBacking.append('feMerge');nameMerge.append('feMergeNode').attr('in','backing');nameMerge.append('feMergeNode').attr('in','SourceGraphic');
+  for(const [i,e]of edges.entries())for(const [side,r]of [['out',e.relation],['back',e.reverse]])if(r){const style=gaugeStyle(r.gauge);defs.append('marker').attr('id','arrow-'+i+'-'+side).attr('viewBox','0 -5 10 10').attr('refX',9).attr('refY',0).attr('markerWidth',9).attr('markerHeight',9).attr('markerUnits','userSpaceOnUse').attr('orient','auto-start-reverse').append('path').attr('d','M0,-5L10,0L0,5Z').attr('fill',style.color).attr('opacity',style.opacity);}
+  const line=layer.append('g').selectAll('line').data(edges).join('line').attr('class',d=>'relation-line'+(d.incomingOnly?' incoming-only':'' )).attr('data-id',d=>d.incomingOnly?d.source:d.relation.id)
+    .style('--line-tone',d=>gaugeStyle(d.relation.gauge).color).style('stroke',d=>gaugeStyle(d.relation.gauge).color).style('stroke-width',d=>gaugeStyle(d.relation.gauge).width).style('stroke-opacity',d=>gaugeStyle(d.relation.gauge).opacity)
+    .attr('data-gauge',d=>d.relation.gauge||0).attr('marker-end',(d,i)=>'url(#arrow-'+i+'-out)');
+  const reverseLine=layer.append('g').selectAll('line').data(edges.filter(d=>d.reverse)).join('line').attr('class','relation-line reverse-line').attr('data-id',d=>d.relation.id).attr('marker-end',d=>'url(#arrow-'+edges.indexOf(d)+'-back)').style('--line-tone',d=>gaugeStyle(d.reverse.gauge).color).style('stroke',d=>gaugeStyle(d.reverse.gauge).color).style('stroke-width',d=>gaugeStyle(d.reverse.gauge).width).style('stroke-opacity',d=>gaugeStyle(d.reverse.gauge).opacity);
+  const hits=layer.append('g').selectAll('line').data(edges).join('line').attr('class','line-hit');
+  const reverseHits=layer.append('g').selectAll('line').data(edges.filter(d=>d.reverse)).join('line').attr('class','line-hit reverse-hit');
+  for(const s of [line,hits,reverseHits])s.on('click',(e,d)=>{e.stopPropagation();if(Date.now()<suppressClickUntil){e.preventDefault();return;}pinnedHighlight=(d.incomingOnly?d.source:d.target).id;highlight(pinnedHighlight);});
+  reverseHits.on('click',(e,d)=>{e.stopPropagation();if(Date.now()<suppressClickUntil){e.preventDefault();return;}pinnedHighlight=d.target.id;highlight(pinnedHighlight);openLineEditor(d,null,true);});
+  contextActions(line,(e,d)=>openLineEditor(d));contextActions(hits,(e,d)=>openLineEditor(d));contextActions(reverseHits,(e,d)=>openLineEditor(d,null,true));
+  const captions=layer.append('g').selectAll('g').data(edges).join('g').attr('class','line-caption');
+  captions.append('text').attr('class','line-short outgoing').style('fill',d=>gaugeStyle(d.relation.gauge).color).attr('y',-8);
+  captions.append('text').attr('class','line-short incoming').style('fill',d=>gaugeStyle(d.reverse?.gauge).color).attr('y',18);
+  const node=layer.append('g').attr('class','node-layer').selectAll('g').data(nodes).join('g').attr('class',d=>'node'+(d.id==='centre'?' centre':!d.connected&&!d.incoming?' unconnected':'')+(d.incomingOnly?' incoming-node':''))
+    .attr('data-id',d=>d.id).attr('data-target',d=>d.target||null).attr('data-radius',d=>d.r).attr('data-shape',d=>shapeValue(d.shape)).attr('tabindex',0).attr('role','button').attr('aria-label',d=>d.name)
+    .on('pointerenter',(e,d)=>highlight(d.id)).on('pointerleave',()=>highlight(pinnedHighlight)).on('focus',(e,d)=>highlight(d.id)).on('blur',()=>highlight(pinnedHighlight))
+    .on('click',(e,d)=>{e.stopPropagation();if(Date.now()<suppressClickUntil){e.preventDefault();return;}close();pinnedHighlight=d.id;highlight(d.id);reheat();})
+    .on('keydown',(e,d)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();highlight(d.id);openNodeCard(d);}});
+  contextActions(node,(e,d)=>openNodeCard(d));
+  node.each(function(d,i){
+    const g=d3.select(this);
+    g.append('path').attr('class','body').attr('d',shapePath(d.shape,d.r));
+    if(safeFace(d.face)){defs.append('clipPath').attr('id','face-'+i).append('path').attr('d',shapePath(d.shape,d.r));g.append('image').attr('href',d.face).attr('x',-d.r).attr('y',-d.r).attr('width',d.r*2).attr('height',d.r*2).attr('preserveAspectRatio','xMidYMid slice').attr('clip-path','url(#face-'+i+')');}
+    else g.append('text').attr('class','initial').attr('dy','.35em').text(Array.from(d.name||'')[0]||'');
+    const colour=(d.id==='centre'||d.kind==='pc')?ringColour(d.ring):null,style=gaugeStyle((d.connected?d:d.incoming)?.gauge);
+    g.append('path').attr('class','ring').attr('d',shapePath(d.shape,d.r)).style('stroke',colour||(d.id==='centre'?null:style.color)).style('stroke-width',colour?(d.id==='centre'?3:style.width)+1:d.id==='centre'?null:style.width).style('stroke-opacity',colour?1:d.id==='centre'?null:style.opacity);
+    g.append('text').attr('class','node-name').attr('y',-d.r-12).text(d.name);
+    if(d.incomingOnly){const title=d.name+'から思いが届いています';g.attr('title',title).append('title').text(title);const started=incomingSeen.get(d.target);if(started)g.select('.ring').style('animation-delay',-(Date.now()-started)+'ms');}
+  });
+  function highlight(id){
+    highlighted=id;
+    const neighbours=id===null?null:highlightNeighbours(id,edges);
+    node.classed('dim',d=>!!neighbours&&!neighbours.has(d.id)).classed('active',d=>!!neighbours&&neighbours.has(d.id));
+    for(const selection of [line,reverseLine,captions])selection.classed('dim',d=>id!==null&&d.source.id!==id&&d.target.id!==id).classed('active',d=>id!==null&&(d.source.id===id||d.target.id===id));
+    captionVisibility();
+  }
+  focusNode=d=>{if(!d){highlight(null);return;}highlight(d.id);svg.call(zoom.transform,d3.zoomIdentity.translate(w/2-d.x,h/2-d.y));};
+  node.call(d3.drag().on('start',(e,d)=>{if(!e.active)setDragging(true);reheat();d.dragOrigin={x:d.x,y:d.y,fx:d.fx,fy:d.fy};d.dragMoved=false;d.fx=d.x;d.fy=d.y;highlight(d.id);})
+    .on('drag',(e,d)=>{d.dragMoved ||= Math.hypot(e.x-d.dragOrigin.x,e.y-d.dragOrigin.y)>3;d.fx=d.x=e.x;d.fy=d.y=e.y;reheat();renderGraph(0);})
+    .on('end',(e,d)=>{highlight(null);if(!d.dragMoved){d.fx=d.dragOrigin.fx;d.fy=d.dragOrigin.fy;if(!e.active)setDragging(false);return;}
+      const point=releasePiece(d);
+      if(d.id!=='centre'&&d.connected&&editing){
+        for(const rows of [links,linkCopies]){const l=rows.find(l=>l.id===d.id);if(l){l.x=point.x;l.y=point.y;}}
+        run(async()=>{await db.doc('relmaps/'+cid+'/links/'+d.id).update({...point,t:Date.now()});});
+      }
+      if(!e.active)setDragging(false);
+      // Connected drops settle immediately with motion off; the centre retains its return animation.
+      if(!e.active&&d.id!=='centre'&&!motionAllowed(motionPreference,!!reducedMotion?.matches,document.hidden))dragging=false;
+      reheat();updateMotion(true);
+    }));
+  let breath=0;
+  const collision=d3.forceCollide().radius(d=>pieceCollisionRadius(d,nodeBoost())).strength(1).iterations(4);
+  simulation=d3.forceSimulation(nodes).stop().velocityDecay(.28).force('link',centreLinkForce(edges,d=>spread*(d.incomingOnly?1.75*(290*1.3):roomyDistance(d.relation,d.reverse,d.source.r,d.target.r,d.size)),d=>d.incomingOnly?.14:.5))
+    .force('charge',preserveCentreVelocity(d3.forceManyBody().strength(d=>d.connected||d.id==='centre'?-240:-55))).force('collision',preserveCentreVelocity(collision))
+    .force('preference',preferenceForce())
+    .force('cloud',d3.forceRadial(d=>spread*cloudDistance(nodes.indexOf(d))).strength(d=>d.id!=='centre'&&!d.connected?(d.incomingOnly?.005:.018):0))
+    .force('anchor',()=>{const c=nodes[0];if(c.fx==null){c.vx-=c.x*.012;c.vy-=c.y*.012;}})
+    .force('breath',()=>{if(!moving())return;breath+=.008;for(let i=0;i<nodes.length;i++){const d=nodes[i];if(d.fx==null){d.vx+=Math.sin(breath+i*2.4)*.012;d.vy+=Math.cos(breath*.8+i*2.4)*.012;}}})
+    .force('labels',labelSeparationForce(nodeBoost));
+  refreshGraphCollision=()=>{
+    node.each(function(d){d.labelBox=d3.select(this).select('.node-name').node().getBBox();});
+    collision.radius(d=>pieceCollisionRadius(d,nodeBoost()));reheat();
+  };
+  renderGraph=time=>{
+      const fontScale=textSizeSettings.graph.scales[textSizeValues.graph];
+      for(const d of edges)Object.assign(d,edgeGeometry(d,nodeBoost(),fontScale,6/zoomLevel));
+      defs.selectAll('marker').attr('markerWidth',12/zoomLevel).attr('markerHeight',12/zoomLevel).select('path').attr('opacity',1);
+      if(narrow){
+        node.select('.node-name').style('font-size',d=>(d.id==='centre'?14:12)*fontScale/(zoomLevel*nodeBoost())+'px');
+      }else node.select('.node-name').style('font-size',d=>(d.id==='centre'?16:15)*fontScale/Math.min(1,zoomLevel*nodeBoost())+'px');
+      const growth=d=>d.incomingOnly&&motionAllowed(motionPreference,!!reducedMotion?.matches,document.hidden)?Math.min(1,Math.max(0,(Date.now()-(incomingSeen.get(d.source.target)||0))/700)):1;
+      line.attr('x1',d=>d.outStart.x).attr('y1',d=>d.outStart.y).attr('x2',d=>d.outStart.x+(d.outEnd.x-d.outStart.x)*growth(d)).attr('y2',d=>d.outStart.y+(d.outEnd.y-d.outStart.y)*growth(d));
+      reverseLine.attr('x1',d=>d.backStart.x).attr('y1',d=>d.backStart.y).attr('x2',d=>d.backEnd.x).attr('y2',d=>d.backEnd.y);
+      hits.attr('x1',d=>d.outStart.x).attr('y1',d=>d.outStart.y).attr('x2',d=>d.outEnd.x).attr('y2',d=>d.outEnd.y);
+      reverseHits.attr('x1',d=>d.backStart.x).attr('y1',d=>d.backStart.y).attr('x2',d=>d.backEnd.x).attr('y2',d=>d.backEnd.y);
+      captions.attr('transform',d=>'translate('+((d.start.x+d.end.x)/2)+','+((d.start.y+d.end.y)/2)+') rotate('+d.angle+')');
+      captions.each(function(d){const g=d3.select(this),slots=shortSlots(d,fontScale);for(const [side,value]of [['outgoing',d.relation.short],['incoming',d.reverse?.short]]){
+        const t=g.select('.'+side),slot=slots[side];t.attr('x',slot?.x||0).attr('y',slot?.y||0);
+        t.text(truncateShort(slot?value:'',slot?.width||0,s=>{t.text(s);return t.node().getComputedTextLength();}));
+      }});
+      node.select('.node-name').attr('y',d=>-d.r-12*fontScale/(narrow?zoomLevel*nodeBoost():Math.min(1,zoomLevel*nodeBoost())));
+      node.attr('transform',nodeTransform);
+      node.classed('arriving',d=>d.incomingOnly&&Date.now()-(incomingSeen.get(d.target)||0)<2100);
+      positionPopups();
+    };
+  renderGraph(0);refreshGraphCollision();updateMotion(true);highlight(highlighted&&nodes.some(n=>n.id===highlighted)?highlighted:null);
+  $('empty').hidden=links.length!==0||!editing;
+  if(oldTransform)svg.call(zoom.transform,oldTransform);else fit();
+}
+function fit(){
+  if(!layer)return;
+  if(svg.classed('phone')){
+    // Fit measured display bounds, including screen-sized names, below the controls.
+    // The model's radii, gauges and saved positions remain untouched.
+    const w=$('graph').clientWidth,h=$('graph').clientHeight;
+    const top=Math.max(90,$('controls').getBoundingClientRect().bottom+24),pad=18;
+    const bottomLimit=$('legend').hidden?h:Math.min(h,$('legend').getBoundingClientRect().top-pad);
+    for(let pass=0;pass<8;pass++){
+      renderGraph(0);refreshGraphCollision();simulation.alpha(.35).tick(160);renderGraph(0);
+      const boxes=[];layer.selectAll('.node').each(function(d){
+        const b=this.getBBox(),s=this.transform.baseVal.consolidate().matrix.a;
+        boxes.push({left:d.x+b.x*s,right:d.x+(b.x+b.width)*s,top:d.y+b.y*s,bottom:d.y+(b.y+b.height)*s});
+      });
+      const left=Math.min(...boxes.map(b=>b.left)),right=Math.max(...boxes.map(b=>b.right)),upper=Math.min(...boxes.map(b=>b.top)),bottom=Math.max(...boxes.map(b=>b.bottom));
+      const k=Math.min(2,(w-2*pad)/(right-left),(bottomLimit-top-pad)/(bottom-upper));
+      svg.call(zoom.transform,d3.zoomIdentity.translate(w/2-k*(left+right)/2,top+(bottomLimit-top-pad)/2-k*(upper+bottom)/2).scale(k));
+    }
+    renderGraph(0);return;
+  }
+  for(let pass=0;pass<8;pass++){
+    renderGraph(0);refreshGraphCollision();simulation.alpha(.35).tick(160);renderGraph(0);
+    const nodes=[];layer.selectAll('.node').each(function(d){
+      const b=this.getBBox(),s=this.transform.baseVal.consolidate().matrix.a;
+      nodes.push({...d,bounds:{x:b.x*s,y:b.y*s,width:b.width*s,height:b.height*s}});
+    });
+    const t=fitView(nodes,$('graph').clientWidth,$('graph').clientHeight);svg.call(zoom.transform,d3.zoomIdentity.translate(t.x,t.y).scale(t.k));
+  }
+  renderGraph(0);
+}
+function editRelation(d){
+  if(panel.open&&panel.dataset.opener==='relation-'+d.id){close();return;}
+  close();panel.dataset.opener='relation-'+d.id;element('h2',d.name+'との関係',panel);
+  panel.className='drawer';panel.show();
+  relationForm(panel,d,false);
+  closer();
+}
+function openNodeCard(d){
+  if(d.id==='centre')return;
+  if(cardNode?.id===d.id){closeCard();return;}
+  close();cardNode=d;const box=$('node-card');box.hidden=false;
+  element('h2',d.name,box);button('×',box,closeCard,'card-close').setAttribute('aria-label','閉じる');
+  relationForm(box,d,true);positionPopups();
+}
+function gaugeControl(form,value,onchange){
+  const box=element('div',undefined,form),label=element('label','好意と敵意',box);label.htmlFor='relation-gauge';
+  element('p','プラスほど近く、マイナスほど遠くに置かれます。ふつうは -100 から +100 まで。',box,'hint');
+  const slider=element('input',undefined,box);slider.id='relation-gauge-slider';slider.type='range';slider.min=-100;slider.max=100;slider.step='any';slider.setAttribute('aria-label','好意と敵意');
+  const number=element('input',undefined,box);number.id='relation-gauge';number.type='number';number.step='any';number.required=true;number.value=value??0;number.setAttribute('aria-label','好意と敵意');
+  const output=element('output','',box,'gauge-number');output.id='relation-gauge-value';
+  const warning=element('p','',box,'gauge-warning');warning.id='relation-gauge-warning';warning.setAttribute('role','status');
+  const update=()=>{const n=Number(number.value);slider.value=Math.max(-100,Math.min(100,n));output.textContent=signed(n);warning.textContent=gaugeWarning(n);warning.hidden=!warning.textContent;onchange?.();};
+  number.oninput=update;slider.oninput=()=>{number.value=slider.value;update();};update();return number;
+}
+function relationForm(container,d,compact){
+  const saved=links.find(l=>l.id===d.id),honne=visibleHonne(d),fields={},limits={call:20,label:20,short:20,honne:1000,note:2000};
+  const values=saved||d.connected!==false?{...d,note:relationNote(d),honne:honne?.text||''}:{...d,call:'',label:'',short:'',note:'',honne:'',gauge:0,size:1,public:false};
+  container.dataset.relationId=d.id;
+  if(!editing&&!saved&&d.connected===false)element('p','まだ関係が書かれていません。',container,'hint');
+  const form=element('form',undefined,container),extras=[];let gauge,size,pub,honnePublic,save;
+  function section(kind,title,parent=form){const box=element('details',undefined,parent,'relation-field');box.dataset.fold=kind;box.open=readFolds()[kind]!==true;element('summary',title,box);box.ontoggle=()=>writeFold(kind,box.open);return box;}
+  function updateCounters(){let over=false;for(const [key,e]of Object.entries(fields)){const state=counterState(e.value,limits[key]);const out=$('relation-'+key+'-count');out.textContent=state.text;out.classList.toggle('over-limit',state.over);over ||= state.over;}
+    for(const row of extras)for(const [key,max]of [['name',20],['text',500]]){const state=counterState(row[key].value,max);row[key+'Count'].textContent=state.text;row[key+'Count'].classList.toggle('over-limit',state.over);over ||= state.over;}
+    const n=gauge?Number(gauge.value):0;over ||= !!gauge&&(String(gauge.value).trim()===''||!Number.isFinite(n)||Math.abs(n)>1000000000);if(save)save.disabled=over;return !over;}
+  for(const [key,title,placeholder,type]of [
+    ['call','呼び方','相手を何と呼ぶか（20字まで）','text'],
+    ['label','関係','相棒、借りがある、仇など（20字まで）','text'],
+    ['short','表面上','線の上に出る一言（20字まで）','text'],
+    ['honne','本音','口には出さない本当の気持ち','textarea'],
+    ['note','備考','出会ったきっかけや、覚えておきたいこと','textarea']]){
+    // The section heading already shows the title, so the field itself carries it only for screen readers; the counter sits in the heading.
+    if(editing){const body=section(key,title),e=input(body,'',type,values[key],limits[key]);e.id='relation-'+key;e.placeholder=placeholder;e.setAttribute('aria-label',title);fields[key]=e;
+      const count=element('output','',body.querySelector('summary'),'hint');count.id='relation-'+key+'-count';e.oninput=updateCounters;
+      if(key==='honne'){const l=element('label',undefined,body);honnePublic=element('input',undefined,l);honnePublic.id='relation-honne-public';honnePublic.type='checkbox';honnePublic.checked=!!honne?.public;l.append('本音もほかの PL に見せる');element('p','チェックを外しているあいだ、本音はあなたと GM だけが見られます。関係を公開していても、本音は別です。',body,'hint');}
+    }else if((saved||d.connected!==false)&&(values[key]||key==='honne')){const section=element('section',undefined,form);section.hidden=!values[key];element('h3',title,section);const p=element('p',values[key]||'',section,'field-text');p.dataset.field=key;if(key==='honne')p.dataset.ownHonne='true';}
+    if(key==='label'&&editing)gauge=gaugeControl(section('gauge','好意と敵意'),values.gauge,updateCounters);
+  }
+  if(editing){
+    const list=element('div',undefined,form);list.id='relation-extra';
+    const add=button('＋ 欄を足す',form,()=>addExtra({name:'',text:''}),'relation-extra-add');
+    add.onclick=()=>addExtra({name:'',text:''});
+    const hint=element('p','足せる欄は5つまでです。',form,'hint');
+    const updateLimit=()=>{add.disabled=extras.length>=5;hint.hidden=!add.disabled;};
+    function addExtra(value){
+      if(extras.length>=5)return;
+      const box=section('extra',value.name||'欄'+(extras.length+1),list),row={box};
+      for(const [key,type,max,placeholder]of [['name','text',20,'欄の名前（20字まで）'],['text','textarea',500,'中身（500字まで）']]){
+        const e=element(type==='textarea'?'textarea':'input',undefined,box);if(type!=='textarea')e.type=type;e.value=value[key]||'';e.maxLength=max;e.placeholder=placeholder;e.setAttribute('aria-label',placeholder);e.dataset.extra=key;row[key]=e;row[key+'Count']=element('output','',box,'hint');e.oninput=()=>{if(key==='name')box.querySelector('summary').textContent=e.value||'欄'+(extras.indexOf(row)+1);updateCounters();};
+      }
+      button('消す',box,()=>{extras.splice(extras.indexOf(row),1);box.remove();updateLimit();updateCounters();}).setAttribute('aria-label','この欄を消す');
+      extras.push(row);updateLimit();updateCounters();
+    }
+    for(const value of values.extra||[])addExtra(value);updateLimit();
+  }else if(saved||d.connected!==false){for(const value of values.extra||[]){const box=element('section',undefined,form);element('h3',value.name,box);element('p',value.text,box,'field-text');}}
+  if(editing){
+    const feel=feelRows.get(d.id)?.size??values.size??1;
+    const sizeBody=section('size','思いの大きさ');size=input(sizeBody,'思いの大きさ','range',feel);size.id='relation-size';size.min=1;size.max=5;size.step=1;
+    const ends=element('div',undefined,sizeBody,'row');element('span','小さい',ends);const output=element('output',String(feel),ends);element('span','大きい',ends);size.oninput=()=>output.textContent=size.value;
+    const shape=!compact&&d.kind==='npc'&&!d.target?shapeSelect(form,d.shape):null;if(shape)shape.id='relation-shape';
+    const label=element('label',undefined,form);pub=element('input',undefined,label);pub.type='checkbox';pub.id='relation-public';pub.checked=!!values.public;label.append('ほかの PL にも見せる');
+    element('p','チェックを外しているあいだは、あなたと GM だけが見られます。',form,'hint');
+    save=element('button','登録',form);save.type='submit';save.id='relation-save';
+    form.onsubmit=e=>{e.preventDefault();if(!updateCounters())return;run(async()=>{
+      const data={kind:d.kind,target:d.target,name:d.name,face:faceCap(d.face),call:fields.call.value,label:fields.label.value,short:fields.short.value,note:fields.note.value,gauge:Number(gauge.value),size:+size.value,public:pub.checked,t:Date.now(),shape:shapeValue(shape?shape.value:d.shape)};
+      data.extra=normaliseExtra(extras.map(row=>({name:row.name.value,text:row.text.value})));
+      for(const k of ['x','y'])if(data.gauge===(saved?.gauge||0)&&Number.isFinite(saved?.[k]))data[k]=saved[k];
+      data.amount=writtenAmount(data,fields.honne.value);if(!validLink(data))throw Error('Invalid link');
+      const ref=saved||ownNPCs.has(d.id)?db.doc('relmaps/'+cid+'/links/'+d.id):db.collection('relmaps/'+cid+'/links').doc(),batch=db.batch();
+      const feel=data.size;
+      await db.doc('relmaps/'+cid+'/feel/'+ref.id).set({size:feel,t:data.t});
+      data.size=displayTier(data.gauge,feel);
+      batch.set(ref,data);const h=db.doc('relmaps/'+cid+'/honne/'+ref.id);
+      if(fields.honne.value)batch.set(h,{text:fields.honne.value,public:honnePublic.checked,t:data.t});else batch.delete(h);
+      await batch.commit();const warning=gaugeWarning(data.gauge);close();highlighted=pinnedHighlight=null;await reloadLinks();toast(warning||'登録完了');
+    },save);};
+    if(saved)button('この関係を消す',form,async()=>{if(confirm(d.name+'との関係を消します。よろしいですか？')){const batch=db.batch();batch.delete(db.doc('relmaps/'+cid+'/links/'+d.id));batch.delete(db.doc('relmaps/'+cid+'/honne/'+d.id));await batch.commit();await db.doc('relmaps/'+cid+'/feel/'+d.id).delete().catch(()=>{});close();highlighted=pinnedHighlight=null;await reloadLinks();toast('削除完了');}},'relation-delete').className='danger';
+    if(compact)button('くわしく直す',form,()=>editRelation(d),'relation-details');
+    updateCounters();
+  }else if(saved||d.connected!==false){element('h3','好意と敵意',form);element('p',signed(d.gauge||0),form,'gauge-number');}
+  if(d.kind==='pc'&&(editing||saved||d.connected!==false||reverseFor(d))){element('section',undefined,container).id='relation-reverse';refreshReversePanel();}
+}
+function openLineEditor(edge,point,reverseHalf=false){
+  const node=edge.incomingOnly?edge.source:edge.target;
+  if(!editing||edge.incomingOnly||reverseHalf){openNodeCard(node);return;}
+  close();lineRelation=edge.relation.id;const box=$('line-editor');box.hidden=false;const form=element('form',undefined,box);
+  const field=element('input',undefined,form);field.id='line-short';field.maxLength=20;field.value=edge.relation.short||'';field.placeholder='表面上の一言（20字まで）';field.setAttribute('aria-label','表面上');
+  const count=element('output','',form,'hint'),save=element('button','登録',form);save.type='submit';save.id='line-save';
+  button('やめる',form,closeLine,'line-cancel');field.oninput=()=>{const s=counterState(field.value,20);count.textContent=s.text;save.disabled=s.over;};field.oninput();
+  form.onsubmit=e=>{e.preventDefault();if(save.disabled)return;run(async()=>{const d=links.find(l=>l.id===lineRelation);if(!d)return;
+    const short=field.value,amount=writtenAmount({...d,short,note:relationNote(d)},visibleHonne(d)?.text||'');
+    await db.doc('relmaps/'+cid+'/links/'+d.id).update({short,amount,t:Date.now()});closeLine();await reloadLinks();toast('登録完了');
+  },save);};field.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();form.requestSubmit();}};positionPopups();field.focus();
+}
+function contextActions(selection,open){
+  let timer,start;
+  const cancel=()=>{clearTimeout(timer);timer=null;};
+  selection.on('contextmenu',(e,d)=>{e.preventDefault();e.stopPropagation();cancel();const touch=e.pointerType==='touch'||e.sourceCapabilities?.firesTouchEvents;if(touch&&Date.now()<suppressClickUntil)return;if(touch)suppressClickUntil=Date.now()+1000;open(e,d);})
+    .on('pointerdown.longpress',(e,d)=>{cancel();if(e.pointerType!=='touch')return;start={x:e.clientX,y:e.clientY};timer=setTimeout(()=>{timer=null;suppressClickUntil=Date.now()+1000;open(e,d);},500);})
+    .on('pointermove.longpress',e=>{if(start&&Math.hypot(e.clientX-start.x,e.clientY-start.y)>8)cancel();})
+    .on('pointerup.longpress pointercancel.longpress pointerleave.longpress',cancel);
+}
+async function addRelation(kind,data,target=''){
+  const link={kind,target,name:data.name,face:faceCap(data.face),note:'',size:1,amount:0,gauge:0,public:false,t:Date.now(),...(data.shape?{shape:shapeValue(data.shape)}:{})};
+  if(!validLink(link))throw Error('Invalid link');
+  const batch=db.batch(),ref=db.collection('relmaps/'+cid+'/links').doc();batch.set(ref,link);batch.set(db.doc('relmaps/'+cid),{t:Date.now()});await batch.commit();
+  close();await reloadLinks();editRelation({...link,id:ref.id});
+}
+function npcForm(manage=false){
+  const opener=manage?'npc-directory-add':'add-npc';if(panel.open&&panel.dataset.opener===opener){close();return;}
+  close();panel.dataset.opener=opener;element('h2',manage?'NPC を一覧に足す':'NPC を足す',panel);panel.show();const form=element('form',undefined,panel);
+  const name=input(form,'NPC の名前','text','',60);name.id='npc-name';name.required=true;
+  const image=input(form,'顔の画像（なくてもよい）','file');image.id='npc-face';image.accept='image/*';
+  element('p','画像は小さく縮めて保存します。',form,'hint');
+  const note=manage?input(form,'思い','textarea','',1000):null;
+  const shape=shapeSelect(form);shape.id='npc-shape';
+  const submit=element('button','足す',form);submit.type='submit';submit.id='npc-add';
+  form.onsubmit=e=>{e.preventDefault();run(async()=>{
+    if(!name.value.trim()){name.focus();return;}
+    let face=null;if(image.files[0]){const url=URL.createObjectURL(image.files[0]);try{face=await resizeFace(url);}finally{URL.revokeObjectURL(url);}}
+    const data={name:name.value.trim(),face,shape:shape.value};
+    if(manage){await db.collection('npcdir').add({...data,note:note.value,t:Date.now()});close();await npcManagement($('npc-directory'));toast('保存完了');}
+    else await addRelation('npc',data);
+  },submit);};closer();
+}
+$('add-npc').onclick=()=>npcForm();
+$('more').onclick=()=>{$('more-menu').hidden=!$('more-menu').hidden;$('more').setAttribute('aria-expanded',String(!$('more-menu').hidden));};
+$('more-close').onclick=()=>{$('more-menu').hidden=true;$('more').setAttribute('aria-expanded','false');};
+keyField($('gm-key'));
+$('gm-key-form').onsubmit=e=>{e.preventDefault();run(async()=>{
+  $('gm-key-error').textContent='';
+  try{
+    await claimGM($('gm-key').value);$('gm-key').value='';
+    if(cid)openMap(cid,'gm');else location.reload();
+  }catch(e){if(/(^|\/)permission-denied$/.test(e.code||''))$('gm-key-error').textContent='合鍵が違います。';else throw e;}
+},$('gm-key-go'));};
+$('search').oninput=()=>{const q=$('search').value.normalize('NFKC').toLowerCase().trim();focusNode(q?graphNodes.find(n=>n.name.normalize('NFKC').toLowerCase().includes(q)):null);};
+$('show-key').onclick=showKey;
+// The colour-and-controls note: closed with its ×, reopened (or closed) from その他; the choice is remembered per browser.
+function setLegend(on){$('legend').hidden=!on;try{localStorage.setItem('relmap-legend',on?'on':'off');}catch{}}
+{let pref='on';try{pref=localStorage.getItem('relmap-legend')||'on';}catch{}$('legend').hidden=pref==='off';}
+$('legend-close').onclick=()=>setLegend(false);$('legend-open').onclick=()=>setLegend($('legend').hidden);$('legend-open').hidden=!cid;
+$('zoom-in').onclick=()=>svg?.call(zoom.scaleBy,1.3);$('zoom-out').onclick=()=>svg?.call(zoom.scaleBy,1/1.3);$('fit').onclick=fit;
+$('unlist-pc').onclick=()=>run(async()=>{if(confirm(centre.name+'を PC の一覧から外します。よろしいですか？')){await db.doc('pcdir/'+cid).update({listed:false,t:Date.now()});toast('削除完了');}},$('unlist-pc'));
+let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(svg){if(svg.classed('phone')!==($('graph').clientWidth<=600)){draw();fit();return;}svg.attr('viewBox',[0,0,$('graph').clientWidth,$('graph').clientHeight]);fit();}},150);});
+window.addEventListener('pagehide',()=>{cancelAnimationFrame(graphFrame);graphFrame=0;simulation?.stop();honneOff?.();linksOff?.();for(const off of pcWatch.values())off();pcWatch.clear();for(const off of reverseWatch.values())off();reverseWatch.clear();for(const off of reverseHonneWatch.values())off();reverseHonneWatch.clear();for(const off of directoryWatch)off();});
+if(location.protocol==='file:'&&!window.__RELMAP_EMU)$('message').textContent='このページはファイルとして開かれているので、関係図を使えません。配布の URL から開いてください。';
+else run(async()=>{await connect();if(cid)await map();else await home();try{const message=sessionStorage.getItem('relmap-gm-toast');if(message){sessionStorage.removeItem('relmap-gm-toast');toast(message==='1'?'GM の登録完了':message);}}catch{}});
+</script>
+</html>
