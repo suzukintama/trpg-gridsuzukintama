@@ -113,6 +113,7 @@ python3 gen_v10.py             # 1ファイル1音に分ける（着弾・跳弾
 python3 level_pack.py --apply  # 最後に必ず実行。全ファイルに耳を守る音量上限をかける（引数なしなら測るだけ）
 python3 check_loudness.py      # 全ファイルが上限内か確かめる
 python3 build_index.py         # 試聴ページを作り直す
+python3 site/make_site.py <出力先>  # スマホ向け試聴サイト（claude.ai のページ用）。MP3 をそのまま a/ にコピーし、公開用の分割リストも出す
 SFX_QA=/tmp/qa python3 gen_guns.py   # 波形とスペクトログラムのPNGも出力する
 ```
 

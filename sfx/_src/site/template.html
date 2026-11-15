@@ -1,5 +1,3 @@
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>サイバーパンク効果音パック</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +21,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 header.top{padding-block:22px 6px}
 h1{font:700 26px/1.2 var(--display);letter-spacing:.04em;margin:0;text-wrap:balance}
 h1 span{color:var(--cyan)}
-.lead{color:var(--fg2);font-size:13.5px;margin:8px 0 0}
+.lead{color:var(--fg2);font-size:13.5px;margin:8px 0 0;max-width:62ch}
+.lead .tag{font-size:10px;vertical-align:1px}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding-block:10px 0}
 .search{display:flex;gap:8px;align-items:center}
 .search input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:10px 12px;font:15px var(--body)}
@@ -46,7 +45,7 @@ section h2 small{font:400 12px var(--mono);color:var(--fg2)}
 .icon svg{width:14px;height:14px;fill:currentColor}
 .txt{min-width:0}
 .name{font-weight:700;font-size:15px;overflow-wrap:anywhere}
-.note{color:var(--fg2);font-size:12.5px;line-height:1.5;margin-top:2px}
+.note{display:block;color:var(--fg2);font-size:12.5px;line-height:1.5;margin-top:2px}
 .meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .len{font:12px var(--mono);color:var(--fg2);font-variant-numeric:tabular-nums}
 .tag{font:500 10.5px var(--mono);color:var(--amber);border:1px solid currentColor;border-radius:4px;padding:0 5px;letter-spacing:.04em}
@@ -75,7 +74,7 @@ section h2 small{font:400 12px var(--mono);color:var(--fg2)}
 <div class="wrap">
   <header class="top">
     <h1>サイバーパンク<span>効果音</span>パック</h1>
-    <p class="lead">行をタップすると鳴り、もう一度タップすると止まります。音が出ないときは、本体の音量を上げてください。環境音ループは、下のループのボタンをオンにすると繰り返し鳴ります。</p>
+    <p class="lead">全__TOTAL__音。行をタップすると鳴り、もう一度タップすると止まります。<span class="tag">LOOP</span> の付いた環境音は、つなぎ目なしで繰り返し鳴ります。音量はどのファイルも耳を守る上限内にそろえてあります。音が出ないときは、本体の音量とマナーモードを確かめてください。</p>
   </header>
 </div>
 <div class="bar"><div class="wrap">
@@ -102,35 +101,177 @@ const DATA = __DATA__;
 const PLAY = '<svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6z"/></svg>';
 const PAUSE = '<svg viewBox="0 0 16 16"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg>';
 const $ = id => document.getElementById(id);
+
+/* Two ways to play. One-shots stream through <audio>. Loops are decoded and played
+   through Web Audio, which repeats a buffer with no gap at the seam; <audio> pauses
+   for a moment every time it jumps back to the start. */
 const audio = new Audio();
 audio.preload = 'none';
+const AC = window.AudioContext || window.webkitAudioContext;
+let ctx = null;
+const cache = new Map();          // file -> Promise<AudioBuffer>, the last few loops
 let cur = null, curRow = null, cat = 'all';
+let mode = 'el';                  // 'el' = <audio>, 'buf' = Web Audio
+let src = null, buf = null, region = [0, 0], t0 = 0, pos = 0, playing = false, loopOn = false, loading = false, raf = 0;
 
 function fmt(s){ if(!isFinite(s)) s = 0; s = Math.floor(s); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+
+function ensureCtx(){
+  if (!AC) return null;
+  try {
+    if (!ctx){
+      // let Web Audio play with the iPhone ringer switch on silent, like <audio> does
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(e){}
+      ctx = new AC();
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+  } catch(e){ ctx = null; }
+  return ctx;
+}
+
+function getBuf(f){
+  if (!cache.has(f)){
+    const p = fetch(f).then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then(ab => new Promise((ok, bad) => ctx.decodeAudioData(ab, ok, bad)));
+    p.catch(() => cache.delete(f));
+    cache.set(f, p);
+    while (cache.size > 3) cache.delete(cache.keys().next().value);
+  }
+  return cache.get(f);
+}
+
+function isPaused(){ return mode === 'el' ? audio.paused : !playing; }
+function length(){ return mode === 'el' ? (audio.duration || (cur ? cur.t : 0)) : region[1]; }
+function position(){
+  if (mode === 'el') return audio.currentTime;
+  if (!playing) return pos;
+  const e = ctx.currentTime - t0;
+  return loopOn ? e % region[1] : Math.min(e, region[1]);
+}
+
+function ui(){
+  const d = length(), p = position();
+  $('fill').style.width = (d ? Math.min(1, p / d) * 100 : 0) + '%';
+  $('ptime').textContent = fmt(p) + ' / ' + fmt(d);
+}
+function tick(){ ui(); cancelAnimationFrame(raf); if (!isPaused()) raf = requestAnimationFrame(tick); }
+
+function setIcons(){
+  const paused = isPaused() && !loading;
+  if (curRow) curRow.querySelector('.icon').innerHTML = paused ? PLAY : PAUSE;
+  $('pp').innerHTML = paused ? PLAY : PAUSE;
+  $('pp').setAttribute('aria-label', paused ? '再生' : '一時停止');
+  tick();
+}
+
+function stopSrc(){
+  if (src){ src.onended = null; try { src.stop(); } catch(e){} src.disconnect(); src = null; }
+  playing = false;
+}
+
+function startBuf(p){
+  stopSrc();
+  const s = ctx.createBufferSource();
+  s.buffer = buf;
+  s.loop = loopOn;
+  if (loopOn){ s.loopStart = region[0]; s.loopEnd = region[0] + region[1]; }
+  s.connect(ctx.destination);
+  s.onended = () => { if (src === s){ src = null; playing = false; pos = 0; setIcons(); } };
+  s.start(0, region[0] + Math.max(0, Math.min(p, region[1] - 0.01)));
+  src = s; t0 = ctx.currentTime - p; playing = true;
+  setIcons();
+}
+
+function play(){
+  $('pname').classList.remove('msg');
+  if (mode === 'el'){ audio.play().catch(fail); return; }
+  if (ensureCtx() && buf) startBuf(pos >= region[1] ? 0 : pos);
+}
+function pause(){
+  if (mode === 'el'){ audio.pause(); return; }
+  pos = position(); stopSrc(); setIcons();
+}
+
+async function load(it){
+  // switch the player to a new sound and start it
+  audio.pause(); audio.removeAttribute('src'); stopSrc();
+  buf = null; pos = 0; loopOn = it.l;
+  $('loop').setAttribute('aria-pressed', loopOn);
+  $('pname').textContent = it.n;
+  mode = (it.l && ensureCtx()) ? 'buf' : 'el';
+  if (mode === 'el'){
+    audio.src = it.f; audio.loop = loopOn;
+    audio.play().catch(fail);
+    return;
+  }
+  loading = true; setIcons();
+  $('pname').textContent = it.n + '（読み込み中）';
+  try {
+    const b = await getBuf(it.f);
+    if (cur !== it) return;
+    buf = b;
+    // The MP3 has encoder padding. Most browsers trim it while decoding; where one
+    // does not, skip the standard LAME delay so the loop still lands on its seam.
+    const L = it.x || b.duration, extra = b.duration - L;
+    region = [extra > 0.01 ? Math.min(1105 / 48000, extra) : 0, Math.min(L, b.duration)];
+    loading = false;
+    $('pname').textContent = it.n;
+    startBuf(0);
+  } catch(e){
+    if (cur !== it) return;
+    loading = false; mode = 'el';         // fall back to plain <audio>
+    $('pname').textContent = it.n;
+    audio.src = it.f; audio.loop = loopOn;
+    audio.play().catch(fail);
+  }
+}
+
+function toggle(it, row){
+  ensureCtx();
+  if (cur === it){
+    if (loading) return;
+    if (isPaused()) play(); else pause();
+    return;
+  }
+  if (curRow){ curRow.classList.remove('on'); curRow.querySelector('.icon').innerHTML = PLAY; }
+  cur = it; curRow = row; row.classList.add('on');
+  load(it);
+}
+
+function fail(e){
+  if (e && e.name === 'AbortError') return;
+  $('pname').textContent = '再生できませんでした。もう一度タップしてください';
+  $('pname').classList.add('msg');
+  setIcons();
+}
 
 function render(){
   const q = $('q').value.trim().toLowerCase();
   const list = $('list'); list.textContent = '';
   let n = 0;
+  curRow = null;
   for (const g of DATA){
     if (cat !== 'all' && g.k !== cat) continue;
     const items = g.items.filter(it => !q || (it.n + ' ' + it.d + ' ' + g.c).toLowerCase().includes(q));
     if (!items.length) continue;
     n += items.length;
     const sec = document.createElement('section');
-    sec.innerHTML = `<h2>${g.c}<small>${items.length}</small></h2>`;
+    const h = document.createElement('h2'); h.textContent = g.c;
+    const sm = document.createElement('small'); sm.textContent = items.length; h.appendChild(sm);
+    sec.appendChild(h);
     const box = document.createElement('div'); box.className = 'list';
     for (const it of items){
       const b = document.createElement('button');
-      b.className = 'row' + (cur === it ? ' on' : '');
-      b.innerHTML = `<span class="icon">${cur === it && !audio.paused ? PAUSE : PLAY}</span>
+      const on = cur === it;
+      b.className = 'row' + (on ? ' on' : '');
+      b.innerHTML = `<span class="icon">${on && (!isPaused() || loading) ? PAUSE : PLAY}</span>
         <span class="txt"><span class="name"></span><span class="note"></span></span>
         <span class="meta"><span class="len">${it.t.toFixed(1)}s</span>${it.l ? '<span class="tag">LOOP</span>' : ''}</span>`;
       b.querySelector('.name').textContent = it.n;
-      b.querySelector('.note').textContent = it.d;
-      b.querySelector('.note').style.display = it.d ? 'block' : 'none';
+      const note = b.querySelector('.note');
+      note.textContent = it.d; note.hidden = !it.d;
       b.addEventListener('click', () => toggle(it, b));
-      if (cur === it) curRow = b;
+      if (on) curRow = b;
       box.appendChild(b);
     }
     sec.appendChild(box); list.appendChild(sec);
@@ -144,7 +285,8 @@ function chips(){
   const mk = (k, label, num) => {
     const b = document.createElement('button');
     b.className = 'chip'; b.setAttribute('aria-pressed', k === cat);
-    b.innerHTML = (num != null ? `<b>${num}</b>` : '') ; b.append(label);
+    if (num != null){ const x = document.createElement('b'); x.textContent = num; b.appendChild(x); }
+    b.append(label);
     b.addEventListener('click', () => { cat = k; for (const x of c.children) x.setAttribute('aria-pressed', x === b); render(); window.scrollTo({top:0}); });
     c.appendChild(b);
   };
@@ -152,53 +294,36 @@ function chips(){
   for (const g of DATA) mk(g.k, g.c, g.items.length);
 }
 
-function setIcons(){
-  if (curRow) curRow.querySelector('.icon').innerHTML = audio.paused ? PLAY : PAUSE;
-  $('pp').innerHTML = audio.paused ? PLAY : PAUSE;
-  $('pp').setAttribute('aria-label', audio.paused ? '再生' : '一時停止');
-}
-
-function toggle(it, row){
-  $('pname').classList.remove('msg');
-  if (cur === it){
-    if (audio.paused) audio.play().catch(fail); else audio.pause();
-    return;
-  }
-  if (curRow) { curRow.classList.remove('on'); curRow.querySelector('.icon').innerHTML = PLAY; }
-  cur = it; curRow = row; row.classList.add('on');
-  audio.src = it.f;
-  audio.loop = it.l;
-  $('loop').setAttribute('aria-pressed', it.l);
-  $('pname').textContent = it.n;
-  audio.play().catch(fail);
-}
-
-function fail(e){
-  if (e && e.name === 'AbortError') return;
-  $('pname').textContent = '再生できませんでした。もう一度タップしてください';
-  $('pname').classList.add('msg');
-  setIcons();
-}
-
 audio.addEventListener('play', setIcons);
 audio.addEventListener('pause', setIcons);
 audio.addEventListener('ended', setIcons);
-audio.addEventListener('error', () => fail());
-audio.addEventListener('timeupdate', () => {
-  const d = audio.duration || (cur ? cur.t : 0);
-  $('fill').style.width = (d ? audio.currentTime / d * 100 : 0) + '%';
-  $('ptime').textContent = fmt(audio.currentTime) + ' / ' + fmt(d);
-});
+audio.addEventListener('error', () => { if (mode === 'el' && audio.getAttribute('src')) fail(); });
+audio.addEventListener('timeupdate', () => { if (mode === 'el') ui(); });
 $('pp').addEventListener('click', () => {
-  if (!cur){ const first = DATA[0].items[0]; const r = document.querySelector('.row'); if (r) toggle(first, r); return; }
-  if (audio.paused) audio.play().catch(fail); else audio.pause();
+  ensureCtx();
+  if (!cur){ const r = document.querySelector('.row'); if (r) r.click(); return; }
+  if (loading) return;
+  if (isPaused()) play(); else pause();
 });
-$('stop').addEventListener('click', () => { audio.pause(); audio.currentTime = 0; setIcons(); });
-$('loop').addEventListener('click', () => { audio.loop = !audio.loop; $('loop').setAttribute('aria-pressed', audio.loop); });
+$('stop').addEventListener('click', () => {
+  if (mode === 'el'){ audio.pause(); audio.currentTime = 0; }
+  else { stopSrc(); pos = 0; }
+  setIcons();
+});
+$('loop').addEventListener('click', () => {
+  const p = mode === 'buf' ? position() : 0;   // read before the flag changes how position wraps
+  loopOn = !loopOn;
+  $('loop').setAttribute('aria-pressed', loopOn);
+  if (mode === 'el') audio.loop = loopOn;
+  else if (playing) startBuf(p);
+});
 const seek = e => {
   const r = $('prog').getBoundingClientRect();
-  const d = audio.duration; if (!d) return;
-  audio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * d;
+  const d = length(); if (!d) return;
+  const p = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * d;
+  if (mode === 'el') audio.currentTime = p;
+  else if (playing) startBuf(p);
+  else { pos = p; ui(); }
 };
 $('prog').addEventListener('pointerdown', seek);
 $('q').addEventListener('input', render);
