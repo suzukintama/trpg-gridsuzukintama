@@ -45,6 +45,18 @@
     },
     cleanName: s => s.trim().replace(/\r\n|[\r\n]/g,' ').slice(0,20).replace(/[\uD800-\uDBFF]$/, ''),
     checkText: s => ({ ok: s.length <= 4000, len: s.length }),
+    // Ruby: ｜base《reading》, a kanji run followed by 《reading》, or <ruby>base<rt>reading</rt></ruby>.
+    // Returns [{t}] for plain text and [{t,r}] for a base with its reading.
+    rubyParts(text){
+      const re=/<ruby>([^<>]{1,40})<rt>([^<>]{1,40})<\/rt><\/ruby>|[｜|]([^｜|《》\n]{1,40})《([^《》\n]{1,40})》|([々〆ヶ㐀-鿿豈-﫿]{1,20})《([^《》\n]{1,40})》/g;
+      const out=[];let last=0,m;text=String(text??'');
+      while((m=re.exec(text))){
+        if(m.index>last)out.push({t:text.slice(last,m.index)});
+        out.push({t:m[1]??m[3]??m[5],r:m[2]??m[4]??m[6]});last=re.lastIndex;
+      }
+      if(last<text.length)out.push({t:text.slice(last)});
+      return out;
+    },
     buildSeed: (paras, by, at) => Object.fromEntries(paras.map((t,i) =>
       ['p'+String(i+1).padStart(4,'0'), {t,o:(i+1)*1000,by,at}]))
   };
@@ -86,6 +98,7 @@ button:active{transform:translateY(1px)}
 .editor{margin:.5em 0;padding:10px;background:var(--panel);border:1px solid var(--accent);border-radius:6px;cursor:default}
 article .editor{margin:.2em -4px}
 .editor textarea{background:var(--bg);min-height:4.2em;display:block}
+.editor>div.hint{margin:6px 0 0}rt{font-size:.5em;font-family:"BIZ UDPGothic","Yu Gothic UI","Hiragino Sans",Meiryo,sans-serif;color:var(--muted);user-select:none}
 .editor>div:not(.actions):not(:empty){font:13px/1.6 "BIZ UDPGothic","Yu Gothic UI",Meiryo,sans-serif;color:var(--muted);margin-bottom:8px}
 .editor>div strong{display:block;margin-top:6px;color:var(--ink)}
 .editor>div .prose{border-left:2px solid var(--line);padding-left:10px;color:var(--ink)}
@@ -147,6 +160,15 @@ function applyPrefs(){
   resize();
 }
 function el(tag,text,cls){const e=document.createElement(tag); if(text!=null)e.textContent=text;if(cls)e.className=cls;return e;}
+// Paragraph text goes in as text nodes and <ruby> elements only; nothing is parsed as HTML.
+function fillProse(node,text){
+  node.replaceChildren(...core.rubyParts(text).map(p=>{
+    if(!p.r)return document.createTextNode(p.t);
+    const r=el('ruby',p.t);r.append(el('rt',p.r));return r;
+  }));
+  return node;
+}
+const prose=text=>fillProse(el('div',null,'prose'),text);
 function btn(label,fn,act,cls){const b=el('button',label,cls);if(act)b.dataset.act=act;b.onclick=fn;return b;}
 function hideToast(){clearTimeout(toastTimer);$('#toast').hidden=true;}
 function toast(msg,undo){
@@ -289,12 +311,12 @@ function receive(s,snap){
     const next=state.paras[state.paras.findIndex(v=>v.id===id)+1];
     rows.insertBefore(node,next?s.nodes.get(next.id):null);
   }
-  node.querySelector('.prose').textContent=p.t;node.classList.toggle('deleted',!!p.del);
+  fillProse(node.querySelector('.prose'),p.t);node.classList.toggle('deleted',!!p.del);
   visibility(id);showActions(id);badges(id);
   if(!s.ready || s.local===id || (old && old.t===p.t && old.by===p.by && !!old.del===!!p.del))return;
   flash(s,id,p.by+(!old?'が書き足した':p.del?'が消した':old.del?'が戻した':'が書き換えた'));
   if(editor?.kind==='edit' && editor.pid===id){
-    editor.remote.replaceChildren(el('div','書いているあいだに、'+p.by+'がこの段落を書き換えた。このまま送ると自分の文が残り、'+p.by+'の文は履歴に入る。'),el('strong',p.by+'の文'),el('div',p.t,'prose'));
+    editor.remote.replaceChildren(el('div','書いているあいだに、'+p.by+'がこの段落を書き換えた。このまま送ると自分の文が残り、'+p.by+'の文は履歴に入る。'),el('strong',p.by+'の文'),prose(p.t));
   }
 }
 function resize(){if(editor){const t=editor.input;t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';}}
@@ -315,7 +337,7 @@ function start(id,kind){
   select(null);const node=session.nodes.get(id);showActions(id);
   if(kind==='edit'){node.querySelector('.prose').hidden=true;node.append(box);}
   else if(node)node.after(box);else rows.prepend(box);
-  box.append(peer,remote,input,actions);actions.append(count,warn,send,cancel);input.value=initial;
+  box.append(peer,remote,input,el('div','ルビは「｜漢字《かんじ》」と書く。','hint'),actions);actions.append(count,warn,send,cancel);input.value=initial;
   input.oninput=()=>{const {len,ok}=core.checkText(input.value);count.textContent=len.toLocaleString('en-US')+' / 4,000字';
     warn.textContent=ok?'':'4,000字を超えている。段落を分ける。';send.disabled=!ok || !!editor.busy;resize();};
   input.onkeydown=e=>{if(!e.isComposing && e.key==='Enter' && (e.ctrlKey||e.metaKey)){e.preventDefault();if(!send.disabled)submit();}};
@@ -365,13 +387,13 @@ async function save(id,kind,text,anchor){
 }
 async function historyPanel(id){
   const s=session;openPanel('この段落の履歴','sheet');const version=panelVersion;
-  panel.append(el('strong','いまの文'),el('div',s.data[id].t,'prose'));
+  panel.append(el('strong','いまの文'),prose(s.data[id].t));
   try{
     const snap=await s.ref.child('hist/'+id).get();if(version!==panelVersion)return;
     const entries=Object.entries(snap.val()||{}).reverse().sort((a,b)=>b[1].at-a[1].at);
     if(!entries.length)panel.append(el('p','まだ書き換えられていない。'));
     for(const [,v] of entries){
-      const entry=el('section',null,'entry');entry.append(el('div',v.by+'　'+core.fmtTime(v.at),'meta'),el('div',v.t,'prose'),
+      const entry=el('section',null,'entry');entry.append(el('div',v.by+'　'+core.fmtTime(v.at),'meta'),prose(v.t),
         btn('この文に戻す',()=>named(async()=>{if(await save(id,'restore',v.t))closePanel();}),'restore'));panel.append(entry);
     }
   }catch{if(version===panelVersion)error();}
