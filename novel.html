@@ -238,7 +238,7 @@ db.ref('.info/connected').on('value',snap=>{
 function visibility(id){
   const node=session.nodes.get(id);node.hidden=!!session.data[id].del && getPref('showdel')!=='1' && editor?.pid!==id;
 }
-function others(id){return state.pres.filter(p=>p.id!==cid && p.p===id).map(p=>p.n||'名前のない人');}
+function others(id){return state.pres.filter(p=>p.id!==cid && p.p===id).map(p=>p.n||'観覧者');}
 function badges(id){
   const node=session.nodes.get(id);if(!node)return;
   const p=session.data[id], texts=others(id).map(n=>n+'が書いている');
@@ -467,7 +467,7 @@ function route(id){
   ref.child('paras').once('value').then(()=>s.ready=true,error);
   listen('pres','value',snap=>{
     const previous=state.pres;state.pres=Object.entries(snap.val()||{}).map(([id,v])=>({...v,id}));
-    const names=state.pres.filter(p=>p.id!==cid).map(p=>p.n||'名前のない人');
+    const names=state.pres.filter(p=>p.id!==cid).map(p=>p.n||'観覧者');
     $('#people').textContent=names.length?'いま開いている人：'+names.join('、'):'いま開いているのは自分だけ';
     for(const pid of new Set([...previous,...state.pres].map(v=>v.p).filter(Boolean)))badges(pid);peers();
   });
