@@ -142,7 +142,7 @@ function applyPrefs(){
   $('#theme').textContent=light?'暗く':'明るく';
   $('#gm').hidden=state.role!=='gm';
   document.documentElement.style.setProperty('--size',({s:'16px',l:'21px'})[getPref('size')]||'18px');
-  $('#name').textContent=username?'名前：'+username:'名前を入れる';
+  $('#name').textContent=username?'名前：'+username:'編集する';
   if(session) for(const id of session.nodes.keys()) visibility(id);
   resize();
 }
@@ -188,7 +188,7 @@ function docUpdate(s,changes){
   return gmUpdate(Object.fromEntries(Object.entries(changes).map(([path,v])=>['docs/'+s.ref.key+'/'+path,v])));
 }
 function namePanel(next){
-  openPanel('名前を入れる');
+  openPanel('編集する');
   const version=panelVersion,form=el('form'),input=el('input'),message=el('p');input.placeholder='登録されている名前';input.maxLength=20;input.value=gmKey?'':username;
   const send=el('button','これで始める','primary'),cancel=btn('やめる',closePanel);cancel.type='button';
   input.oninput=()=>send.disabled=!core.cleanName(input.value);input.oninput();
