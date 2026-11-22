@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>卓の小説</title>
+<script id="novel-core">
+(() => {
+  function splitNovelMd(md) {
+    const lines = md.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').split('\n');
+    const title = lines.shift().replace(/^# /, '').replace(/^試し書き：/, '').trim();
+    const first = lines.indexOf('---'), last = lines.lastIndexOf('---');
+    const body = lines.slice(first + 1, last > first ? last : undefined);
+    const memo = body.findIndex(line => /^## 書いた人のメモ(?:\s|$)/.test(line));
+    const paras = [];
+    let chunk = '';
+    function flush() { if (chunk) paras.push(chunk); chunk = ''; }
+    for (let line of body.slice(0, memo < 0 ? undefined : memo)) {
+      if (!line.trim()) { flush(); continue; }
+      if (chunk.length + line.length + 1 > 4000) flush();
+      while (line.length > 4000) {
+        const cut = /[\uD800-\uDBFF]/.test(line[3999]) ? 3999 : 4000;
+        paras.push(line.slice(0, cut));
+        line = line.slice(cut);
+      }
+      chunk += (chunk ? '\n' : '') + line;
+    }
+    flush();
+    return { title, paras };
+  }
+  function orderBetween(prev, next) {
+    if (prev == null) return next == null ? 1000 : next - 1000;
+    return next == null ? prev + 1000 : prev / 2 + next / 2;
+  }
+  function sortParas(obj) {
+    return Object.entries(obj).map(([id, p]) => ({ ...p, id, del: !!p.del }))
+      .sort((a,b) => a.o - b.o || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  }
+  function fmtTime(ms) {
+    const d = new Date(ms), pad = n => String(n).padStart(2,'0');
+    return (d.getMonth()+1)+'月'+d.getDate()+'日 '+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+  globalThis.NovelCore = {
+    splitNovelMd, orderBetween, sortParas, fmtTime,
+    cleanName: s => s.trim().replace(/\r\n|[\r\n]/g,' ').slice(0,20).replace(/[\uD800-\uDBFF]$/, ''),
+    checkText: s => ({ ok: s.length <= 4000, len: s.length }),
+    buildSeed: (paras, by, at) => Object.fromEntries(paras.map((t,i) =>
+      ['p'+String(i+1).padStart(4,'0'), {t,o:(i+1)*1000,by,at}]))
+  };
+})();
+</script>
+<style>
+:root{--bg:#17181b;--panel:#222428;--ink:#e6e3dc;--muted:#9a9aa2;--line:#ffffff24;--accent:#05d9e8;--on:#04191b;--warn:#ff2a6d;--flash:#05d9e826;--size:18px;color-scheme:dark}
+:root.light{--bg:#f4f1ea;--panel:#fff;--ink:#1d2128;--muted:#5b6470;--line:#1d212833;--accent:#006b76;--on:#fff;--warn:#a40042;--flash:#006b7626;color-scheme:light}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "BIZ UDPGothic","Yu Gothic UI","Hiragino Sans",Meiryo,sans-serif}header{position:sticky;top:0;z-index:2;background:var(--panel);border-bottom:1px solid var(--line)}
+nav,.bar{max-width:62rem;margin:auto;padding:6px 12px}nav,.actions{display:flex;align-items:center;gap:6px}.actions{flex-wrap:wrap}nav strong{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}nav button{max-width:32vw;overflow-wrap:anywhere}
+button,input,textarea{font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:6px}button{min-height:44px;padding:5px 12px;cursor:pointer}button:disabled{opacity:.5}.primary,button[aria-pressed=true]{background:var(--accent);color:var(--on)}.primary{padding-inline:20px}.quiet,.meta{color:var(--muted);font-size:13px}.warn{color:var(--warn)}main{font-size:var(--size);max-width:40em;margin:2rem auto 30vh;padding:0 14px}h1{font:600 1.65em/1.4 inherit;font-family:serif;overflow-wrap:anywhere}article{margin-block:8px;padding:10px 12px;border-left:2px solid transparent;border-radius:3px}
+article.selected{background:var(--panel);border-color:var(--accent)}article.deleted .prose{color:var(--muted)}.prose,textarea{white-space:pre-wrap;overflow-wrap:anywhere;font:var(--size)/1.9 "Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif}.prose{min-height:1em}.badges{text-align:right;color:var(--accent);font-size:13px}.flash{animation:arrived 1.2s ease-out}@keyframes arrived{from{background:var(--flash)}}@media(prefers-reduced-motion:reduce){.flash{animation:none}}
+textarea{width:100%;padding:10px;overflow:hidden;resize:none}.editor{margin:8px 0}.editor .actions,article .actions{margin-top:8px;font-size:15px}dialog{width:min(92vw,28rem);max-height:85dvh;overflow:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:20px}dialog button{min-height:36px}dialog::backdrop{background:#0007}dialog.sheet{margin:auto auto 0;width:min(100%,48rem);animation:rise .18s ease-out}@keyframes rise{from{transform:translateY(12%)}}.close{float:right}.entry{border-top:1px solid var(--line);padding:12px 0}#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--panel);padding:8px 16px;border:1px solid var(--line);border-radius:6px;z-index:3}input{min-height:36px;padding:4px 8px}input[type=checkbox]{vertical-align:middle}.catalog{display:grid;gap:8px}.catalog button{text-align:left}
+
+/* Finish pass (Fable): reading rhythm, phone layout, feedback */
+[hidden]{display:none!important}
+html{scroll-padding-top:110px}
+header{backdrop-filter:blur(12px);background:color-mix(in srgb,var(--panel) 92%,transparent)}
+nav{gap:8px}nav strong{font-size:14px;font-weight:600}nav button{min-height:40px;padding:4px 10px;font-size:13px;background:transparent}
+#name{color:var(--accent);border-color:transparent;max-width:38vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#people{padding-top:0;font-size:12px}
+main{margin-top:1.2rem}
+h1{margin:.2em 0 .3em;letter-spacing:.04em;font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif}
+#intro{font:13px/1.6 "BIZ UDPGothic","Yu Gothic UI","Hiragino Sans",Meiryo,sans-serif;color:var(--muted);margin:0 0 1.2rem}
+[data-act=top]{min-height:36px;font-size:13px;border-style:dashed;background:transparent;margin-bottom:.6rem}
+article{margin:0 -12px;padding:.32em 12px;border-left:3px solid transparent;border-radius:4px;cursor:pointer;transition:background .12s;-webkit-tap-highlight-color:transparent}
+@media(hover:hover){article:hover{background:color-mix(in srgb,var(--panel) 55%,transparent)}}
+article:focus-visible,button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+article.selected{background:var(--panel);border-color:var(--accent);padding-block:.6em;margin-block:.3em}
+article.deleted .prose{text-decoration:line-through;text-decoration-color:var(--line)}
+.badges{font:12px/1.5 "BIZ UDPGothic","Yu Gothic UI",Meiryo,sans-serif}.badges:empty{display:none}
+article .actions,.editor .actions{font:14px/1.4 "BIZ UDPGothic","Yu Gothic UI","Hiragino Sans",Meiryo,sans-serif;gap:8px;margin-top:10px;cursor:default}
+article .actions:empty{display:none}
+article .actions button{min-height:44px}article .actions .primary{flex:1 1 100%;font-weight:700}
+article .actions button:not(.primary){flex:1 1 auto;background:transparent}
+article .actions .quiet{flex:0 0 auto;border-color:transparent}
+button:active{transform:translateY(1px)}
+.primary{border-color:var(--accent);font-weight:700}
+.editor{margin:.5em 0;padding:10px;background:var(--panel);border:1px solid var(--accent);border-radius:6px;cursor:default}
+article .editor{margin:.2em -4px}
+.editor textarea{background:var(--bg);min-height:4.2em;display:block}
+.editor>div:not(.actions):not(:empty){font:13px/1.6 "BIZ UDPGothic","Yu Gothic UI",Meiryo,sans-serif;color:var(--muted);margin-bottom:8px}
+.editor>div strong{display:block;margin-top:6px;color:var(--ink)}
+.editor>div .prose{border-left:2px solid var(--line);padding-left:10px;color:var(--ink)}
+.editor .actions .meta{flex:1 1 auto}.editor .actions .warn{flex:1 1 100%;font-size:13px;order:-1}.editor .actions .warn:empty{display:none}
+dialog h2{font-size:16px;margin:0 0 12px}dialog p{margin:10px 0 6px;font-size:13px;color:var(--muted)}
+dialog button{min-height:40px;margin:0 6px 6px 0}dialog .close{min-height:36px;width:36px;padding:0;border-color:transparent;background:transparent;font-size:18px;margin:-8px -8px 0 0}
+dialog form{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}dialog form input{flex:1 1 100%;min-height:44px;font-size:16px;background:var(--bg)}dialog form button{min-height:44px;margin:0}
+dialog label{display:flex;align-items:center;gap:8px;min-height:44px;margin-top:8px;font-size:14px}dialog input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+dialog.sheet{max-height:78dvh;border-radius:14px 14px 0 0;border-bottom:0;padding-bottom:28px}
+dialog.sheet .prose{font-size:16px;line-height:1.8}dialog.sheet>strong{font-size:12px;color:var(--accent)}
+.entry .meta{margin-bottom:4px}.entry button{margin-top:8px}
+#toast{bottom:max(16px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px;max-width:92vw;font-size:14px;box-shadow:0 6px 24px #0006;border-color:var(--accent)}
+#toast button{min-height:36px;color:var(--accent);background:transparent}
+.catalog button{min-height:56px;padding:12px 16px;font:600 17px/1.5 "Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif}
+@media(min-width:700px){article .actions .primary{flex:0 0 auto}article .actions button:not(.primary){flex:0 0 auto}}
+</style>
+<script>
+const NOVEL_FB = {apiKey:'AIzaSyDHn3wNCuO162prkelaeKYu4OBzf5bS0dU',authDomain:'rosf-relmap.firebaseapp.com',projectId:'rosf-relmap',databaseURL:'https://rosf-relmap-default-rtdb.firebaseio.com',appId:'1:550841104063:web:e964dc3cd132f2e213b80a'};
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head><body>
+<header><nav><button id="back" hidden>一覧</button><strong id="heading">卓の小説</strong><button id="name"></button><button id="display">表示</button></nav>
+<div class="bar meta" id="people" hidden></div><div class="bar warn" id="offline" hidden>つながっていない。送った文は、つながったときに届く。</div></header>
+<main><h1 id="title">卓の小説</h1><p id="intro">読み込んでいる……</p><button class="quiet" data-act="top" hidden>いちばん上に書き足す</button><section id="rows"></section></main>
+<dialog id="panel"></dialog><aside id="toast" role="status" hidden></aside>
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const core = NovelCore, rows = $('#rows'), panel = $('#panel');
+const state = {nid:null,paras:[],pres:[],connected:false};
+window.__novel = {state,core};
+const cid = Array.from(crypto.getRandomValues(new Uint8Array(6)), n=>n.toString(16).padStart(2,'0')).join('');
+const emu = new URLSearchParams(location.search).get('emu');
+const local = ['localhost','127.0.0.1'].includes(location.hostname);
+if (emu !== null && (!local || !/^\d+$/.test(emu) || +emu<1 || +emu>65535)) throw Error('Invalid emulator URL');
+firebase.initializeApp(emu ? {projectId:'demo-novel',databaseURL:'http://127.0.0.1:'+emu+'?ns=demo-novel'} : NOVEL_FB);
+const db = firebase.database();
+if(emu) db.useEmulator('127.0.0.1',Number(emu));
+const stamp = firebase.database.ServerValue.TIMESTAMP;
+let username=core.cleanName(localStorage.getItem('novel-name')||''), index={}, session=null, selected=null, editor=null;
+let toastTimer, grace=true, panelVersion=0;
+const getPref=k=>localStorage.getItem('novel-'+k);
+function pref(k,v){localStorage.setItem('novel-'+k,v); applyPrefs();}
+function applyPrefs(){
+  document.documentElement.classList.toggle('light',getPref('bg')==='light');
+  document.documentElement.style.setProperty('--size',({s:'16px',l:'21px'})[getPref('size')]||'18px');
+  $('#name').textContent=username?'名前：'+username:'名前を入れる';
+  if(session) for(const id of session.nodes.keys()) visibility(id);
+  resize();
+}
+function el(tag,text,cls){const e=document.createElement(tag); if(text!=null)e.textContent=text;if(cls)e.className=cls;return e;}
+function btn(label,fn,act,cls){const b=el('button',label,cls);if(act)b.dataset.act=act;b.onclick=fn;return b;}
+function hideToast(){clearTimeout(toastTimer);$('#toast').hidden=true;}
+function toast(msg,undo){
+  hideToast();const box=$('#toast');box.replaceChildren(msg);box.hidden=false;
+  if(undo)box.append(btn('戻す',undo,'undel'));toastTimer=setTimeout(hideToast,undo?6000:3000);
+}
+function error(){toast('送れなかった。もう一度押す。');}
+function closePanel(){panelVersion++;if(panel.open) panel.close();}
+function openPanel(title,cls=''){
+  closePanel();panel.className=cls;panel.replaceChildren();
+  const x=btn('×',closePanel,null,'close');x.setAttribute('aria-label','閉じる');
+  panel.append(x,el('h2',title));panel.showModal();
+}
+panel.onclick=e=>{if(e.target===panel){const r=panel.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closePanel();}};
+panel.oncancel=e=>{e.preventDefault();closePanel();};
+function namePanel(next){
+  openPanel('名前を入れる');
+  const form=el('form'),input=el('input');input.placeholder='名前（20字まで）';input.maxLength=20;input.value=username;
+  const send=el('button','これで始める','primary'),cancel=btn('やめる',closePanel);cancel.type='button';
+  input.oninput=()=>send.disabled=!core.cleanName(input.value);input.oninput();
+  form.append(input,send,cancel);panel.append(el('p','書き換えた段落と履歴に、この名前が付く。あとから変えられる。'),form);
+  form.onsubmit=e=>{e.preventDefault();const n=core.cleanName(input.value);if(!n)return;
+    username=n;pref('name',n);presence();closePanel();next?.();};input.focus();
+}
+function named(fn){if(username)fn();else namePanel(fn);}
+$('#name').onclick=()=>namePanel();
+$('#display').onclick=()=>{
+  if(panel.open){closePanel();return;}openPanel('表示');
+  for(const [label,key,def,options] of [['字の大きさ','size','m',[['s','小'],['m','中'],['l','大']]],['地の色','bg','dark',[['dark','暗い'],['light','明るい']]]]){
+    const group=el('div');panel.append(el('p',label),group);
+    for(const [value,text] of options){
+      const b=btn(text,()=>{pref(key,value);for(const other of group.children)other.setAttribute('aria-pressed',String(other===b));});
+      b.setAttribute('aria-pressed',String(value===(getPref(key)||def)));group.append(b);
+    }
+  }
+  const label=el('label'),check=el('input');check.type='checkbox';check.checked=getPref('showdel')==='1';
+  check.onchange=()=>pref('showdel',check.checked?'1':'0');label.append(check,'消した段落も出す');panel.append(label);
+};
+function editingPid(){return editor?.pid||'';}
+function presence(){
+  if(session && state.connected && session.armed)session.me.set({n:username,p:editingPid(),at:stamp}).catch(error);
+}
+async function arm(s){
+  s.armed=false;
+  try{await s.me.onDisconnect().remove();if(session===s && state.connected){s.armed=true;presence();}}catch{if(session===s)error();}
+}
+function connection(){ $('#offline').hidden=state.connected || grace; }
+setTimeout(()=>{grace=false;connection();},3000);
+db.ref('.info/connected').on('value',snap=>{
+  state.connected=snap.val()===true;connection();
+  if(session){session.armed=false;if(state.connected)arm(session);}
+});
+function visibility(id){
+  const node=session.nodes.get(id);node.hidden=!!session.data[id].del && getPref('showdel')!=='1' && editor?.pid!==id;
+}
+function others(id){return state.pres.filter(p=>p.id!==cid && p.p===id).map(p=>p.n||'名前のない人');}
+function badges(id){
+  const node=session.nodes.get(id);if(!node)return;
+  const p=session.data[id], texts=others(id).map(n=>n+'が書いている');
+  if(p.del)texts.push('消した段落（'+p.by+'）');
+  if(session.flashes.has(id))texts.push(session.flashes.get(id).text);
+  node.querySelector('.badges').textContent=texts.join('　');
+}
+function flash(s,id,text){
+  clearTimeout(s.flashes.get(id)?.timer);
+  const node=s.nodes.get(id);node.classList.remove('flash');void node.offsetWidth;node.classList.add('flash');
+  const timer=setTimeout(()=>{s.flashes.delete(id);if(session===s)badges(id);},4000);
+  s.flashes.set(id,{text,timer});badges(id);
+}
+function showActions(id){
+  const node=session?.nodes.get(id);if(!node)return;
+  const p=session.data[id],a=node.querySelector('.actions');a.replaceChildren();
+  node.classList.toggle('selected',selected===id);
+  if(editor)return;
+  if(p.del){a.append(btn('戻す',()=>named(()=>save(id,'undel')),'undel'));return;}
+  if(selected!==id)return;
+  a.append(btn('書き換える',()=>named(()=>start(id,'edit')),'edit','primary'),
+    btn('この下に書き足す',()=>named(()=>start(id,'add')),'add'),btn('履歴',()=>historyPanel(id),'hist'),
+    btn('消す',()=>named(()=>save(id,'del')),'del','quiet'));
+}
+function select(id){
+  const old=selected;selected=id;showActions(old);showActions(id);
+}
+function receive(s,snap){
+  if(s!==session)return;
+  const id=snap.key,p=snap.val(),old=s.data[id];s.data[id]=p;
+  let node=s.nodes.get(id);
+  if(!node){
+    node=el('article');node.dataset.pid=id;node.tabIndex=0;
+    node.append(el('div','','badges'),el('div','','prose'),el('div','','actions'));
+    const choose=()=>{if(!editor && !getSelection()?.toString())select(selected===id?null:id);};
+    node.onclick=e=>{if(!e.target.closest('button,.editor'))choose();};
+    node.onkeydown=e=>{if(e.target===node && ['Enter',' '].includes(e.key)){e.preventDefault();choose();}};
+    s.nodes.set(id,node);
+  }
+  state.paras=core.sortParas(s.data);
+  if(!old){
+    const next=state.paras[state.paras.findIndex(v=>v.id===id)+1];
+    rows.insertBefore(node,next?s.nodes.get(next.id):null);
+  }
+  node.querySelector('.prose').textContent=p.t;node.classList.toggle('deleted',!!p.del);
+  visibility(id);showActions(id);badges(id);
+  if(!s.ready || s.local===id || (old && old.t===p.t && old.by===p.by && !!old.del===!!p.del))return;
+  flash(s,id,p.by+(!old?'が書き足した':p.del?'が消した':old.del?'が戻した':'が書き換えた'));
+  if(editor?.kind==='edit' && editor.pid===id){
+    editor.remote.replaceChildren(el('div','書いているあいだに、'+p.by+'がこの段落を書き換えた。このまま送ると自分の文が残り、'+p.by+'の文は履歴に入る。'),el('strong',p.by+'の文'),el('div',p.t,'prose'));
+  }
+}
+function resize(){if(editor){const t=editor.input;t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';}}
+window.addEventListener('resize',resize);
+function peers(){
+  if(!editor)return;
+  const n=others(editor.pid).join('、');
+  editor.peers.textContent=n?n+'もこの段落を書いている。あとから送ったほうの文が残り、前の文は履歴に入る。':'';
+}
+function start(id,kind){
+  if(editor)return;
+  const pid=kind==='edit'?id:session.ref.child('paras').push().key;
+  const initial=kind==='edit'?session.data[id].t:'';
+  const box=el('div',null,'editor'),input=el('textarea'),count=el('span',null,'meta'),warn=el('span',null,'warn');
+  const send=btn(kind==='edit'?'書き換える':'書き足す',submit,'send','primary'), cancel=btn('やめる',()=>dismiss(),'cancel');
+  const remote=el('div'),peer=el('div'),actions=el('div',null,'actions');
+  editor={pid,anchor:id,kind,initial,input,box,remote,peers:peer,send};
+  select(null);const node=session.nodes.get(id);showActions(id);
+  if(kind==='edit'){node.querySelector('.prose').hidden=true;node.append(box);}
+  else if(node)node.after(box);else rows.prepend(box);
+  box.append(peer,remote,input,actions);actions.append(count,warn,send,cancel);input.value=initial;
+  input.oninput=()=>{const {len,ok}=core.checkText(input.value);count.textContent=len.toLocaleString('en-US')+' / 4,000字';
+    warn.textContent=ok?'':'4,000字を超えている。段落を分ける。';send.disabled=!ok || !!editor.busy;resize();};
+  input.onkeydown=e=>{if(!e.isComposing && e.key==='Enter' && (e.ctrlKey||e.metaKey)){e.preventDefault();if(!send.disabled)submit();}};
+  peers();input.oninput();input.focus();presence();
+}
+function dirty(){return editor && editor.initial!==editor.input.value;}
+function dismiss(force=false){
+  if(!editor)return true;
+  if(!force && (editor.busy || (dirty() && !confirm('書きかけの文を捨てる？'))))return false;
+  const {pid,box}=editor;box.remove();editor=null;
+  const node=session?.nodes.get(pid);if(node){node.querySelector('.prose').hidden=false;visibility(pid);showActions(pid);}
+  presence();return true;
+}
+async function submit(){
+  const e=editor;if(!e || e.busy || !core.checkText(e.input.value).ok)return;
+  const t=e.input.value;
+  if(e.kind==='add' && !t){dismiss(true);return;}
+  e.busy=true;e.send.disabled=true;e.input.readOnly=true;
+  const ok=await save(e.pid,e.kind==='edit'&&!t?'del':e.kind,t,e.anchor);
+  if(editor!==e)return;
+  if(ok)dismiss(true);else{e.busy=false;e.input.readOnly=false;e.input.oninput();}
+}
+async function save(id,kind,text,anchor){
+  const s=session,old=s.data[id],changes={};
+  if(kind!=='add' && !old)return false;
+  if((kind==='edit'||kind==='restore') && !old.del && old.t===text)return true;
+  if(kind==='del' && old.del || kind==='undel' && !old.del)return true;
+  let o=old?.o;
+  if(kind==='add'){
+    const pos=anchor?state.paras.findIndex(p=>p.id===anchor):-1;
+    o=core.orderBetween(state.paras[pos]?.o,state.paras[pos+1]?.o);
+  } else {
+    changes['hist/'+id+'/'+s.ref.child('hist/'+id).push().key]={t:old.t,by:old.by,at:old.at};
+  }
+  const p={t:['undel','del'].includes(kind)?old.t:text,o,by:username,at:stamp};
+  if(kind==='del')p.del=true;
+  changes['paras/'+id]=p;
+  try{
+    s.local=id;
+    const write=s.ref.update(changes);s.local=null;await write;
+    if(s===session){
+      toast(({edit:'書き換えた',add:'書き足した',del:'段落を消した',undel:'段落を戻した',restore:'前の文に戻した'})[kind],
+        kind==='del'?()=>save(id,'undel'):null);
+    }
+    return true;
+  }catch{s.local=null;if(s===session)error();return false;}
+}
+async function historyPanel(id){
+  const s=session;openPanel('この段落の履歴','sheet');const version=panelVersion;
+  panel.append(el('strong','いまの文'),el('div',s.data[id].t,'prose'));
+  try{
+    const snap=await s.ref.child('hist/'+id).get();if(version!==panelVersion)return;
+    const entries=Object.entries(snap.val()||{}).reverse().sort((a,b)=>b[1].at-a[1].at);
+    if(!entries.length)panel.append(el('p','まだ書き換えられていない。'));
+    for(const [,v] of entries){
+      const entry=el('section',null,'entry');entry.append(el('div',v.by+'　'+core.fmtTime(v.at),'meta'),el('div',v.t,'prose'),
+        btn('この文に戻す',()=>named(async()=>{if(await save(id,'restore',v.t))closePanel();}),'restore'));panel.append(entry);
+    }
+  }catch{if(version===panelVersion)error();}
+}
+function leave(){
+  closePanel();hideToast();const s=session;session=null;
+  if(s){for(const [ref,event,cb] of s.listeners)ref.off(event,cb);
+    for(const item of s.flashes.values())clearTimeout(item.timer);
+    s.me.remove().catch(error);}
+  editor=null;selected=null;state.paras=[];state.pres=[];rows.replaceChildren();
+}
+function navigate(id,push=true){
+  if(!dismiss())return false;
+  if(push){const url=new URL(location.href);if(id)url.searchParams.set('n',id);else url.searchParams.delete('n');history.pushState(null,'',url);}
+  route(id);return true;
+}
+function route(id){
+  leave();state.nid=id;const item=id && Object.hasOwn(index,id)?index[id]:null;
+  $('#heading').textContent=$('#title').textContent=item?.title||'卓の小説';
+  $('#back').hidden=!id;$('#people').hidden=!item;$('[data-act=top]').hidden=!item;rows.className='';
+  if(!id){
+    $('#intro').textContent='卓のログから起こした小説。読んだ人が、そのまま書き換えたり書き足したりできる。';
+    rows.className='catalog';for(const [key,v] of Object.entries(index).sort((a,b)=>a[1].order-b[1].order))
+      rows.append(btn(v.title,()=>navigate(key)));
+    if(!rows.childElementCount)rows.append(el('p','まだ小説がない。'));return;
+  }
+  if(!item){$('#intro').textContent='この小説は見つからない。';rows.append(btn('一覧へ',()=>navigate(null)));return;}
+  $('#intro').textContent='段落を押すと、書き換えたり書き足したりできる。';$('#people').textContent='読み込んでいる……';
+  const ref=db.ref('novel/docs/'+id),s={ref,me:ref.child('pres/'+cid),listeners:[],data:Object.create(null),nodes:new Map(),flashes:new Map(),ready:false};
+  session=s;
+  function listen(path,event,cb){const r=ref.child(path);r.on(event,cb,error);s.listeners.push([r,event,cb]);}
+  for(const event of ['child_added','child_changed'])listen('paras',event,snap=>receive(s,snap));
+  // A one-shot barrier on the already subscribed query uses the same SDK listen.
+  ref.child('paras').once('value').then(()=>s.ready=true,error);
+  listen('pres','value',snap=>{
+    const previous=state.pres;state.pres=Object.entries(snap.val()||{}).map(([id,v])=>({...v,id}));
+    const names=state.pres.filter(p=>p.id!==cid).map(p=>p.n||'名前のない人');
+    $('#people').textContent=names.length?'いま開いている人：'+names.join('、'):'いま開いているのは自分だけ';
+    for(const pid of new Set([...previous,...state.pres].map(v=>v.p).filter(Boolean)))badges(pid);peers();
+  });
+  if(state.connected)arm(s);
+}
+$('#back').onclick=()=>navigate(null);
+$('[data-act=top]').onclick=()=>{if(!editor)named(()=>start(null,'add'));};
+document.addEventListener('click',e=>{if(!editor && !e.target.closest('article,dialog,button') && !getSelection()?.toString())select(null);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape' && !panel.open){if(editor)dismiss();else select(null);}});
+window.addEventListener('beforeunload',e=>{if(dirty()){e.preventDefault();e.returnValue='';}});
+window.addEventListener('popstate',()=>{
+  if(!navigate(new URLSearchParams(location.search).get('n'),false)){
+    const url=new URL(location.href);url.searchParams.set('n',state.nid);history.pushState(null,'',url);
+  }
+});
+applyPrefs();
+db.ref('novel/index').get().then(s=>{index=s.val()||{};route(new URLSearchParams(location.search).get('n'));},error);
+</script></body></html>
