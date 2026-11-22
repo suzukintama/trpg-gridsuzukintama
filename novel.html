@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>卓の小説</title>
+<title>ROLLPLAYING OF SCIENCE FICTION</title>
 <script id="novel-core">
 (() => {
   function splitNovelMd(md) {
@@ -39,6 +39,10 @@
   }
   globalThis.NovelCore = {
     splitNovelMd, orderBetween, sortParas, fmtTime,
+    fmtDate(value){
+      const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+      return match ? match[1]+'年'+Number(match[2])+'月'+Number(match[3])+'日' : '';
+    },
     cleanName: s => s.trim().replace(/\r\n|[\r\n]/g,' ').slice(0,20).replace(/[\uD800-\uDBFF]$/, ''),
     checkText: s => ({ ok: s.length <= 4000, len: s.length }),
     buildSeed: (paras, by, at) => Object.fromEntries(paras.map((t,i) =>
@@ -97,6 +101,10 @@ dialog.sheet .prose{font-size:16px;line-height:1.8}dialog.sheet>strong{font-size
 #toast button{min-height:36px;color:var(--accent);background:transparent}
 .catalog button{min-height:56px;padding:12px 16px;font:600 17px/1.5 "Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif}
 @media(min-width:700px){article .actions .primary{flex:0 0 auto}article .actions button:not(.primary){flex:0 0 auto}}
+nav{flex-wrap:wrap}nav strong{min-width:4ch}#title{display:inline;overflow-wrap:anywhere}.catalog small{display:block}
+#title.site{display:block;font-size:22px;line-height:1.4;letter-spacing:.06em;margin-bottom:14px}
+main>[data-act=retitle]{min-height:32px;padding:2px 10px;margin-left:8px;font-size:13px;vertical-align:middle;color:var(--muted)}
+#date{margin:4px 0 6px}
 </style>
 <script>
 const NOVEL_FB = {apiKey:'AIzaSyDHn3wNCuO162prkelaeKYu4OBzf5bS0dU',authDomain:'rosf-relmap.firebaseapp.com',projectId:'rosf-relmap',databaseURL:'https://rosf-relmap-default-rtdb.firebaseio.com',appId:'1:550841104063:web:e964dc3cd132f2e213b80a'};
@@ -104,9 +112,9 @@ const NOVEL_FB = {apiKey:'AIzaSyDHn3wNCuO162prkelaeKYu4OBzf5bS0dU',authDomain:'r
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head><body>
-<header><nav><button id="back" hidden>一覧</button><strong id="heading">卓の小説</strong><button id="name"></button><button id="display">表示</button></nav>
+<header><nav><button id="back" hidden>一覧</button><strong id="heading">ROLLPLAYING OF SCIENCE FICTION</strong><button id="name"></button><button id="gm" hidden>GM</button><button id="theme">明るく</button><button id="display">表示</button></nav>
 <div class="bar meta" id="people" hidden></div><div class="bar warn" id="offline" hidden>つながっていない。送った文は、つながったときに届く。</div></header>
-<main><h1 id="title">卓の小説</h1><p id="intro">読み込んでいる……</p><button class="quiet" data-act="top" hidden>いちばん上に書き足す</button><section id="rows"></section></main>
+<main><h1 id="title">ROLLPLAYING OF SCIENCE FICTION</h1> <button data-act="retitle" hidden>題を変える</button><div id="date" class="meta" hidden></div><p id="intro">読み込んでいる……</p><button class="quiet" data-act="top" hidden>いちばん上に書き足す</button><section id="rows"></section></main>
 <dialog id="panel"></dialog><aside id="toast" role="status" hidden></aside>
 <script>
 'use strict';
@@ -122,12 +130,17 @@ firebase.initializeApp(emu ? {projectId:'demo-novel',databaseURL:'http://127.0.0
 const db = firebase.database();
 if(emu) db.useEmulator('127.0.0.1',Number(emu));
 const stamp = firebase.database.ServerValue.TIMESTAMP;
-let username=core.cleanName(localStorage.getItem('novel-name')||''), index={}, session=null, selected=null, editor=null;
+let username='', gmKey='', index={}, session=null, selected=null, editor=null;
+state.role='';
+const siteTitle=document.title;
 let toastTimer, grace=true, panelVersion=0;
 const getPref=k=>localStorage.getItem('novel-'+k);
 function pref(k,v){localStorage.setItem('novel-'+k,v); applyPrefs();}
 function applyPrefs(){
-  document.documentElement.classList.toggle('light',getPref('bg')==='light');
+  const light=(getPref('bg')||systemBg())==='light';
+  document.documentElement.classList.toggle('light',light);
+  $('#theme').textContent=light?'暗く':'明るく';
+  $('#gm').hidden=state.role!=='gm';
   document.documentElement.style.setProperty('--size',({s:'16px',l:'21px'})[getPref('size')]||'18px');
   $('#name').textContent=username?'名前：'+username:'名前を入れる';
   if(session) for(const id of session.nodes.keys()) visibility(id);
@@ -149,20 +162,53 @@ function openPanel(title,cls=''){
 }
 panel.onclick=e=>{if(e.target===panel){const r=panel.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closePanel();}};
 panel.oncancel=e=>{e.preventDefault();closePanel();};
+const systemBg=()=>matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+$('#theme').onclick=()=>pref('bg',document.documentElement.classList.contains('light')?'dark':'light');
+matchMedia('(prefers-color-scheme: light)').addEventListener('change',applyPrefs);
+const validName=n=>!!n && !/[.#$\[\]\/\u0000-\u001f\u007f]/.test(n);
+async function verify(n){
+  if(!validName(n))return '';
+  if((await db.ref('novel/names/'+n).get()).val()===true)return 'pl';
+  try{await gmUpdate({},n);return 'gm';}catch{return '';}
+}
+function identity(n,role){
+  state.role=role;gmKey=role==='gm'?n:'';
+  username=gmKey?'GM':role?n:'';
+  for(const [key,value] of [['novel-gm',gmKey],['novel-name',role==='pl'?n:'']]){
+    if(value)localStorage.setItem(key,value);else localStorage.removeItem(key);
+  }
+  applyPrefs();if(session)for(const id of session.nodes.keys())showActions(id);
+  presence();
+}
+function gmUpdate(changes,key=gmKey){
+  return db.ref('novel').update({...changes,['gm/'+key+'/stamp']:stamp});
+}
+function docUpdate(s,changes){
+  if(state.role!=='gm')return s.ref.update(changes);
+  return gmUpdate(Object.fromEntries(Object.entries(changes).map(([path,v])=>['docs/'+s.ref.key+'/'+path,v])));
+}
 function namePanel(next){
   openPanel('名前を入れる');
-  const form=el('form'),input=el('input');input.placeholder='名前（20字まで）';input.maxLength=20;input.value=username;
+  const version=panelVersion,form=el('form'),input=el('input'),message=el('p');input.placeholder='登録されている名前';input.maxLength=20;input.value=gmKey?'':username;
   const send=el('button','これで始める','primary'),cancel=btn('やめる',closePanel);cancel.type='button';
   input.oninput=()=>send.disabled=!core.cleanName(input.value);input.oninput();
-  form.append(input,send,cancel);panel.append(el('p','書き換えた段落と履歴に、この名前が付く。あとから変えられる。'),form);
-  form.onsubmit=e=>{e.preventDefault();const n=core.cleanName(input.value);if(!n)return;
-    username=n;pref('name',n);presence();closePanel();next?.();};input.focus();
+  form.append(input,send,cancel);panel.append(el('p','登録されている名前を入れると、書き換えられる。名前は GM が登録する。'),form,message);
+  form.onsubmit=async e=>{
+    e.preventDefault();const n=core.cleanName(input.value);if(!n||send.disabled)return;
+    input.disabled=send.disabled=true;send.textContent='確かめている……';
+    try{
+      const role=await verify(n);if(version!==panelVersion)return;
+      if(role){identity(n,role);closePanel();next?.();return;}
+      message.textContent='その名前は登録されていない。GM に頼む。';
+    }catch{error();}
+    input.disabled=send.disabled=false;send.textContent='これで始める';input.focus();
+  };input.focus();
 }
-function named(fn){if(username)fn();else namePanel(fn);}
-$('#name').onclick=()=>namePanel();
+async function named(fn){await identityReady;if(username)fn();else namePanel(fn);}
+$('#name').onclick=async()=>{await identityReady;namePanel();};
 $('#display').onclick=()=>{
   if(panel.open){closePanel();return;}openPanel('表示');
-  for(const [label,key,def,options] of [['字の大きさ','size','m',[['s','小'],['m','中'],['l','大']]],['地の色','bg','dark',[['dark','暗い'],['light','明るい']]]]){
+  for(const [label,key,def,options] of [['字の大きさ','size','m',[['s','小'],['m','中'],['l','大']]],['地の色','bg',systemBg(),[['dark','暗い'],['light','明るい']]]]){
     const group=el('div');panel.append(el('p',label),group);
     for(const [value,text] of options){
       const b=btn(text,()=>{pref(key,value);for(const other of group.children)other.setAttribute('aria-pressed',String(other===b));});
@@ -174,7 +220,10 @@ $('#display').onclick=()=>{
 };
 function editingPid(){return editor?.pid||'';}
 function presence(){
-  if(session && state.connected && session.armed)session.me.set({n:username,p:editingPid(),at:stamp}).catch(error);
+  if(session && state.connected && session.armed){
+    const value={n:username,p:editingPid(),at:stamp};
+    session.me.set(value).catch(error);
+  }
 }
 async function arm(s){
   s.armed=false;
@@ -208,7 +257,13 @@ function showActions(id){
   const p=session.data[id],a=node.querySelector('.actions');a.replaceChildren();
   node.classList.toggle('selected',selected===id);
   if(editor)return;
-  if(p.del){a.append(btn('戻す',()=>named(()=>save(id,'undel')),'undel'));return;}
+  if(p.del){
+    a.append(btn('戻す',()=>named(()=>save(id,'undel')),'undel'));
+    if(state.role==='gm')a.append(btn('完全に消す',async()=>{
+      if(!confirm('履歴ごと消える。戻せない。消す？'))return;
+      try{await docUpdate(session,{['paras/'+id]:null,['hist/'+id]:null});toast('完全に消した');}catch{error();}
+    },'purge'));return;
+  }
   if(selected!==id)return;
   a.append(btn('書き換える',()=>named(()=>start(id,'edit')),'edit','primary'),
     btn('この下に書き足す',()=>named(()=>start(id,'add')),'add'),btn('履歴',()=>historyPanel(id),'hist'),
@@ -300,7 +355,7 @@ async function save(id,kind,text,anchor){
   changes['paras/'+id]=p;
   try{
     s.local=id;
-    const write=s.ref.update(changes);s.local=null;await write;
+    const write=docUpdate(s,changes);s.local=null;await write;
     if(s===session){
       toast(({edit:'書き換えた',add:'書き足した',del:'段落を消した',undel:'段落を戻した',restore:'前の文に戻した'})[kind],
         kind==='del'?()=>save(id,'undel'):null);
@@ -333,22 +388,81 @@ function navigate(id,push=true){
   if(push){const url=new URL(location.href);if(id)url.searchParams.set('n',id);else url.searchParams.delete('n');history.pushState(null,'',url);}
   route(id);return true;
 }
+async function gmPanel(){
+  openPanel('GM の操作');const version=panelVersion;
+  panel.append(el('h3','書ける人の名前'));
+  const list=el('div'),input=el('input');panel.append(list,input);
+  input.placeholder='PL の名前（20字まで）';input.maxLength=20;
+  async function change(n,value){
+    try{
+      await gmUpdate({['names/'+n]:value,['gm/'+gmKey+'/names/'+n]:value});
+      if(version===panelVersion){toast(value?'登録した':'外した');gmPanel();}
+    }catch{error();}
+  }
+  const add=btn('登録する',()=>change(core.cleanName(input.value),true));
+  input.oninput=()=>{const n=core.cleanName(input.value);add.disabled=!validName(n)||n==='GM'||n===gmKey;};
+  input.oninput();panel.append(add);if(!state.nid)panel.append(btn('小説を足す',()=>titlePanel(true)));
+  try{
+    const names=(await db.ref('novel/gm/'+gmKey+'/names').get()).val()||{};
+    if(version!==panelVersion)return;
+    if(!Object.keys(names).length)list.append(el('p','まだ誰も登録されていない。'));
+    for(const n of Object.keys(names)){
+      const row=el('div',n);row.append(btn('外す',()=>change(n,null)));list.append(row);
+    }
+  }catch{error();}
+}
+$('#gm').onclick=gmPanel;
+function titlePanel(create){
+  const id=state.nid,item=index[id],isGM=state.role==='gm';
+  openPanel(create?'小説を足す':'題を変える');
+  const form=el('form'),title=el('input'),date=el('input');
+  function field(label,input){const wrap=el('label',label);wrap.append(input);form.append(wrap);}
+  title.maxLength=60;title.required=true;title.value=item?.title||'';field('題（60字まで）',title);
+  if(isGM){date.type='date';date.value=item?.date||'';field('卓の日付',date);}
+  const send=el('button',create?'足す':'変える','primary');form.append(send);panel.append(form);title.focus();
+  form.onsubmit=async e=>{
+    e.preventDefault();if(send.disabled||!title.value.trim())return;send.disabled=true;
+    const key=create?'n'+Date.now().toString(36):id;
+    const record=create?{order:Object.keys(index).length?Math.max(...Object.values(index).map(v=>v.order))+1:1}:{...index[id]};
+    record.title=title.value.trim();record.by=username;
+    if(isGM){if(date.value)record.date=date.value;else delete record.date;}
+    try{
+      if(isGM)await gmUpdate({['index/'+key]:record});else await db.ref('novel/index/'+key).set(record);
+      closePanel();toast(create?'小説を足した':'題を変えた');
+    }catch{error();send.disabled=false;}
+  };
+}
+$('[data-act=retitle]').onclick=()=>named(()=>titlePanel(false));
+function metadata(item){
+  $('#heading').textContent=$('#title').textContent=item?.title||siteTitle;
+  $('#date').textContent=core.fmtDate(item?.date);$('#date').hidden=!$('#date').textContent;
+  $('[data-act=retitle]').hidden=!item;$('#title').classList.toggle('site',!item);
+}
+function catalog(){
+  rows.replaceChildren();rows.className='catalog';
+  for(const [key,v] of Object.entries(index).sort((a,b)=>a[1].order-b[1].order)){
+    const b=btn(v.title,()=>navigate(key)),date=core.fmtDate(v.date);
+    if(date)b.append(el('small',date,'meta'));rows.append(b);
+  }
+  if(!rows.childElementCount)rows.append(el('p','まだ小説がない。'));
+}
 function route(id){
   leave();state.nid=id;const item=id && Object.hasOwn(index,id)?index[id]:null;
-  $('#heading').textContent=$('#title').textContent=item?.title||'卓の小説';
+  metadata(item);$('#intro').hidden=!id;
   $('#back').hidden=!id;$('#people').hidden=!item;$('[data-act=top]').hidden=!item;rows.className='';
-  if(!id){
-    $('#intro').textContent='卓のログから起こした小説。読んだ人が、そのまま書き換えたり書き足したりできる。';
-    rows.className='catalog';for(const [key,v] of Object.entries(index).sort((a,b)=>a[1].order-b[1].order))
-      rows.append(btn(v.title,()=>navigate(key)));
-    if(!rows.childElementCount)rows.append(el('p','まだ小説がない。'));return;
-  }
+  if(!id){catalog();return;}
   if(!item){$('#intro').textContent='この小説は見つからない。';rows.append(btn('一覧へ',()=>navigate(null)));return;}
   $('#intro').textContent='段落を押すと、書き換えたり書き足したりできる。';$('#people').textContent='読み込んでいる……';
   const ref=db.ref('novel/docs/'+id),s={ref,me:ref.child('pres/'+cid),listeners:[],data:Object.create(null),nodes:new Map(),flashes:new Map(),ready:false};
   session=s;
   function listen(path,event,cb){const r=ref.child(path);r.on(event,cb,error);s.listeners.push([r,event,cb]);}
   for(const event of ['child_added','child_changed'])listen('paras',event,snap=>receive(s,snap));
+  listen('paras','child_removed',snap=>{
+    const id=snap.key;if(session!==s)return;
+    if(editor?.pid===id||editor?.anchor===id)dismiss(true);
+    if(selected===id)selected=null;
+    s.nodes.get(id)?.remove();s.nodes.delete(id);delete s.data[id];state.paras=core.sortParas(s.data);
+  });
   // A one-shot barrier on the already subscribed query uses the same SDK listen.
   ref.child('paras').once('value').then(()=>s.ready=true,error);
   listen('pres','value',snap=>{
@@ -370,5 +484,15 @@ window.addEventListener('popstate',()=>{
   }
 });
 applyPrefs();
-db.ref('novel/index').get().then(s=>{index=s.val()||{};route(new URLSearchParams(location.search).get('n'));},error);
+const identityReady=(async()=>{
+  const n=core.cleanName(getPref('gm')||getPref('name')||'');
+  if(n){try{identity(n,await verify(n));}catch{identity('','');}}
+})();
+let routed=false;
+db.ref('novel/index').on('value',snap=>{
+  index=snap.val()||{};
+  const id=new URLSearchParams(location.search).get('n');
+  if(!routed||id!==state.nid||!!session!==!!(id&&index[id])){routed=true;route(id);}
+  else if(id)metadata(index[id]);else catalog();
+},error);
 </script></body></html>
